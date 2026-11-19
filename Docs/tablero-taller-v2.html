@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tablero de trabajos en marcha</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+:root{--bg:#e9edf0;--surface:#fff;--ink:#16212a;--mute:#5a6772;--line:#cfd7dd;--head:#13202b;--yel:#f2b705;--accent:#1f5f8b;--ok:#2e7d52;--warn:#b7791f;--bad:#c0392b;--done:#6b7780;--track:#dde3e8;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1418;--surface:#1a2229;--ink:#e8edf0;--mute:#93a1aa;--line:#2c373e;--head:#0a0f13;--accent:#5aa8d8;--ok:#4fbf82;--warn:#e0a63a;--bad:#ee6a5a;--done:#8997a0;--track:#2a343b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1418;--surface:#1a2229;--ink:#e8edf0;--mute:#93a1aa;--line:#2c373e;--head:#0a0f13;--accent:#5aa8d8;--ok:#4fbf82;--warn:#e0a63a;--bad:#ee6a5a;--done:#8997a0;--track:#2a343b;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 Barlow,system-ui,sans-serif}
+.hz{height:10px;background:repeating-linear-gradient(-45deg,var(--yel) 0 14px,#1b1b1b 14px 28px)}
+header{background:var(--head);color:#fff;padding:22px 16px 20px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+header .wrap{padding:0}
+h1{font:700 40px/1 "Barlow Condensed",Barlow,sans-serif;margin:0 0 6px;letter-spacing:.5px}
+h2{font:700 22px/1.1 "Barlow Condensed",Barlow,sans-serif;margin:26px 0 10px}
+.sub{margin:0;color:#b9c5cd}
+#st{display:inline-block;margin-top:10px;font-size:14px;padding:2px 10px;border:1px solid #4a5a66;color:#dfe7ec}
+details{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--yel);padding:10px 14px;margin-top:18px}
+summary{cursor:pointer;font-weight:600}
+.leg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 18px;margin:10px 0 2px;color:var(--mute);font-size:15px}
+.leg b{color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--c);padding:12px 14px}
+.kpi b{display:block;font:700 46px/1 "Barlow Condensed",sans-serif;color:var(--c)}
+.kpi span{font-weight:600}.kpi small{display:block;color:var(--mute);font-size:13px}
+.flow{display:flex;gap:0;overflow-x:auto;padding-bottom:4px}
+.step{flex:0 0 auto;min-width:130px;background:var(--head);color:#fff;padding:10px 24px 10px 26px;margin-left:-10px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%,16px 50%)}
+.step:first-child{margin-left:0;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%)}
+.step b{display:block;font:700 30px/1 "Barlow Condensed",sans-serif;color:var(--yel)}
+.step span{font-size:14px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 4px}
+button,select,input{font:inherit;color:var(--ink)}
+button{background:var(--accent);color:#fff;border:0;padding:9px 16px;cursor:pointer;font-weight:600}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.del{background:transparent;color:var(--mute);padding:2px 8px}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;margin-top:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-top:8px solid var(--c);padding:12px 14px 12px;display:flex;flex-direction:column;gap:4px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.badge{padding:2px 10px;font-size:14px;font-weight:600;color:#fff;background:var(--c);white-space:nowrap}
+.txt{display:block;width:100%;background:transparent;border:1px solid transparent;padding:2px 4px}
+.txt:hover,.txt:focus{border-color:var(--line);background:var(--bg)}
+.ot{font:700 26px/1.1 "Barlow Condensed",sans-serif}
+.cli{font-weight:600}.pza{color:var(--mute);font-size:15px}
+.mid{display:flex;gap:16px;align-items:center;margin:10px 0}
+.ring{flex:0 0 88px;height:88px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--track) 0);display:grid;place-items:center}
+.ring span{width:66px;height:66px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font:700 24px "Barlow Condensed",sans-serif}
+.side{flex:1;display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--mute)}
+.side label{display:flex;justify-content:space-between;align-items:center;gap:8px}
+input[type=range]{width:100%;accent-color:var(--c)}
+input[type=date]{background:var(--surface);border:1px solid var(--line);padding:2px 6px}
+.left{font:700 20px "Barlow Condensed",sans-serif;color:var(--c)}
+.stages{display:flex;flex-direction:column;gap:4px;border-top:1px dashed var(--line);padding-top:8px}
+.st{display:flex;align-items:center;gap:6px;padding:2px 4px;border-left:4px solid var(--line)}
+.st.ok{border-left-color:var(--ok)}.st.ok .sn{text-decoration:line-through;color:var(--mute)}
+.st.now{border-left-color:var(--yel);background:var(--bg)}
+.st input[type=checkbox]{width:20px;height:20px;accent-color:var(--ok);flex:0 0 auto}
+.sn{flex:1}
+.now-tag{font-size:12px;font-weight:600;background:var(--yel);color:#1b1b1b;padding:0 6px}
+.add{align-self:flex-start;padding:3px 10px;font-size:13px}
+.empty{background:var(--surface);border:2px dashed var(--line);padding:26px;text-align:center}
+.empty ol{display:inline-block;text-align:left;margin:8px 0 14px;color:var(--mute)}
+.ro .edit{display:none}
+@media (max-width:600px){h1{font-size:32px}.mid{gap:10px}}
+@media print{.tools,details,.edit{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="hz"></div>
+<header><div class="wrap">
+<h1>Trabajos en marcha</h1>
+<p class="sub" id="hoy"></p>
+<span id="st">Cargando…</span>
+</div></header>
+<main class="wrap">
+<details open><summary>Cómo leer este tablero</summary>
+<div class="leg">
+<div><b style="color:var(--ok)">Verde, en plazo:</b> va bien para la fecha prometida.</div>
+<div><b style="color:var(--warn)">Amarillo, en riesgo:</b> vence en 3 días o menos y no llegó al 80 %.</div>
+<div><b style="color:var(--bad)">Rojo, atrasado:</b> ya pasó la fecha de entrega.</div>
+<div><b style="color:var(--done)">Gris, terminado:</b> avance al 100 %.</div>
+<div>Cada trabajo tiene sus etapas. La marca <b>ahora</b> indica en cuál está.</div>
+</div></details>
+<h2>Resumen</h2>
+<div class="kpis" id="kpis"></div>
+<h2>Dónde está cada trabajo ahora</h2>
+<div class="flow" id="flow"></div>
+<div class="tools edit"><button id="add">Agregar trabajo</button><button class="ghost" id="print">Imprimir o guardar PDF</button></div>
+<div class="grid" id="grid"></div>
+</main>
+<script>
+var $=function(i){return document.getElementById(i)};
+var ETAPAS=["Corte","Soldadura","Mecanizado","Pintura","Entrega"];
+var jobs=[],db=null,ref=null,RO=false,loaded=false,last="",tm=null,pending=false;
+function d(n){var x=new Date();x.setHours(0,0,0,0);x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)}
+function uid(){return"t"+Date.now().toString(36)+Math.floor(Math.random()*1e4)}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
+function J(ot,cli,pza,names,done,av,dias){return{id:uid(),ot:ot,cli:cli,pza:pza,av:av,ent:d(dias),st:names.map(function(n,i){return{n:n,ok:i<done}})}}
+function sample(){return[
+J("OT-1041","Agroindustria Cuyo","Bastidor tolva 2 m³",["Corte","Plegado","Soldadura","Pintura","Entrega"],2,55,6),
+J("OT-1038","Bodega Los Andes","Soportes de tanque inox (x12)",["Corte","Soldadura","Pulido","Entrega"],2,72,2),
+J("OT-1036","Metalúrgica Norte","Eje y bujes mecanizados",["Torneado","Fresado","Rectificado","Control"],1,30,-2),
+J("OT-1033","Cooperativa Vial","Barandas galvanizadas",["Corte","Soldadura","Galvanizado","Entrega"],3,90,3),
+J("OT-1030","Frigorífico Sur","Rieles para cámara",["Corte","Soldadura","Entrega"],3,100,1)]}
+function estado(j){var dias=Math.round((new Date(j.ent+"T00:00:00")-new Date(d(0)+"T00:00:00"))/864e5);
+if(j.av>=100)return{t:"Terminado",c:"--done",dias:dias};
+if(dias<0)return{t:"Atrasado",c:"--bad",dias:dias};
+if(dias<=3&&j.av<80)return{t:"En riesgo",c:"--warn",dias:dias};
+return{t:"En plazo",c:"--ok",dias:dias}}
+function actual(j){var s=j.st.filter(function(x){return!x.ok})[0];return s?s.n:"Todo listo"}
+function setSt(t){$("st").textContent=t}
+function save(){setSt("Guardando…");pending=true;clearTimeout(tm);tm=setTimeout(function(){var p;
+if(ref){last=JSON.stringify(jobs);p=ref.set({jobs:jobs})}else{try{localStorage.setItem("taller_jobs",JSON.stringify(jobs))}catch(e){}p=Promise.resolve()}
+p.then(function(){pending=false;setSt(ref?"Guardado en la nube ✓":"Guardado en este dispositivo ✓")}).catch(function(){pending=false;setSt("No se pudo guardar")})},500)}
+function card(j,i){var e=estado(j),cur=j.st.filter(function(s){return!s.ok})[0],dis=RO?" disabled":"";
+var ld=e.t==="Terminado"?"Terminado":e.dias<0?"Pasó hace "+(-e.dias)+(e.dias===-1?" día":" días"):e.dias===0?"Vence hoy":"Faltan "+e.dias+(e.dias===1?" día":" días");
+var a=' data-i="'+i+'"';
+return'<article class="card" style="--c:var('+e.c+')"><div class="top"><input class="txt ot"'+a+' data-f="ot" value="'+esc(j.ot)+'" aria-label="Número de orden"'+dis+'><span class="badge">'+e.t+'</span></div>'
++'<input class="txt cli"'+a+' data-f="cli" value="'+esc(j.cli)+'" aria-label="Cliente"'+dis+'>'
++'<input class="txt pza"'+a+' data-f="pza" value="'+esc(j.pza)+'" aria-label="Descripción"'+dis+'>'
++'<div class="mid"><div class="ring" style="--p:'+j.av+'"><span>'+j.av+'%</span></div><div class="side">'
++'<label>Avance <input type="range" min="0" max="100" step="5" value="'+j.av+'"'+a+' data-f="av" aria-label="Porcentaje de avance"'+dis+'></label>'
++'<label>Entrega <input type="date" value="'+j.ent+'"'+a+' data-f="ent" aria-label="Fecha de entrega"'+dis+'></label>'
++'<div class="left">'+ld+'</div></div></div>'
++'<div class="stages">'+j.st.map(function(s,x){var now=cur&&cur===s;return'<div class="st'+(s.ok?' ok':'')+(now?' now':'')+'"><input type="checkbox"'+a+' data-f="ck" data-s="'+x+'"'+(s.ok?' checked':'')+' aria-label="Etapa terminada"'+dis+'><input class="txt sn"'+a+' data-f="sn" data-s="'+x+'" value="'+esc(s.n)+'" aria-label="Nombre de etapa"'+dis+'>'+(now?'<span class="now-tag">ahora</span>':'')+'<button class="del edit"'+a+' data-act="rm" data-s="'+x+'" aria-label="Quitar etapa">×</button></div>'}).join("")
++'<button class="ghost add edit" data-act="add"'+a+'>+ Etapa</button></div>'
++'<button class="del edit" data-del="'+i+'">Quitar trabajo</button></article>'}
+function render(){
+document.body.className=RO?"ro":"";
+var cnt={},k={"En plazo":0,"En riesgo":0,"Atrasado":0,"Terminado":0},cs={"En plazo":"--ok","En riesgo":"--warn","Atrasado":"--bad","Terminado":"--done"},ds={"En plazo":"Van bien","En riesgo":"Vencen pronto","Atrasado":"Pasó la fecha","Terminado":"Al 100 %"};
+jobs.forEach(function(j){var n=actual(j);cnt[n]=(cnt[n]||0)+1;k[estado(j).t]++});
+$("kpis").innerHTML=Object.keys(k).map(function(n){return'<div class="kpi" style="--c:var('+cs[n]+')"><b>'+k[n]+'</b><span>'+n+'</span><small>'+ds[n]+'</small></div>'}).join("");
+$("flow").innerHTML=Object.keys(cnt).map(function(n){return'<div class="step"><b>'+cnt[n]+'</b><span>'+esc(n)+'</span></div>'}).join("")||'<span style="color:var(--mute)">Todavía no hay trabajos cargados.</span>';
+$("grid").innerHTML=jobs.length?jobs.map(card).join(""):(loaded?'<div class="empty"><b>Tu tablero está vacío</b><br><ol><li>Agregá un trabajo con el botón de arriba.</li><li>Definí sus etapas (cada orden tiene las suyas).</li><li>Tildá cada etapa a medida que se termina.</li></ol><br><button class="edit" id="demo">Cargar trabajos de ejemplo</button></div>':'<div class="empty">Cargando tablero…</div>');
+var b=$("demo");if(b)b.onclick=function(){jobs=sample();save();render()}}
+$("hoy").textContent="Actualizado al "+new Date().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"})+". Lo que cargues se guarda solo.";
+function editing(){var a=document.activeElement;return a&&a.tagName==="INPUT"&&a.dataset&&a.dataset.i!==undefined&&a.type!=="checkbox"}
+function refocus(i,f,s){var q='[data-i="'+i+'"][data-f="'+f+'"]'+(s!==undefined?'[data-s="'+s+'"]':'');var n=document.querySelector(q);if(n)n.focus()}
+document.addEventListener("input",function(ev){var t=ev.target,i=t.dataset.i;if(i===undefined||RO)return;var f=t.dataset.f,j=jobs[i];
+if(f==="ot"||f==="cli"||f==="pza"){j[f]=t.value;save()}
+else if(f==="sn"){j.st[t.dataset.s].n=t.value;save()}
+else if(f==="av"){j.av=parseInt(t.value,10);var c=t.closest(".card");c.querySelector(".ring").style.setProperty("--p",j.av);c.querySelector(".ring span").textContent=j.av+"%";save()}});
+document.addEventListener("change",function(ev){var t=ev.target,i=t.dataset.i;if(i===undefined||RO)return;var f=t.dataset.f,j=jobs[i],s=t.dataset.s;
+if(f==="ck"){j.st[s].ok=t.checked;if(j.st.length&&j.st.every(function(x){return x.ok}))j.av=100}
+else if(f==="av"){if(j.av>=100)j.st.forEach(function(x){x.ok=true})}
+else if(f==="ent"){j.ent=t.value||j.ent}
+else if(f==="sn"){j.st[s].n=t.value.trim()||"Etapa"}
+else return;
+save();render();if(f==="ck"||f==="av")refocus(i,f,s)});
+document.addEventListener("click",function(ev){var t=ev.target;if(RO)return;var x=t.dataset.del;
+if(x!==undefined){if(confirm("¿Quitar este trabajo del tablero?")){jobs.splice(x,1);save();render()}return}
+if(t.dataset.act==="rm"){jobs[t.dataset.i].st.splice(t.dataset.s,1);save();render()}
+if(t.dataset.act==="add"){jobs[t.dataset.i].st.push({n:"Nueva etapa",ok:false});save();render();var q=document.querySelectorAll('[data-i="'+t.dataset.i+'"][data-f="sn"]');var l=q[q.length-1];if(l){l.focus();l.select()}}});
+$("add").onclick=function(){var n=1000+jobs.length+Math.floor(Math.random()*9);jobs.unshift({id:uid(),ot:"OT-"+n,cli:"Cliente nuevo",pza:"Descripción del trabajo",av:0,ent:d(14),st:ETAPAS.map(function(e){return{n:e,ok:false}})});save();render();window.scrollTo(0,0)};
+$("print").onclick=function(){window.print()};
+function useLocal(){try{var r=localStorage.getItem("taller_jobs");if(r)jobs=JSON.parse(r)}catch(e){}ref=null;loaded=true;setSt(RO?"Solo lectura":"Guardado en este dispositivo ✓");render()}
+async function init(){render();
+setTimeout(function(){if(!loaded)useLocal()},10000);
+try{if(window.claude&&claude.use){db=await claude.use("db");var u=await claude.use("user");if(u){var c=await u.can("data.write");RO=(c===false)}}}catch(e){db=null}
+if(!db){useLocal();return}
+ref=db.doc("taller/tablero");
+ref.onSnapshot(function(s){if(pending||editing())return;var dt=s.exists?s.data():null;loaded=true;
+if(dt&&Array.isArray(dt.jobs)){jobs=dt.jobs;last=JSON.stringify(jobs)}
+setSt(RO?"Solo lectura":"Guardado en la nube ✓");render()},function(){useLocal()})}
+init();
+</script>
+</body>
+</html>
