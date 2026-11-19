@@ -1,0 +1,15 @@
+# Generado localmente por jr-orchestrator / skill-registry; no versionado.
+.atl/
+
+# Secretos y configuración local.
+.env
+.env.*
+!.env.example
+
+# Dependencias y artefactos de build.
+node_modules/
+dist/
+coverage/
+
+# Memoria Engram local: este repo es público, no versionar chunks.
+.engram/

@@ -1,0 +1,31 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+context: |
+  Proyecto: Velco SRL — sistema web interno de seguimiento de Órdenes de Producción (OP/OT) de un taller metalúrgico. NO es un sistema de tracking de flotas. Entidad raíz: ordenes_trabajo.
+  Equipo hispanohablante: redactar todos los artefactos en español.
+  Usuario del MVP: UNA sola persona (gerente general), sin autenticación, sin PIN, sin RBAC, sin tabla usuarios. Roles: solo HU-19 en Fase 2 (Admin/Oficina ve costos y márgenes; Taller sin montos). Cualquier auth/PIN/RBAC requiere aprobación humana explícita (R5), no está en el MVP.
+  Stack (Opción B; versiones EXACTAS fijadas en C-01, verificadas el 2026-11-19; superan los mínimos históricos React 18+, Vite 5+, TS 5+, Fastify 4+, Prisma 5+, Vitest 1+; se eligió stable actual evitando RC): Node.js 26.13.1 (LTS activo; Node 20 EOL desde 2026-04-30), TypeScript 7.0.2, React 19.3.1, Vite 8.3.8, Fastify 5.12.8, Prisma 7.10.1 (cliente y CLI; NO 8.0.0-rc.34 por ser release candidate), PostgreSQL 18.7 (PG14 EOL desde 2026-11-12; imagen Docker `postgres:18.7`), exceljs 4.4.0, Vitest 5.1.1, @tanstack/react-query 5.108.1, react-router-dom 7.18.6, clsx 2.1.1, zod 4.6.7, @fastify/swagger 9.9.5, @testcontainers/postgresql 12.2.2, @testing-library/react 16.3.3, jsdom 31.0.1, @types/node 26.6.6, @types/react 19.3.0, @types/react-dom 19.3.0.
+  Dominio/aplicación en TypeScript puro. CSS Modules nativos de Vite + un único global.css (clases condicionales con clsx o template strings; Tailwind descartado). TanStack Query para server state; React Router para routing; Vitest 5.1.1 con TDD estricto.
+  Arquitectura feature-based (vertical slices), puertos y adaptadores: `packages/domain/src/<feature>/` para reglas puras compartidas; `backend/src/features/<feature>/{application,http,prisma,excel}` para caso de uso, controlador Fastify, adaptador Prisma y adaptador Excel; `frontend/src/features/<feature>/{components,hooks,queries}` para UI, hooks y queries; además `backend/src/shared/`, `frontend/src/shared/`, `frontend/src/app/` y `frontend/src/global.css`. NO existe un `infrastructure/` central. R2: eliminar TODOS los adaptadores por feature (`backend/src/features/*/prisma`, `backend/src/features/*/excel`, `backend/src/features/*/http`) y `packages/domain/` debe seguir compilando.
+  IN-09 RESUELTA por el usuario: `Docs/MVP.md` y `Docs/HistoriasDeUsuario.md` se borraron deliberadamente por obsoletos; los docs vigentes son la fuente. No recuperar docs de git; no usar ZIP ni PIN como requisitos (exportación consolidada en ZIP diferida a Fase 2).
+  Derivados (avance, totales de horas, costos, margen, semáforo) NUNCA se persisten como columnas editables; única excepción: GENERATED ALWAYS AS (...) STORED de PostgreSQL. Avance derivado de etapas completadas, sin slider.
+  Tablero: grilla única de tarjetas autocontenidas (sin columnas Kanban); badge "ahora" en la primera etapa pendiente.
+  Exportación: cargar y rellenar las plantillas oficiales MASTER COSTEO NUEVO.xlsx y A - OP-MASTER.xlsx; nunca generar xlsx desde cero; exportOp(opId, { incluirMargenes }) como función pura; un archivo por OP.
+  Ejecución: PostgreSQL 18.7 en Docker Desktop; Node/Fastify y el exportador en el host Windows para que las rutas UNC del servidor privado resuelvan nativamente. Python NO está en el stack (salvo spikes descartables fuera del repo).
+  Tests: ciclo RED → GREEN → TRIANGULATE (mínimo 2 casos) → REFACTOR con Vitest. Tests de integración contra PostgreSQL real en contenedor (Testcontainers o equivalente); sin mocks de PostgreSQL. Tests de reglas puras no requieren BD.
+  Reglas duras: R1 TDD estricto; R2 dominio puro con puertos y adaptadores por feature; R3 sin derivados persistidos; R4 solo TypeScript; R5 sin auth en MVP (cualquier código de auth requiere aprobación humana explícita); R6 plantillas Excel + incluirMargenes; R8 openspec/ solo vía CLI; R9 sin any, tsconfig estricto, componentes React en PascalCase; R10 sin mocks de PostgreSQL.
+  Riesgos abiertos (no resolver silenciosamente): IN-08 enlace externo de ~577 KB + ruta UNC en plantilla de costeo (spike C-13); DD-07 aprobación humana para auth de Fase 2.
+  Diferido a Fase 2+: auth/PIN/RBAC, exportación consolidada en ZIP, tasa horaria por etapa, HTTPS/reverse proxy y backups.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
