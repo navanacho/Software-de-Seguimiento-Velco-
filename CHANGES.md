@@ -120,7 +120,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 > Sin change de autenticación: DD-07/RN-AU-01 la difieren a Fase 2 y exigen aprobación humana explícita antes de escribir código (dominio CRITICO).
 
 ### [C-01] `velco-mvp-foundation`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**: Fundación del proyecto y congelamiento de decisiones; sin código de aplicación de negocio
   - Registrar DD-01…DD-10 como ADR versionados: stack Opción B, esquema canónico, auth diferida, Excel sobre plantillas, avance derivado, exportación por OP
   - Scaffolding `backend/` (Fastify 5.12.8, `GET /api/health`, `src/features/<feature>/{application,http,prisma,excel}` y `src/shared/`) y `frontend/` (Vite 8.3.8 + React 19.3.1 + TypeScript 7.0.2, `src/features/<feature>/{components,hooks,queries}`, `src/shared/`, `src/app/` y `global.css`)
