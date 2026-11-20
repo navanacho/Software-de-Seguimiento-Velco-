@@ -163,7 +163,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 ---
 
 ### [C-03] `estado-y-avance-domain`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**: Reglas puras de estado, avance y flujo (TDD: tests primero)
   - Funciones puras en `domain/ordenes` y `domain/costos`: `calcularAvance`, `etapaAhora`, `calcularSemaforo`, `diasRestantes`, `agruparFlujo`
   - Prioridad de semáforo: `Terminado` → `Atrasado` → `En riesgo` → `En plazo`; umbrales inyectados desde configuración, sin importar Prisma; comparación a medianoche de `TZ`

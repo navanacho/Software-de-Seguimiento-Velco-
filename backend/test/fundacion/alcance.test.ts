@@ -21,13 +21,8 @@ const fuentes = [
   ...archivos(join(raiz, 'packages', 'domain', 'src')),
 ].filter((ruta) => ruta.endsWith('.ts') || ruta.endsWith('.tsx'));
 
-describe('alcance del change de fundación', () => {
-  it('no crea reglas de negocio, modelos de dominio ni migraciones', () => {
-    for (const archivo of fuentes) {
-      const contenido = readFileSync(archivo, 'utf8');
-      expect(contenido, `${archivo} contiene una regla RN`).not.toMatch(/RN-[A-Z]+-\d+/);
-      expect(contenido, `${archivo} calcula un derivado`).not.toMatch(/calcularMargen|calcularAvance|calcularSem[aá]foro/);
-    }
+describe('alcance de la fundación archivada', () => {
+  it('el change archivado no crea reglas de negocio, modelos de dominio ni migraciones', () => {
     const propuesta = readFileSync(join(cambioArchivado, 'proposal.md'), 'utf8');
     const diseno = readFileSync(join(cambioArchivado, 'design.md'), 'utf8');
     const tareas = readFileSync(join(cambioArchivado, 'tasks.md'), 'utf8');
@@ -51,8 +46,8 @@ describe('alcance del change de fundación', () => {
     expect(codigoArchivado, 'el change archivado no debe contener código de implementación').toEqual([]);
     for (const artefacto of artefactos.filter((ruta) => ruta.endsWith('.md'))) {
       const contenido = readFileSync(artefacto, 'utf8');
-      expect(contenido, `${artefacto} contiene una regla RN`).not.toMatch(/RN-[A-Z]+-\d+/);
-      expect(contenido, `${artefacto} calcula un derivado`).not.toMatch(
+      expect(contenido, `el artefacto archivado ${artefacto} contiene una regla RN`).not.toMatch(/RN-[A-Z]+-\d+/);
+      expect(contenido, `el artefacto archivado ${artefacto} calcula un derivado`).not.toMatch(
         /calcularMargen|calcularAvance|calcularSem[aá]foro/,
       );
     }

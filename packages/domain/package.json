@@ -12,6 +12,10 @@
     }
   },
   "scripts": {
+    "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "vitest": "5.1.1"
   }
 }
