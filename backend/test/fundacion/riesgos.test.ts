@@ -4,7 +4,10 @@ import { describe, expect, it } from 'vitest';
 
 const raiz = resolve(process.cwd(), '..');
 const indice = (): string =>
-  readFileSync(join(raiz, 'openspec', 'changes', 'velco-mvp-foundation', 'adr', 'README.md'), 'utf8');
+  readFileSync(
+    join(raiz, 'openspec', 'changes', 'archive', '2026-11-20-velco-mvp-foundation', 'adr', 'README.md'),
+    'utf8',
+  );
 
 describe('riesgos y decisiones declaradas', () => {
   it('mantiene IN-08 y DD-07 abiertos con decisor y siguiente hito', () => {

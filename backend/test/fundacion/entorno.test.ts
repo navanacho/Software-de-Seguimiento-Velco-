@@ -10,7 +10,8 @@ describe('entorno de desarrollo', () => {
   it('define PostgreSQL 18.7 con imagen fijada en Docker Compose', () => {
     const compose = leer('docker-compose.yml');
     expect(compose).toContain('image: postgres:18.7');
-    expect(compose).toContain('5432:5432');
+    expect(compose).toMatch(/\$\{POSTGRES_PORT:-5432\}:5432|5432:5432/);
+    expect(compose).toContain('- velco_pgdata:/var/lib/postgresql');
     expect(compose).toContain('POSTGRES_DB');
     expect(compose).not.toMatch(/image:\s*postgres:(latest|14|15|16|17)\b/);
   });
@@ -21,9 +22,16 @@ describe('entorno de desarrollo', () => {
     expect(esquema).toContain('provider = "postgresql"');
     expect(esquema).toMatch(/generator\s+client/);
     expect(esquema).toContain('provider = "prisma-client-js"');
-    expect(esquema).not.toMatch(/^\s*model\s+/m);
-    for (const derivado of ['porcentaje_avance', 'horas_totales', 'costo_total', 'margen', 'semaforo']) {
-      expect(esquema).not.toContain(derivado);
+    const modelos = esquema.match(/^model\s+\w+/gm) ?? [];
+    expect(modelos).toEqual(['model Configuracion', 'model Cliente', 'model OrdenTrabajo', 'model EtapaOrden']);
+    for (const derivado of [
+      /\bporcentaje_avance\b/,
+      /\bhoras_totales\b/,
+      /\bcosto_total\b/,
+      /\bmargen\b/,
+      /\bsemaforo\b/,
+    ]) {
+      expect(esquema).not.toMatch(derivado);
     }
     const configuracion = leer('backend/prisma.config.ts');
     expect(configuracion).toContain("env('DATABASE_URL')");

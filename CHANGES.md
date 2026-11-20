@@ -144,7 +144,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 > HU-05, HU-06, HU-07 y HU-09. El tablero se alimenta de datos reales desde el primer change; no se usa `localStorage` ni el slider del prototipo.
 
 ### [C-02] `core-order-models`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**: Modelos core y primera migración
   - Migración 001: `configuracion` (fila singleton `id=1`), `clientes` (nombre único), `ordenes_trabajo` (`numero_op` único, `cliente_id` FK RESTRICT, `monto_vendido NUMERIC(14,2)`), `etapas_orden` (`orden_id` FK CASCADE, único `(orden_id, orden_secuencia)`)
   - Modelos Prisma y puertos `ConfiguracionRepository`, `ClienteRepository`, `OpRepository`, `EtapaRepository` en `application/ports`

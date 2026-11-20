@@ -5,3 +5,54 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+
+model Configuracion {
+  id                     Int     @id @default(1)
+  valorHoraEstandar      Decimal @default(0) @db.Decimal(12, 2) @map("valor_hora_estandar")
+  diasAlertaRiesgo       Int     @default(3) @map("dias_alerta_riesgo")
+  porcentajeAvanceRiesgo Int     @default(80) @map("porcentaje_avance_riesgo")
+  etapasDefault          Json    @default("[\"Corte\",\"Soldadura\",\"Mecanizado\",\"Pintura\",\"Entrega\"]") @map("etapas_default")
+
+  @@map("configuracion")
+}
+
+model Cliente {
+  id        String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nombre    String         @unique @db.VarChar(150)
+  createdAt DateTime       @default(now()) @db.Timestamptz(6) @map("created_at")
+  ordenes   OrdenTrabajo[]
+
+  @@map("clientes")
+}
+
+model OrdenTrabajo {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  numeroOp         String        @unique @db.VarChar(50) @map("numero_op")
+  clienteId        String        @db.Uuid @map("cliente_id")
+  cliente          Cliente       @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "ordenes_trabajo_cliente_id_fkey")
+  descripcionPieza String        @map("descripcion_pieza")
+  fechaIngreso     DateTime      @default(dbgenerated("CURRENT_DATE")) @db.Date @map("fecha_ingreso")
+  fechaEntrega     DateTime      @db.Date @map("fecha_entrega")
+  montoVendido     Decimal       @default(0) @db.Decimal(14, 2) @map("monto_vendido")
+  observaciones    String?
+  createdAt        DateTime      @default(now()) @db.Timestamptz(6) @map("created_at")
+  updatedAt        DateTime      @default(now()) @db.Timestamptz(6) @map("updated_at")
+  etapas           EtapaOrden[]
+
+  @@index([clienteId], map: "ordenes_trabajo_cliente_id_idx")
+  @@index([fechaEntrega], map: "ordenes_trabajo_fecha_entrega_idx")
+  @@map("ordenes_trabajo")
+}
+
+model EtapaOrden {
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ordenId       String       @db.Uuid @map("orden_id")
+  orden         OrdenTrabajo @relation(fields: [ordenId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "etapas_orden_orden_id_fkey")
+  nombre        String       @db.VarChar(100)
+  ordenSecuencia Int         @map("orden_secuencia")
+  completada    Boolean      @default(false)
+  horasVendidas Decimal      @default(0) @db.Decimal(8, 2) @map("horas_vendidas")
+
+  @@unique([ordenId, ordenSecuencia], map: "etapas_orden_orden_id_orden_secuencia_key")
+  @@map("etapas_orden")
+}

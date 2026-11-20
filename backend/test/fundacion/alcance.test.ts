@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const raiz = resolve(process.cwd(), '..');
+const cambioArchivado = join(raiz, 'openspec', 'changes', 'archive', '2026-11-20-velco-mvp-foundation');
 
 function archivos(directorio: string, excluidas: string[] = []): string[] {
   if (!existsSync(directorio) || excluidas.some((nombre) => directorio.includes(nombre))) {
@@ -27,8 +28,34 @@ describe('alcance del change de fundación', () => {
       expect(contenido, `${archivo} contiene una regla RN`).not.toMatch(/RN-[A-Z]+-\d+/);
       expect(contenido, `${archivo} calcula un derivado`).not.toMatch(/calcularMargen|calcularAvance|calcularSem[aá]foro/);
     }
-    expect(readFileSync(join(raiz, 'backend', 'prisma', 'schema.prisma'), 'utf8')).not.toMatch(/^\s*model\s+/m);
-    expect(existsSync(join(raiz, 'backend', 'prisma', 'migrations'))).toBe(false);
+    const propuesta = readFileSync(join(cambioArchivado, 'proposal.md'), 'utf8');
+    const diseno = readFileSync(join(cambioArchivado, 'design.md'), 'utf8');
+    const tareas = readFileSync(join(cambioArchivado, 'tasks.md'), 'utf8');
+    const especificacion = readFileSync(
+      join(cambioArchivado, 'specs', 'entorno-desarrollo', 'spec.md'),
+      'utf8',
+    );
+
+    expect(propuesta).toContain('sin modelos de negocio');
+    expect(propuesta).toContain('las migraciones y el seed comienzan en C-02');
+    expect(diseno).toContain('no define modelos de negocio');
+    expect(diseno).toContain('No hay migraciones de base de datos en este change');
+    expect(especificacion).toContain('Esquema Prisma inicializado sin modelos de negocio');
+    expect(tareas).toContain('sin modelos de negocio ni columnas derivadas');
+    expect(tareas).toContain('Verificar que no se crearon reglas de negocio, modelos de dominio, migraciones');
+
+    const artefactos = archivos(cambioArchivado);
+    const codigoArchivado = artefactos.filter((ruta) =>
+      ['.ts', '.tsx', '.js', '.jsx', '.py', '.sql', '.prisma'].some((extension) => ruta.endsWith(extension)),
+    );
+    expect(codigoArchivado, 'el change archivado no debe contener código de implementación').toEqual([]);
+    for (const artefacto of artefactos.filter((ruta) => ruta.endsWith('.md'))) {
+      const contenido = readFileSync(artefacto, 'utf8');
+      expect(contenido, `${artefacto} contiene una regla RN`).not.toMatch(/RN-[A-Z]+-\d+/);
+      expect(contenido, `${artefacto} calcula un derivado`).not.toMatch(
+        /calcularMargen|calcularAvance|calcularSem[aá]foro/,
+      );
+    }
   });
 
   it('no incorpora autenticación, PIN, RBAC ni archivos .xlsx nuevos', () => {
@@ -42,7 +69,7 @@ describe('alcance del change de fundación', () => {
 
   it('deja la visibilidad de montos documentada para HU-19 en Fase 2', () => {
     const indice = readFileSync(
-      join(raiz, 'openspec', 'changes', 'velco-mvp-foundation', 'adr', 'README.md'),
+      join(raiz, 'openspec', 'changes', 'archive', '2026-11-20-velco-mvp-foundation', 'adr', 'README.md'),
       'utf8',
     );
     expect(indice).toContain('HU-19');

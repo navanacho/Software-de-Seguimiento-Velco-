@@ -19,7 +19,7 @@ const decisiones = [
 
 function leerAdr(identificador: string, slug: string): string {
   return readFileSync(
-    join(raiz, 'openspec', 'changes', 'velco-mvp-foundation', 'adr', `${identificador}-${slug}.md`),
+    join(raiz, 'openspec', 'changes', 'archive', '2026-11-20-velco-mvp-foundation', 'adr', `${identificador}-${slug}.md`),
     'utf8',
   );
 }
