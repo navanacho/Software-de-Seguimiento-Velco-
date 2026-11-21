@@ -1,0 +1,9 @@
+﻿.pagina { padding: 1rem; font-family: 'Arial Narrow', 'Roboto Condensed', Arial, sans-serif; }
+.encabezado { margin-bottom: 1rem; }
+.franja {
+  height: 12px;
+  background: repeating-linear-gradient(45deg, #f5c400, #f5c400 12px, #111 12px, #111 24px);
+  margin-bottom: 0.5rem;
+}
+.titulo { margin: 0 0 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.grilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }

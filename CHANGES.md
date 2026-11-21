@@ -200,7 +200,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 ---
 
 ### [C-05] `tablero-visual`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**: Tablero operativo de la SPA
   - Grilla única de tarjetas (sin columnas Kanban ni slider de avance) con estética industrial de `Docs/tablero-taller-v2.html`: KPIs superiores, franja amarilla/negra, tipografía condensada
   - Tira superior *"Dónde está cada trabajo ahora"* con conteo por etapa; badge `ahora` en la primera etapa pendiente; checkbox con actualización optimista vía `PATCH`

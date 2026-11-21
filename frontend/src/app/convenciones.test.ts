@@ -24,15 +24,20 @@ describe('convenciones del frontend', () => {
     }
   });
 
-  it('no calcula derivados ni incluye slider de avance o columnas Kanban', () => {
+  it('no persiste/calcula derivados prohibidos ni incluye slider de avance o columnas Kanban; semaforo es DTO canónico C-04', () => {
+    // `semaforo` fue removido del patrón: C-04 lo expone como campo canónico del DTO de lectura y C-05 debe renderizarlo.
+    // Se mantiene prohibido persistir/calcular `porcentaje_avance`, usar sliders y UI Kanban.
     const fuentes = [...archivos(join(raiz, 'src'), '.ts'), ...archivos(join(raiz, 'src'), '.tsx')]
       .filter((ruta) => !ruta.includes('.test.'));
     for (const archivo of fuentes) {
       const contenido = readFileSync(archivo, 'utf8');
       expect(contenido, `${archivo} incluye un control o derivado descartado`).not.toMatch(
-        /porcentaje_avance|sem[aá]foro|type=["']range|kanban/i,
+        /porcentaje_avance|type=["']range|kanban/i,
       );
     }
+    const tarjeta = readFileSync(join(raiz, 'src/features/tablero/components/TarjetaOrden.tsx'), 'utf8');
+    expect(tarjeta).toMatch(/tarjeta\.semaforo/);
+    expect(tarjeta).not.toMatch(/as unknown|K_ESTADO|\['sema','foro'\]|join\(\)/);
   });
 
   it('usa un único global.css, CSS Modules y clsx sin Tailwind', () => {

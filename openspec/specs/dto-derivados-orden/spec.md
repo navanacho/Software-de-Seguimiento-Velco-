@@ -39,7 +39,7 @@ La API DEBE (SHALL) servir el DTO construido por el dominio sin recalcular ningu
 #### Scenario: Contrato compartido
 
 - **WHEN** backend y frontend necesitan el tipo del DTO
-- **THEN** ambos lo importan desde `packages/domain` y no existe una definición duplicada en ninguno de los dos proyectos
+- **THEN** ambos lo importan desde `packages/domain` y no existe una definición duplicada de las reglas derivadas ni de los DTOs canónicos (`TarjetaOrdenDTO`, `EtapaTarjeta`, `GrupoFlujo`, `EstadoSemaforo`, `ContextoTarjeta`); un envelope de transporte puede componerse a partir de esos tipos canónicos sin redefinir sus campos derivados
 
 #### Scenario: Filtros sobre el DTO
 
@@ -53,7 +53,7 @@ La API DEBE (SHALL) servir el DTO construido por el dominio sin recalcular ningu
 
 ### Requirement: Envelope de respuesta del tablero y del detalle
 
-La API DEBE (SHALL) servir las tarjetas del dominio en un envelope con `ops`, `kpis` y `flujo` para `GET /api/ops`, y un `DetalleOpDTO` que extienda `TarjetaOrdenDTO` para `GET /api/ops/:id`. Ninguno de los dos DEBE recalcular los derivados del DTO ni definir una segunda versión del contrato en backend o frontend (RN-GLOBAL-02, HU-05, HU-14/15/16).
+La API DEBE (SHALL) servir las tarjetas del dominio en un envelope con `ops`, `kpis` y `flujo` para `GET /api/ops`, y un `DetalleOpDTO` que extienda `TarjetaOrdenDTO` para `GET /api/ops/:id`. Ninguno de los dos DEBE recalcular los derivados del DTO ni definir una segunda versión de las reglas derivadas o de los DTOs canónicos; un envelope de transporte puede componerse a partir de esos tipos canónicos en backend o frontend sin redefinir sus campos derivados (RN-GLOBAL-02, HU-05, HU-14/15/16).
 
 #### Scenario: Respuesta del listado
 
