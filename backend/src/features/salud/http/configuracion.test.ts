@@ -19,4 +19,11 @@ describe('configuración del servidor desde variables de entorno', () => {
     expect(configuracion.origenCors).toBe('');
     expect(configuracion.baseUncExcel).toBe('');
   });
+
+  it('SU-05 expone TZ desde el entorno con default de Mendoza', () => {
+    const conZona = leerConfiguracion({ TZ: 'UTC' });
+    expect(conZona.zonaHoraria).toBe('UTC');
+    const sinZona = leerConfiguracion({});
+    expect(sinZona.zonaHoraria).toBe('America/Argentina/Mendoza');
+  });
 });

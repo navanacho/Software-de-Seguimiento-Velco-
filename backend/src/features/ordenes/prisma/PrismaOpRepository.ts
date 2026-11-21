@@ -1,6 +1,12 @@
 import type { NuevaOrdenTrabajo, OrdenTrabajo } from '@velco/domain';
 import { Prisma, type OrdenTrabajo as OrdenTrabajoPrisma, type PrismaClient } from '@prisma/client';
+import { aEtapaOrden } from '../../etapas/prisma/mappers.ts';
 import type { OpRepository } from '../application/ports/OpRepository.ts';
+import type { OrdenConEtapasYCliente } from '../application/ports/OrdenConEtapasYCliente.ts';
+
+type FilaConEtapasYCliente = Prisma.OrdenTrabajoGetPayload<{
+  include: { etapas: true; cliente: true };
+}>;
 
 function aOrdenTrabajo(fila: OrdenTrabajoPrisma): OrdenTrabajo {
   return {
@@ -46,5 +52,19 @@ export class PrismaOpRepository implements OpRepository {
   async buscarPorNumeroOp(numeroOp: string): Promise<OrdenTrabajo | null> {
     const fila = await this.prisma.ordenTrabajo.findUnique({ where: { numeroOp } });
     return fila ? aOrdenTrabajo(fila) : null;
+  }
+
+  async listarConEtapas(): Promise<readonly OrdenConEtapasYCliente[]> {
+    const filas: readonly FilaConEtapasYCliente[] = await this.prisma.ordenTrabajo.findMany({
+      include: {
+        etapas: { orderBy: { ordenSecuencia: 'asc' } },
+        cliente: true,
+      },
+    });
+    return filas.map((fila) => ({
+      orden: aOrdenTrabajo(fila),
+      etapas: fila.etapas.map(aEtapaOrden),
+      clienteNombre: fila.cliente?.nombre ?? null,
+    }));
   }
 }

@@ -2,7 +2,10 @@ export interface ConfiguracionServidor {
   puerto: number;
   origenCors: string;
   baseUncExcel: string;
+  zonaHoraria?: string;
 }
+
+export const ZONA_HORARIA_POR_DEFECTO = 'America/Argentina/Mendoza';
 
 type Entorno = Readonly<Record<string, string | undefined>>;
 
@@ -16,5 +19,6 @@ export function leerConfiguracion(entorno: Entorno = process.env): Configuracion
     puerto,
     origenCors: entorno.CORS_ORIGIN ?? '',
     baseUncExcel: entorno.EXCEL_UNC_BASE ?? '',
+    zonaHoraria: entorno.TZ ?? ZONA_HORARIA_POR_DEFECTO,
   };
 }

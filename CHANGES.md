@@ -181,7 +181,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 ---
 
 ### [C-04] `tablero-read-api`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**: Endpoints que alimentan el tablero
   - `GET /api/ops` con `listOps({ fechaDesde, fechaHasta, estado })` más filtros por cliente, etapa `ahora` y búsqueda por N° de OP/pieza (HU-09); DTO con KPIs y conteos de flujo
   - `GET /api/ops/:id` con etapas, horas, materiales y derivados; contrato reutilizado por HU-14/15/16

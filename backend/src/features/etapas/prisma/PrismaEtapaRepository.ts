@@ -1,17 +1,7 @@
 import type { EtapaOrden, NuevaEtapa } from '@velco/domain';
-import { Prisma, type EtapaOrden as EtapaOrdenPrisma, type PrismaClient } from '@prisma/client';
+import { Prisma, type PrismaClient } from '@prisma/client';
 import type { EtapaRepository } from '../application/ports/EtapaRepository.ts';
-
-function aEtapaOrden(fila: EtapaOrdenPrisma): EtapaOrden {
-  return {
-    id: fila.id,
-    ordenId: fila.ordenId,
-    nombre: fila.nombre,
-    ordenSecuencia: fila.ordenSecuencia,
-    completada: fila.completada,
-    horasVendidas: fila.horasVendidas.toFixed(2),
-  };
-}
+import { aEtapaOrden } from './mappers.ts';
 
 export class PrismaEtapaRepository implements EtapaRepository {
   private readonly prisma: PrismaClient;
@@ -42,5 +32,25 @@ export class PrismaEtapaRepository implements EtapaRepository {
       orderBy: { ordenSecuencia: 'asc' },
     });
     return filas.map(aEtapaOrden);
+  }
+
+  async buscarPorId(id: string): Promise<EtapaOrden | null> {
+    const fila = await this.prisma.etapaOrden.findUnique({ where: { id } });
+    return fila ? aEtapaOrden(fila) : null;
+  }
+
+  async actualizarCompletada(id: string, completada: boolean): Promise<EtapaOrden | null> {
+    try {
+      const fila = await this.prisma.etapaOrden.update({
+        where: { id },
+        data: { completada },
+      });
+      return aEtapaOrden(fila);
+    } catch (error: unknown) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        return null;
+      }
+      throw error;
+    }
   }
 }
