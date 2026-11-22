@@ -11,6 +11,7 @@
 | Container / Presentational | React: contenedores cargan datos, componentes de tarjeta solo renderizan | El cálculo no vive en el componente |
 | DTO de salida | Respuestas de API y view models | En Fase 2 permite quitar montos según rol sin tocar el dominio |
 | Plantilla + Adapter (Excel) | `exceljs` rellenando `.xlsx` existentes | Preserva el formato oficial de Velco |
+| Tokens + CSS Modules | `:root` en `global.css`, `var(--token)` en `*.module.css`, primitivas en `frontend/src/shared/ui/` | Aplica el design system sin clases globales del prototipo; `clsx` compone estados |
 | Singleton de configuración | `configuracion.id = 1` | Un único juego de parámetros globales |
 
 **Regla de oro:** ninguna regla de negocio dentro de un componente React, un handler de Fastify ni un schema de Prisma. Esos son adaptadores.
@@ -64,10 +65,13 @@ Software-de-Seguimiento-Velco-/
 │       │   ├── ordenes/{components,hooks,queries}/
 │       │   ├── horas/{components,hooks,queries}/
 │       │   ├── rentabilidad/{components,hooks,queries}/
+│       │   ├── dashboard/{components,hooks,queries}/
 │       │   ├── configuracion/{components,hooks,queries}/
 │       │   └── exportacion/{components,hooks,queries}/
-│       ├── shared/                    # UI compartida y cliente HTTP
-│       ├── global.css                 # reset, tipografía y variables
+│       ├── shared/
+│       │   ├── ui/                    # primitivas compartidas del design system
+│       │   └── (cliente HTTP)
+│       ├── global.css                 # :root con tokens, reset y tipografía
 │       └── main.tsx
 ├── docker-compose.yml                 # PostgreSQL para desarrollo
 └── .jr-orchestrator-state.json
@@ -124,7 +128,8 @@ Verificar con un spike acotado antes de Sprint 4:
 
 ## Fuentes
 
-- `Docs/definici_n_del_mvp_velco.md` §3 y §4.
-- `Docs/historias_de_usuario_velco.md` (principios de diseño y HU-20A/B).
+- `Docs/definici_n_del_mvp_velco.md` §2.A/C/F, §3 y §4.
+- `Docs/historias_de_usuario_velco.md` (principios de diseño, HU-01, HU-09, HU-21 y HU-20A/B).
+- `Docs/design_system_velco.md` (tokens, primitivas y mapeo a implementación).
 - `Docs/tablero-taller-v2.html` (referencia visual).
 - Decisiones 1, 2, 7, 9 y 10 de [09_decisiones_y_supuestos.md](09_decisiones_y_supuestos.md).

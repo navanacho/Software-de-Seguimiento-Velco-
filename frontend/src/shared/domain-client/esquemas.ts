@@ -15,6 +15,7 @@ const EsquemaEtapaTarjeta: z.ZodType<EtapaTarjeta> = z.object({
 export const EsquemaTarjetaOrden: z.ZodType<TarjetaOrdenDTO> = z.object({
   id: z.string(),
   numeroOp: z.string(),
+  codigoPlano: z.string().max(80).nullable(),
   clienteId: z.string(),
   clienteNombre: z.string().nullable(),
   descripcionPieza: z.string(),
@@ -46,3 +47,10 @@ export const EsquemaRespuestaListadoTablero: z.ZodType<RespuestaListadoTablero> 
   kpis: EsquemaKpisTablero,
   flujo: z.array(EsquemaGrupoFlujo),
 });
+
+export const EsquemaFiltrosListadoOps = z.object({
+  buscar: z.string().optional(),
+  estados: z.array(z.enum(ESTADOS)).optional(),
+  flujo: z.string().optional(),
+  conPlano: z.union([z.literal('true'), z.literal('false')]).transform((v) => v === 'true').optional(),
+}).strict();

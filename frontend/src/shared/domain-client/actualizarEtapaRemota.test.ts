@@ -2,7 +2,7 @@
 import { actualizarEtapaRemota } from './actualizarEtapaRemota.ts';
 
 const tarjetaValida = {
-  id: 'op1', numeroOp: 'OT-1', clienteId: 'c1', clienteNombre: 'Cliente', descripcionPieza: 'Pieza',
+  id: 'op1', numeroOp: 'OT-1', codigoPlano: null, clienteId: 'c1', clienteNombre: 'Cliente', descripcionPieza: 'Pieza',
   etapas: [{ id: 'e1', nombre: 'Corte', ordenSecuencia: 1, completada: true }],
   avance: 100, semaforo: 'Terminado', diasRestantes: 2, etapaAhora: 'Todo listo', etiquetaPlazo: 'Terminado',
 };

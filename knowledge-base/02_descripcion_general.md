@@ -22,7 +22,7 @@ Versiones fijadas (2026-11-19): Node.js 26.13.1 (LTS activo), TypeScript 7.0.2, 
 
 Ejecución confirmada: todo el sistema corre en **Windows** con acceso al servidor privado de la empresa. **PostgreSQL se ejecuta en Docker Desktop; Node/Fastify y el exportador corren en el host Windows**, de modo que las rutas UNC se resuelven nativamente. No se incorpora **Python** al stack: R4 se mantiene intacta (solo se permiten spikes descartables fuera del repo).
 
-Convención de estilos: se escribe CSS real en archivos `.module.css`; las clases condicionales se componen con `clsx` o template strings, y los estilos globales (reset, tipografía, variables) viven en un único `global.css`.
+Convención de estilos: se escribe CSS real en archivos `.module.css`; las clases condicionales se componen con `clsx` o template strings, y los estilos globales (reset, tipografía, variables) viven en un único `global.css`. Los tokens de `Docs/design_system_velco.md` se definen en `:root` de `frontend/src/global.css` y se consumen con `var(--token)`; las primitivas compartidas van en `frontend/src/shared/ui/`. Las clases globales del prototipo (`.wrap`, `.card`, `.kpis`, `.st`) no son reutilizables con CSS Modules.
 
 Descartados: **Next.js** (mezcla dominio con server actions y dificulta TDD), **SQLite** (el SQL propuesto usa UUID, `gen_random_uuid()`, JSONB y `TIMESTAMPTZ`), **Python/openpyxl** (rompería la unidad de lenguaje TypeScript), **Tailwind** (se prefiere CSS real con scope de CSS Modules, sin tooling adicional). Detalle en [09_decisiones_y_supuestos.md](09_decisiones_y_supuestos.md).
 
@@ -72,7 +72,8 @@ Los paths definitivos se fijan al implementar; los nombres de operación y sus p
 
 | Recurso | Operación | Estado | Notas |
 |---|---|---|---|
-| Órdenes | `listOps({ fechaDesde, fechaHasta, estado })` | MVP | HU-09; además filtros por cliente y etapa `ahora` |
+| Órdenes | `listOps({ fechaDesde, fechaHasta, estado })` | MVP | HU-09; filtros por cliente y etapa `ahora`; búsqueda global por N° de OP, `codigo_plano`, cliente y pieza; `fechaDesde`/`fechaHasta` filtran `fecha_entrega` (fecha comprometida) |
+| Dashboard | `getDashboard({ fechaDesde, fechaHasta, estado })` | MVP (registrado en C-17) | HU-21; KPIs, promedios por etapa y tabla de desvíos; mismo criterio de fecha comprometida |
 | Órdenes | `getOp(id)` | MVP | Detalle con etapas, materiales, horas y derivados |
 | Órdenes | `createOp` / `updateOp` | MVP | HU-01, HU-02, HU-04 |
 | Etapas | agregar, quitar, reordenar, marcar completada | MVP | HU-04, HU-07 |
@@ -93,6 +94,6 @@ El esquema canónico está en [04_modelo_de_datos.md](04_modelo_de_datos.md). Pu
 
 ## Fuentes
 
-- `Docs/definici_n_del_mvp_velco.md`, `Docs/historias_de_usuario_velco.md`, `Docs/tablero-taller-v2.html`, `Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx` y `Docs/FichasExcel/A - OP-MASTER.xlsx`.
+- `Docs/definici_n_del_mvp_velco.md`, `Docs/historias_de_usuario_velco.md`, `Docs/design_system_velco.md`, `Docs/tablero-taller-v2.html`, `Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx` y `Docs/FichasExcel/A - OP-MASTER.xlsx`.
 - `Docs/MVP.md`, `Docs/HistoriasDeUsuario.md` y `Docs/Relevamiento.pdf` no son fuente (IN-09).
 - Decisiones 1, 2, 4, 5, 8 y 10 de [09_decisiones_y_supuestos.md](09_decisiones_y_supuestos.md).

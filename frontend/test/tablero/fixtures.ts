@@ -7,7 +7,7 @@ export function crearEtapa(parcial: Partial<EtapaTarjeta> = {}): EtapaTarjeta {
 
 export function crearTarjeta(parcial: Partial<TarjetaOrdenDTO> = {}): TarjetaOrdenDTO {
   return {
-    id: 'op1', numeroOp: 'OT-1', clienteId: 'c1', clienteNombre: 'Cliente',
+    id: 'op1', numeroOp: 'OT-1', codigoPlano: null, clienteId: 'c1', clienteNombre: 'Cliente',
     descripcionPieza: 'Pieza', etapas: [crearEtapa()],
     avance: 0, semaforo: 'En plazo', diasRestantes: 2, etapaAhora: 'Corte', etiquetaPlazo: 'Faltan 2 días',
     ...parcial,

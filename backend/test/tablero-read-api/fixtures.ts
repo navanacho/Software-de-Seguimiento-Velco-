@@ -1,4 +1,4 @@
-import type { Cliente, Configuracion, EtapaOrden, OrdenTrabajo } from '@velco/domain';
+﻿import type { Cliente, Configuracion, EtapaOrden, OrdenTrabajo } from '@velco/domain';
 import type { DependenciasApi } from '../../src/shared/dependencias.ts';
 import type { ConfiguracionServidor } from '../../src/shared/configuracion.ts';
 
@@ -18,8 +18,9 @@ export function crearOrden(cambios: Partial<OrdenTrabajo> = {}): OrdenTrabajo {
   return {
     id: 'op-1',
     numeroOp: 'OT-1001',
+    codigoPlano: null,
     clienteId: 'cli-1',
-    descripcionPieza: 'Eje de transmisión',
+    descripcionPieza: 'Eje de transmisi\u00f3n',
     fechaIngreso: '2026-03-01',
     fechaEntrega: '2026-03-12',
     montoVendido: '1250.50',
@@ -118,12 +119,25 @@ export function crearDependenciasFalsas(opciones: OpcionesFalsas = {}): {
         estado.ops.push(orden);
         return orden;
       },
+      actualizar: async (id, datos) => {
+        const idx = estado.ops.findIndex((o) => o.id === id);
+        if (idx < 0) return null;
+        const actual = estado.ops[idx]!;
+        const actualizado = { ...actual, ...datos };
+        estado.ops[idx] = actualizado;
+        return actualizado;
+      },
       buscarPorId: async (id) => {
         grafico.consultas.push(`op:${id}`);
         return estado.ops.find((orden) => orden.id === id) ?? null;
       },
       buscarPorNumeroOp: async (numeroOp) =>
         estado.ops.find((orden) => orden.numeroOp === numeroOp) ?? null,
+      buscarPorCodigoPlano: async (codigo, opIdExcluida) =>
+        estado.ops.find(
+          (orden) =>
+            orden.codigoPlano === codigo && (opIdExcluida === undefined || orden.id !== opIdExcluida),
+        ) ?? null,
       listarConEtapas: async () => {
         grafico.consultas.push('ops:listarConEtapas');
         return estado.ops.map((orden) => ({
@@ -168,6 +182,12 @@ export function crearDependenciasFalsas(opciones: OpcionesFalsas = {}): {
         estado.etapas = estado.etapas.map((item) => (item.id === id ? actualizada : item));
         return actualizada;
       },
+      eliminar: async (id) => {
+        estado.etapas = estado.etapas.filter((e) => e.id !== id);
+      },
+      actualizarSecuencia: async (id, ordenSecuencia) => {
+        estado.etapas = estado.etapas.map((e) => (e.id === id ? { ...e, ordenSecuencia } : e));
+      },
     },
     clientes: {
       crear: async (datos) => {
@@ -178,8 +198,28 @@ export function crearDependenciasFalsas(opciones: OpcionesFalsas = {}): {
       buscarPorNombre: async (nombre) => estado.clientes.find((cliente) => cliente.nombre === nombre) ?? null,
       buscarPorId: async (id) => estado.clientes.find((cliente) => cliente.id === id) ?? null,
     },
+    materiales: {
+      crearVarios: async () => [],
+      listarPorOrden: async () => [],
+    },
     configuracion: {
       obtener: async () => estado.configuracion,
+    },
+    unidadTrabajoOps: {
+      ejecutar: async <T>(
+        operacion: (repos: {
+          ops: DependenciasApi['ops'];
+          etapas: DependenciasApi['etapas'];
+          clientes: DependenciasApi['clientes'];
+          materiales: { crearVarios: (ordenId: string, materiales: readonly import('@velco/domain').NuevoMaterialOrden[]) => Promise<readonly import('@velco/domain').MaterialOrden[]>; listarPorOrden: (ordenId: string) => Promise<readonly import('@velco/domain').MaterialOrden[]> };
+        }) => Promise<T>,
+      ) =>
+        operacion({
+          ops: dependencias.ops,
+          etapas: dependencias.etapas,
+          clientes: dependencias.clientes,
+          materiales: { crearVarios: async () => [], listarPorOrden: async () => [] },
+        }),
     },
     reloj: {
       ahora: () => opciones.instante ?? INSTANTE_FIJO,

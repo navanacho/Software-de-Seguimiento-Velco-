@@ -1,6 +1,6 @@
 # Decisiones y Supuestos
 
-Las decisiones 1–10 provienen de la conversación de fundación y **no figuran en los documentos fuente**. Son la fuente de verdad para stack, esquema, auth y exportación.
+Las decisiones 1–10 provienen de la conversación de fundación y **no figuran en los documentos fuente**. Son la fuente de verdad para stack, esquema, auth y exportación. Las decisiones 11–13 se registran por adopción explícita de los documentos vigentes (`Docs/definici_n_del_mvp_velco.md`, `Docs/historias_de_usuario_velco.md` y `Docs/design_system_velco.md`).
 
 ## Decisiones documentadas
 
@@ -149,6 +149,42 @@ Las decisiones 1–10 provienen de la conversación de fundación y **no figuran
 
 **Trade-offs aceptados:** hay trabajo inicial de documentación antes de ver la primera pantalla; el alcance de esta tarea es **solo Markdown**, sin código de aplicación.
 
+### DD-11 — ID de plano opcional, único y normalizado
+
+**Decisión:** `codigo_plano VARCHAR(80) NULL` se agrega de forma aditiva en la migración 002 (sin renumerar migraciones). La frontera HTTP aplica `trim()` + `toUpperCase()` y convierte vacío en `NULL`; la BD prohibe `''` con `CHECK` y garantiza unicidad con índice parcial `WHERE codigo_plano IS NOT NULL`. Duplicado ⇒ 409 `codigo_plano_duplicado` con `codigoPlano` y `opExistente`, más fallback P2002 por carrera. La búsqueda global cubre OP, plano, cliente y pieza. En OP-MASTER se mapea a `O7:R8` como `ID Plano:` / `S/P`, nunca a `J7:N8` (`PC N°:`).
+
+**Contexto:** los documentos vigentes incorporan el ID de plano a HU-01, HU-05, HU-09 y HU-20B; el diseño anterior no lo contemplaba.
+
+**Alternativas consideradas:** columna obligatoria; índice único total con `NULL` duplicados; usar `J7:N8`; generar el Excel sin validar la plantilla.
+
+**Justificación:** los trabajos sin plano deben poder repetirse; la normalización evita duplicados por formato; el mapeo respeta la plantilla oficial.
+
+**Trade-offs aceptados:** el rango `O7:R8` y el enlace/UNC siguen sujetos a la confirmación de C-13/IN-08; hasta entonces C-15 queda bloqueado en ese mapeo.
+
+### DD-12 — Dashboard general en el MVP con filtro de fecha comprometida
+
+**Decisión:** HU-21 (`/dashboard`) entra en el MVP con KPIs, promedios por etapa y tabla ordenable de desvíos. El filtro de período usa `fecha_entrega` y se rotula `Fecha comprometida`: significa entregas prometidas en el rango, no trabajo ejecutado en ese rango. Se registra en C-17 (datos/API) y C-18 (UI/tokens), dependientes de C-08 y C-11.
+
+**Contexto:** `Docs/definici_n_del_mvp_velco.md` §2.C y `Docs/historias_de_usuario_velco.md` HU-21 lo incluyen; la KB y el roadmap lo tenían como HU-17 diferido a Fase 2.
+
+**Alternativas consideradas:** mantenerlo en Fase 2; filtrar por fecha de imputación; calcular los KPIs en React.
+
+**Justificación:** el contrato vigente de `listOps` ya filtra por `fecha_entrega`; cambiar la semántica rompería la API existente y los derivados tienen una sola implementación en dominio.
+
+**Trade-offs aceptados:** el dashboard no incluye tendencias históricas ni curvas por cliente (HU-17 sigue en Fase 2); C-17/C-18 se registran en el roadmap pero no se proponen hasta completar C-08/C-11.
+
+### DD-13 — Mapeo del design system a CSS Modules
+
+**Decisión:** los tokens viven en `frontend/src/global.css` (`:root`), se consumen con `var(--token)` en `*.module.css`, y las primitivas compartidas van en `frontend/src/shared/ui/` con `clsx` para estados. Las clases del prototipo (`.wrap`, `.card`, `.kpis`, `.st`) no se usan como utilidades por el hash local de CSS Modules.
+
+**Contexto:** `Docs/design_system_velco.md` define la estética industrial del MVP; el prototipo HTML usa clases globales que no sobreviven al alcance local de Vite.
+
+**Alternativas consideradas:** copiar el CSS del prototipo globalmente; usar nombres globales con `:global()`; tokenizar en JS.
+
+**Justificación:** mantiene el contraste y la jerarquía visual sin acoplarse al prototipo ni duplicar valores hexadecimales.
+
+**Trade-offs aceptados:** el selector de tema es Fase 2 (HU-08) y `/configuracion` pertenece a C-10; C-18 solo entrega los tokens base y la UI del dashboard.
+
 ## Supuestos inferidos
 
 ### SU-01 — Despliegue interno, sin exposición pública
@@ -214,5 +250,5 @@ Las decisiones 1–10 provienen de la conversación de fundación y **no figuran
 ## Fuentes
 
 - Conversación de fundación (decisiones 1–10; no presentes en `Docs/`).
-- `Docs/definici_n_del_mvp_velco.md`, `Docs/historias_de_usuario_velco.md`, `Docs/tablero-taller-v2.html`, `Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx` y `Docs/FichasExcel/A - OP-MASTER.xlsx`.
+- `Docs/definici_n_del_mvp_velco.md`, `Docs/historias_de_usuario_velco.md`, `Docs/design_system_velco.md`, `Docs/tablero-taller-v2.html`, `Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx` y `Docs/FichasExcel/A - OP-MASTER.xlsx`.
 - `Docs/MVP.md` y `Docs/HistoriasDeUsuario.md` no son fuente: borrado deliberado por obsoletos (IN-09).

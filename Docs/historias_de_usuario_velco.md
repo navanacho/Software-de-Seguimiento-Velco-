@@ -13,12 +13,13 @@ Este documento define las historias de usuario para el sistema de gestión y seg
 
 ## Épica 1: Gestión de Órdenes de Trabajo (OT / OP) y Presupuesto Base
 
-### HU-01 — Alta de Orden de Producción (OP/OT) completa
+### HU-01 — Alta de Orden de Producción (OP/OT) completa con ID Único de Plano
 * **Como** administrador o responsable de producción,
-* **Quiero** crear una nueva orden ingresando N° de OP/OT, Cliente, Descripción/Pieza, Fecha de ingreso, Fecha de entrega prometida y Monto vendido,
-* **Para** centralizar todos los trabajos en un único registro maestro.
+* **Quiero** crear una nueva orden ingresando N° de OP/OT, ID/Código de Plano (opcional), Cliente, Descripción/Pieza, Fecha de ingreso, Fecha de entrega prometida y Monto vendido,
+* **Para** centralizar todos los trabajos en un único registro maestro y vincularlos con su documentación técnica cuando corresponda.
 * **Criterios de Aceptación:**
-  * El N° de OP/OT debe ser único (validación al guardar).
+  * El N° de OP/OT es obligatorio y único.
+  * El **ID de Plano (`codigo_plano`)** es **opcional**: si el trabajo tiene plano asociado, el sistema valida que sea único en toda la base de datos; si no tiene plano, permite guardarlo vacío (`NULL` / `"Sin plano"`) sin restricciones de unicidad.
   * El estado de plazo se calcula automáticamente (`En plazo`, `En riesgo`, `Atrasado`, `Terminado`) según la fecha de entrega y el porcentaje de avance.
 
 ### HU-02 — Carga de Horas Vendidas y Costos Teóricos (Línea Base)
@@ -48,7 +49,7 @@ Este documento define las historias de usuario para el sistema de gestión y seg
 
 ### HU-05 — Tablero de Tarjetas Autocontenidas con Semáforo de Estado
 * **Como** usuario de oficina o taller,
-* **Quiero** visualizar todas las órdenes activas en una grilla única con su porcentaje de avance, días restantes/atraso y semáforo de estado (*En plazo, En riesgo, Atrasado, Terminado*),
+* **Quiero** visualizar todas las órdenes activas en una grilla única con su porcentaje de avance, días restantes/atraso, identificador de plano (si posee) y semáforo de estado (*En plazo, En riesgo, Atrasado, Terminado*),
 * **Para** detectar urgencias de un vistazo.
 * **Criterios de Aceptación:**
   * **Verde (`En plazo`):** Fecha de entrega futura y fuera de umbral de riesgo.
@@ -78,8 +79,11 @@ Este documento define las historias de usuario para el sistema de gestión y seg
 
 ### HU-09 — Filtros, Búsqueda y Ordenamiento
 * **Como** usuario,
-* **Quiero** filtrar las tarjetas por Cliente, Estado (`Atrasados`, `En riesgo`, `En plazo`, `Terminados`), Etapa actual (`ahora`) o buscar por N° de OP/pieza,
+* **Quiero** filtrar las tarjetas por Cliente, Estado (`Atrasados`, `En riesgo`, `En plazo`, `Terminados`), Etapa actual (`ahora`) o buscar por N° de OP, ID de Plano o descripción de pieza,
 * **Para** encontrar rápidamente una orden cuando el volumen de trabajos crezca.
+* **Criterios de Aceptación:**
+  * Búsqueda instantánea por `numero_op`, `codigo_plano`, `cliente` y `descripcion_pieza`.
+  * Filtro rápido para ver órdenes con plano asignado vs. sin plano.
 
 ---
 
@@ -110,7 +114,7 @@ Este documento define las historias de usuario para el sistema de gestión y seg
 
 ---
 
-## Épica 4: Comparativa Horas Vendidas vs. Horas Reales y Rentabilidad
+## Épica 4: Comparativa Horas Vendidas vs. Horas Reales, Dashboard y Rentabilidad
 
 ### HU-14 — Indicador de Consumo de Horas en Tarjeta (Alerta Temprana)
 * **Como** supervisor,
@@ -129,10 +133,20 @@ Este documento define las historias de usuario para el sistema de gestión y seg
 * **Quiero** que el sistema multiplique las horas reales por el valor hora configurado (sumando los materiales reales) y lo compare contra el monto vendido,
 * **Para** conocer la rentabilidad neta real de cada trabajo terminado.
 
-### HU-17 — Dashboard de Métricas Históricas *(Fase 2)*
+### HU-21 — Dashboard General de Panorama y Tiempos de Producción
+* **Como** gerente o responsable de producción,
+* **Quiero** contar con una sección dedicada (`/dashboard`) que muestre el panorama general de todos los trabajos, sus tiempos acumulados, promedios de ejecución y desvíos globales,
+* **Para** tomar decisiones estratégicas sobre capacidad de taller y rentabilidad sin revisar tarjeta por tarjeta.
+* **Criterios de Aceptación:**
+  * **KPIs Globales:** Total de Horas Vendidas vs. Horas Reales (activas e históricas), eficiencia global (`%`), distribución de OPs por estado y tiempo promedio de ciclo (días desde ingreso hasta entrega).
+  * **Tiempos por Sector/Etapa:** Comparativa de horas vendidas vs. horas reales y tiempo promedio invertido por etapa (*Corte, Soldadura, Mecanizado, Pintura*, etc.).
+  * **Tabla Consolidada de Trabajos y Desvíos:** Listado ordenable de todas las OPs con `N° OP`, `ID Plano`, `Cliente`, `Estado`, `Horas Vendidas`, `Horas Reales`, `Desvío (hs y %)` y `Margen Neto`.
+  * Filtros por período de fechas y estado de orden (`Todas`, `Activas`, `Terminadas`).
+
+### HU-17 — Analítica Histórica Avanzada y Tendencias por Cliente *(Fase 2)*
 * **Como** gerente,
-* **Quiero** visualizar indicadores históricos (desvío promedio de horas por cliente o tipo de trabajo, horas productivas por mes, tasa de entregas en término),
-* **Para** ajustar los criterios de futuros presupuestos.
+* **Quiero** visualizar curvas de tendencia intermensual y rankings de rentabilidad histórica por cliente y tipo de pieza,
+* **Para** ajustar los coeficientes de futuros presupuestos.
 
 ---
 
@@ -158,8 +172,8 @@ Este documento define las historias de usuario para el sistema de gestión y seg
 
 ### HU-20B — Exportación de Orden de Producción (`OP-MASTER`)
 * **Como** jefe de taller o administrador,
-* **Quiero** descargar un archivo `.xlsx` (y contar con vista de impresión limpia) de una orden específica respetando el formato, disposición de celdas, encabezados e ítems operativos de `A - OP-MASTER.xlsx` (detalle de pieza, cliente, fechas, etapas y horas asignadas/ejecutadas),
+* **Quiero** descargar un archivo `.xlsx` (y contar con vista de impresión limpia) de una orden específica respetando el formato, disposición de celdas, encabezados e ítems operativos de `A - OP-MASTER.xlsx` (detalle de pieza, ID de plano si posee, cliente, fechas, etapas y horas asignadas/ejecutadas),
 * **Para** emitir la orden de taller oficial en el formato estándar de la empresa.
 * **Criterios de Aceptación:**
   * Descarga independiente (`OP_[NroOP]_[Cliente].xlsx`) desde la tarjeta o detalle de la OP.
-  * Respeta la estructura exacta de `A - OP-MASTER.xlsx`, excluyendo márgenes financieros comerciales para uso operativo en planta.
+  * Respeta la estructura exacta de `A - OP-MASTER.xlsx`, incluyendo el `codigo_plano` y excluyendo márgenes financieros comerciales para uso operativo en planta.

@@ -31,6 +31,7 @@ export function crearOrden(cambios: Partial<OrdenTrabajo> = {}): OrdenTrabajo {
   return {
     id: 'op-1',
     numeroOp: 'OT-1041',
+    codigoPlano: null,
     clienteId: 'cli-1',
     descripcionPieza: 'Eje de transmision',
     fechaIngreso: '2026-03-01',

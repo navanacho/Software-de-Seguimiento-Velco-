@@ -1,8 +1,8 @@
 import type { Cliente, NuevoCliente } from '@velco/domain';
-import type { Cliente as ClientePrisma, PrismaClient } from '@prisma/client';
+import type { Cliente as ClientePrismaModel, Prisma, PrismaClient } from '@prisma/client';
 import type { ClienteRepository } from '../application/ports/ClienteRepository.ts';
 
-function aCliente(fila: ClientePrisma): Cliente {
+function aCliente(fila: ClientePrismaModel): Cliente {
   return {
     id: fila.id,
     nombre: fila.nombre,
@@ -10,10 +10,12 @@ function aCliente(fila: ClientePrisma): Cliente {
   };
 }
 
-export class PrismaClienteRepository implements ClienteRepository {
-  private readonly prisma: PrismaClient;
+type ClientePrisma = PrismaClient | Prisma.TransactionClient;
 
-  constructor(prisma: PrismaClient) {
+export class PrismaClienteRepository implements ClienteRepository {
+  private readonly prisma: ClientePrisma;
+
+  constructor(prisma: ClientePrisma) {
     this.prisma = prisma;
   }
 

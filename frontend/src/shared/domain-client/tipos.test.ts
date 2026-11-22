@@ -18,6 +18,7 @@ describe('tipos de transporte del tablero (2.1-2.4)', () => {
     const op: TarjetaOrdenDTO = {
       id: 'op1',
       numeroOp: 'OT-1',
+      codigoPlano: null,
       clienteId: 'c1',
       clienteNombre: 'Cliente',
       descripcionPieza: 'Pieza',
@@ -41,6 +42,7 @@ describe('tipos de transporte del tablero (2.1-2.4)', () => {
     const op: TarjetaOrdenDTO = {
       id: 'op2',
       numeroOp: 'OT-2',
+      codigoPlano: null,
       clienteId: 'c2',
       clienteNombre: null,
       descripcionPieza: 'Pieza 2',

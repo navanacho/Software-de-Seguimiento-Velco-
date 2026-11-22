@@ -1,7 +1,7 @@
 # Velco — Instrucciones para Agentes
 
 > Este archivo (y su copia `CLAUDE.md`) es lo PRIMERO que todo agente lee al entrar al repo.
-> Generado a partir de `knowledge-base/` y `CHANGES.md`. No editar a mano sin re-sincronizar ambos archivos.
+> Generado a partir de los documentos canónicos, `knowledge-base/` y `CHANGES.md`. No editar a mano sin re-sincronizar ambos archivos.
 
 ---
 
@@ -25,13 +25,25 @@ Versiones fijadas en C-01 (2026-11-19).
 
 Ejecución: PostgreSQL en Docker Desktop; Node/Fastify y el exportador en el host Windows (rutas UNC nativas). Sin Python en el stack (R4 intacta).
 
-Detalle completo: [knowledge-base/02_descripcion_general.md](knowledge-base/02_descripcion_general.md)
+Detalle completo: [knowledge-base/02_descripcion_general.md](knowledge-base/02_descripcion_general.md) y [Docs/design_system_velco.md](Docs/design_system_velco.md).
 
 ---
 
-## Base de Conocimiento
+## Fuentes de Verdad y Base de Conocimiento
 
-La fuente de verdad del dominio vive en `knowledge-base/`. **Leé el archivo relevante ANTES de implementar.**
+Leer primero los documentos canónicos. La knowledge base es la fuente operativa del dominio y debe permanecer sincronizada con ellos.
+
+### Documentos canónicos
+
+| Archivo | Autoridad |
+|---------|-----------|
+| [Docs/definici_n_del_mvp_velco.md](Docs/definici_n_del_mvp_velco.md) | Alcance y reglas del MVP (alcance actual, ID de plano, dashboard y exportación) |
+| [Docs/historias_de_usuario_velco.md](Docs/historias_de_usuario_velco.md) | Historias de usuario vigentes (HU-01, HU-09, HU-20A/B, HU-21) |
+| [Docs/design_system_velco.md](Docs/design_system_velco.md) | Tokens visuales, primitivas y mapeo a CSS Modules |
+
+### Knowledge Base
+
+**Leé el archivo relevante ANTES de implementar.**
 
 | Archivo | Cuándo leerlo |
 |---------|---------------|
@@ -44,9 +56,9 @@ La fuente de verdad del dominio vive en `knowledge-base/`. **Leé el archivo rel
 | [07_flujos_principales.md](knowledge-base/07_flujos_principales.md) | Flujos E2E |
 | [08_arquitectura_propuesta.md](knowledge-base/08_arquitectura_propuesta.md) | Patrones, estructura, env vars y testing |
 | [09_decisiones_y_supuestos.md](knowledge-base/09_decisiones_y_supuestos.md) | Decisiones `DD-NN`, supuestos `SU-NN` y trade-offs |
-| [10_preguntas_abiertas.md](knowledge-base/10_preguntas_abiertas.md) | ⚠️ Inconsistencias a resolver ANTES de codear |
+| [10_preguntas_abiertas.md](knowledge-base/10_preguntas_abiertas.md) | Inconsistencias a resolver ANTES de codear |
 
-> ⚠️ Resolver las preguntas de prioridad **Alta** de `10_preguntas_abiertas.md` antes de arrancar el primer change.
+> Resolver las preguntas de prioridad **Alta** de `10_preguntas_abiertas.md` antes de arrancar el primer change.
 
 ---
 
@@ -70,11 +82,12 @@ Cargá la skill correspondiente al contexto ANTES de escribir código.
 
 El plan de implementación completo está en [CHANGES.md](CHANGES.md). Resumen:
 
-- **Total**: 16 changes en 5 fases (FASE 0 — Fundación a FASE 4 — Exportación).
-- **Camino crítico** (11 changes): `C-01 → C-02 → C-03 → C-04 → C-05 → C-06 → C-08 → C-11 → C-14 → C-15 → C-16`.
-- **Primer change**: `C-01` (`velco-mvp-foundation`).
+- **Total**: 18 changes en 6 fases (FASE 0 — Fundación; FASE 1 — Tablero; FASE 2 — OP y horas; FASE 3 — Analítica; FASE 4 — Exportación; FASE 5 — Dashboard y design system).
+- **Camino crítico** (11 changes, dos terminales obligatorias): `C-01 → C-02 → C-03 → C-04 → C-05 → C-06 → C-08 → C-11 → C-14 → C-15 → C-16`, más la rama paralela `C-11 → C-17 → C-18` desde `C-11`.
+- **Registrados sin propuesta**: `C-17` (`dashboard-datos`) y `C-18` (`dashboard-ui-y-design-system`); no ejecutar `/opsx:propose` hasta completar `C-08`/`C-11`.
+- **Estado**: `C-01` completado; siguiente change disponible `C-02` (`core-order-models`).
 
-**Antes de cualquier `/opsx:propose`**: leé [CHANGES.md](CHANGES.md), identificá las dependencias del change y los archivos de "Leer antes".
+**Antes de cualquier `/opsx:propose`**: leé [CHANGES.md](CHANGES.md), identificá las dependencias del change y los archivos de "Leer antes". El slug del comando es el nombre entre backticks del change, no el ID `C-NN`.
 
 ---
 
@@ -94,16 +107,18 @@ Son contrato; romperlas es un defecto. Formato `NUNCA X → hacer Y`:
 - R9: NUNCA usar `any` ni un `tsconfig` no estricto → tipos estrictos; componentes React en PascalCase.
 - R10: NUNCA hacer mock de PostgreSQL en tests de integración → BD real (contenedor); los tests de reglas de negocio son puros y no la necesitan.
 
+R7 no está definida en este repositorio; no inventar una regla con ese identificador.
+
 ---
 
 ## Flujo de Trabajo
 
 ```
-1. Leer la KB relevante (knowledge-base/)        → entender el dominio
-2. Identificar el change en CHANGES.md           → respetar dependencias
-3. /opsx:propose C-NN-nombre                     → proposal + design + specs + tasks
-4. Implementar las tasks (cargando skills)       → respetando las reglas duras
-5. /opsx:archive C-NN-nombre + marcar [x]        → cerrar el change
+1. Leer los documentos canónicos y la KB relevante   → entender el dominio
+2. Identificar el change en CHANGES.md               → respetar dependencias
+3. /opsx:propose <slug>                              → proposal + design + specs + tasks
+4. Implementar las tasks (cargando skills)           → respetando las reglas duras
+5. /opsx:archive <slug> + marcar [x]                 → cerrar el change
 ```
 
-Aplicar TODAS las reglas duras en cada paso. Ante conflicto entre la KB y este archivo, las reglas duras prevalecen.
+Aplicar TODAS las reglas duras en cada paso. Ante conflicto entre la KB y este archivo, las reglas duras prevalecen; ante conflicto entre la KB y los documentos canónicos, prevalecen los documentos canónicos.

@@ -26,7 +26,8 @@
 | Único usuario | `clientes` | Crear, leer, actualizar |
 | Único usuario | `configuracion` | Leer, actualizar (HU-18) |
 | Único usuario | Exportación | `exportOp(opId, { incluirMargenes: true })` y `: false`; **ambas variantes visibles** |
-| Único usuario | Dashboard histórico / importación | Sin acceso: no implementado en MVP |
+| Único usuario | Dashboard general (`/dashboard`, HU-21) | Ver KPIs, promedios por etapa y tabla de desvíos; filtrar por fecha comprometida y estado |
+| Único usuario | Analítica histórica avanzada (HU-17) / importación (HU-03) | Sin acceso: no implementado en MVP |
 
 La aplicación se despliega en un ámbito interno/intranet. La ausencia de login es una decisión de alcance, no una recomendación de seguridad para Internet.
 
@@ -44,6 +45,7 @@ Los documentos vigentes no definen otros roles ni un mecanismo de autenticación
 | Ruta / área | MVP | Fase 2 |
 |---|---|---|
 | `/` — tablero de tarjetas | Accesible sin autenticación | Según diseño de auth aprobado (R5) |
+| `/dashboard` — panorama, promedios y desvíos (HU-21) | Accesible sin autenticación | Según diseño de auth aprobado (R5) |
 | `/ops/:id` — detalle de OP | Accesible sin autenticación | Según diseño de auth aprobado (R5) |
 | `/ops/nueva`, `/ops/:id/editar` | Accesible sin autenticación | Según diseño de auth aprobado (R5) |
 | `/configuracion` — valor hora y umbrales | Accesible sin autenticación | Según diseño de auth aprobado (R5) |

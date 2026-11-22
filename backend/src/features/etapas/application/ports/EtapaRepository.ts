@@ -5,4 +5,6 @@ export interface EtapaRepository {
   listarPorOrden(ordenId: string): Promise<readonly EtapaOrden[]>;
   buscarPorId(id: string): Promise<EtapaOrden | null>;
   actualizarCompletada(id: string, completada: boolean): Promise<EtapaOrden | null>;
+  eliminar(id: string): Promise<void>;
+  actualizarSecuencia(id: string, ordenSecuencia: number): Promise<void>;
 }

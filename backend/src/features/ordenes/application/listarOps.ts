@@ -17,6 +17,7 @@ export interface FiltrosListadoOps {
   readonly clienteId?: string | undefined;
   readonly etapaAhora?: string | undefined;
   readonly buscar?: string | undefined;
+  readonly conPlano?: boolean | undefined;
 }
 
 export interface KpisListadoOps {
@@ -34,6 +35,8 @@ interface FilaDerivada {
   readonly fechaEntrega: string;
   readonly numeroOp: string;
   readonly descripcionPieza: string;
+  readonly codigoPlano: string | null;
+  readonly clienteNombre: string | null;
   readonly tarjeta: TarjetaOrdenDTO;
 }
 
@@ -47,8 +50,10 @@ function cumpleFiltros(fila: FilaDerivada, filtros: FiltrosListadoOps): boolean 
   if (filtros.clienteId !== undefined && fila.tarjeta.clienteId !== filtros.clienteId) {
     return false;
   }
+  if (filtros.conPlano === true && fila.codigoPlano === null) return false;
+  if (filtros.conPlano === false && fila.codigoPlano !== null) return false;
   if (filtros.buscar !== undefined) {
-    const texto = `${fila.numeroOp} ${fila.descripcionPieza}`.toLowerCase();
+    const texto = `${fila.numeroOp} ${fila.codigoPlano ?? ''} ${fila.clienteNombre ?? ''} ${fila.descripcionPieza}`.toLowerCase();
     if (!texto.includes(filtros.buscar.toLowerCase())) return false;
   }
   return true;
@@ -77,6 +82,8 @@ export async function listarOps(
         fechaEntrega: fila.orden.fechaEntrega,
         numeroOp: fila.orden.numeroOp,
         descripcionPieza: fila.orden.descripcionPieza,
+        codigoPlano: fila.orden.codigoPlano,
+        clienteNombre: fila.clienteNombre,
         tarjeta: construirTarjetaOrden(fila.orden, fila.etapas, contexto),
       };
     }),

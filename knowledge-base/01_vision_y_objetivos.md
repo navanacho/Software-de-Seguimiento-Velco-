@@ -16,7 +16,7 @@ Hoy la información vive dispersa entre el tablero visual del prototipo, los par
 
 | Actor | Objetivo principal | Objetivos secundarios |
 |---|---|---|
-| Gerente general (único usuario del MVP) | Ver el estado real y la rentabilidad de cada OP sin armar planillas a mano | Ajustar valor hora y umbrales; exportar costeo con márgenes |
+| Gerente general (único usuario del MVP) | Ver el estado real y la rentabilidad de cada OP sin armar planillas a mano | Consultar `/dashboard`; ajustar valor hora y umbrales; exportar costeo con márgenes |
 | Jefe de taller | Balancear carga entre sectores viendo la etapa `ahora` de cada trabajo | Reordenar etapas por OP; detectar atrasos |
 | Presupuestista / administración | Cargar la línea base de horas vendidas y materiales cotizados | Comparar lo cotizado contra lo real; exportar `COSTEO_[NroOP]_[Cliente].xlsx` |
 | Operario / supervisor (Fase 2) | Imputar horas y avanzar etapas desde el tablero | Sin acceso a montos económicos (Fase 2) |
@@ -29,11 +29,13 @@ Hoy la información vive dispersa entre el tablero visual del prototipo, los par
 - **Épica 1 — Órdenes y presupuesto base:** HU-01, HU-02, HU-04.
 - **Épica 2 — Tablero operativo:** HU-05, HU-06, HU-07, HU-09.
 - **Épica 3 — Horas reales:** HU-10, HU-13.
-- **Épica 4 — Comparativa y costos:** HU-14, HU-15, HU-16.
+- **Épica 4 — Comparativa, dashboard y costos:** HU-14, HU-15, HU-16, HU-21 (`/dashboard` con KPIs, promedios por etapa y tabla de desvíos).
 - **Épica 5 — Configuración y exportación:** HU-18, HU-20A, HU-20B.
 - Semáforo de plazo, alerta de desvío de horas y cálculo de margen por OP.
+- `codigo_plano` opcional y único cuando está presente (HU-01), con búsqueda global por OP/plano/cliente/pieza (HU-09).
 - Exportación `.xlsx` dual basada en las plantillas existentes, con `exportOp(opId, { incluirMargenes })` como función pura.
-- `listOps({ fechaDesde, fechaHasta, estado })` con filtros por cliente y etapa actual, según HU-09.
+- `listOps({ fechaDesde, fechaHasta, estado })` con filtros por cliente y etapa actual, según HU-09. El rango de fechas filtra `fecha_entrega` (fecha comprometida), no fecha de ejecución.
+- Tokens visuales y anatomía de componentes según `Docs/design_system_velco.md`, implementados con CSS Modules y `clsx`.
 - Arquitectura hexagonal con dominio separado de framework y base de datos; TDD estricto con Vitest.
 
 ## Fuera de alcance
@@ -43,7 +45,7 @@ Hoy la información vive dispersa entre el tablero visual del prototipo, los par
 - HU-03: importación automática desde Excel/CSV.
 - HU-08: modo Kiosco/TV con auto-refresh.
 - HU-11: cronómetro en vivo; HU-12: reprocesos vs. adicionales.
-- HU-17: dashboard histórico y promedios.
+- HU-17: analítica histórica avanzada y tendencias por cliente (el dashboard general HU-21 sí está en el MVP).
 - HU-19: roles `Admin/Oficina` (ve costos y márgenes) y `Taller` (ve tablero, avanza etapas y carga horas sin ver montos). Cualquier auth/PIN/RBAC requiere aprobación humana explícita (R5).
 - Tasa de hora por etapa/categoría (la plantilla de costeo expone `COST. UNIT.` por operación).
 - `usuario_id` nullable en `registros_horas`.
@@ -68,7 +70,8 @@ Hoy la información vive dispersa entre el tablero visual del prototipo, los par
 ## Fuentes
 
 - `Docs/definici_n_del_mvp_velco.md` — ámbito, fórmulas, SQL y sprints.
-- `Docs/historias_de_usuario_velco.md` — 20 historias en 5 épicas y 3 principios de diseño.
+- `Docs/historias_de_usuario_velco.md` — historias en 5 épicas y 3 principios de diseño; incluye HU-21.
+- `Docs/design_system_velco.md` — tokens, tipografía, anatomía de componentes y mapeo a implementación.
 - `Docs/tablero-taller-v2.html` — prototipo visual, semáforo y etiqueta `ahora`.
 - `Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx` y `Docs/FichasExcel/A - OP-MASTER.xlsx` — plantillas oficiales.
 - `Docs/MVP.md` y `Docs/HistoriasDeUsuario.md` no son fuente: borrado deliberado por obsoletos (IN-09).

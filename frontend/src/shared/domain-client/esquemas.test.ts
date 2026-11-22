@@ -2,7 +2,7 @@
 import { EsquemaRespuestaListadoTablero, EsquemaTarjetaOrden } from './esquemas.ts';
 
 const tarjetaValida = {
-  id: 'op1', numeroOp: 'OT-1', clienteId: 'c1', clienteNombre: 'Cliente', descripcionPieza: 'Pieza',
+  id: 'op1', numeroOp: 'OT-1', codigoPlano: null, clienteId: 'c1', clienteNombre: 'Cliente', descripcionPieza: 'Pieza',
   etapas: [{ id: 'e1', nombre: 'Corte', ordenSecuencia: 1, completada: false }],
   avance: 0, semaforo: 'En plazo', diasRestantes: 2, etapaAhora: 'Corte', etiquetaPlazo: 'Faltan 2 días',
 };

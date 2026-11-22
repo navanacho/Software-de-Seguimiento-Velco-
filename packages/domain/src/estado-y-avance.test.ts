@@ -12,6 +12,7 @@ import type { OrdenTrabajo } from '@velco/domain';
 const orden: OrdenTrabajo = {
   id: 'op-smoke',
   numeroOp: 'OT-SMOKE',
+  codigoPlano: null,
   clienteId: 'cli-smoke',
   descripcionPieza: 'Pieza smoke',
   fechaIngreso: '2026-03-01',

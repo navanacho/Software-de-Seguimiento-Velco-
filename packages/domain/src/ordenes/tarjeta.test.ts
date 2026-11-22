@@ -6,6 +6,21 @@ import { construirTarjetaOrden } from './tarjeta.ts';
 const contexto = { ...CONTEXTO, clienteNombre: 'Bodega Los Andes' };
 
 describe('construirTarjetaOrden', () => {
+  it('RN-OP-05: copia codigoPlano como dato persistido sin derivarlo', () => {
+    const dto = construirTarjetaOrden(
+      crearOrden({ codigoPlano: 'PL-2026-045', fechaEntrega: '2026-03-12' }),
+      crearEtapas(['Corte'], 0),
+      contexto,
+    );
+    expect(dto.codigoPlano).toBe('PL-2026-045');
+  });
+
+  it('RN-OP-05 TRIANGULA: sin plano queda null y no se inventa texto', () => {
+    const dto = construirTarjetaOrden(crearOrden({ codigoPlano: null }), crearEtapas(['Corte'], 0), contexto);
+    expect(dto.codigoPlano).toBeNull();
+    expect(dto).not.toHaveProperty('planoVisible');
+  });
+
   it('RN-GLOBAL-02: aplana avance, semaforo, dias restantes, etapa ahora y etiqueta', () => {
     const orden = crearOrden({ fechaEntrega: '2026-03-11' });
     const dto = construirTarjetaOrden(orden, crearEtapas(['Corte', 'Soldadura'], 1), contexto);

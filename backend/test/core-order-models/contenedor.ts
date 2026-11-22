@@ -7,7 +7,7 @@ import { crearContenedorPostgres } from '../fundacion/contenedor-postgres.ts';
 
 const raiz = resolve(process.cwd(), '..');
 const directorioBackend = join(raiz, 'backend');
-const rutaMigracion = join(directorioBackend, 'prisma', 'migrations', '001_core_order_models', 'migration.sql');
+const rutaMigracion001 = join(directorioBackend, 'prisma', 'migrations', '001_core_order_models', 'migration.sql');
 const rutaCliPrisma = join(raiz, 'node_modules', 'prisma', 'build', 'index.js');
 const rutaSeed = join(directorioBackend, 'prisma', 'seed.ts');
 
@@ -39,7 +39,7 @@ export async function conBase<T>(accion: (base: BaseDeTest) => Promise<T>): Prom
   let prisma: PrismaClient | undefined;
   try {
     const uri = iniciado.getConnectionUri();
-    if (existsSync(rutaMigracion)) {
+    if (existsSync(rutaMigracion001)) {
       const entorno = { ...process.env, DATABASE_URL: uri };
       ejecutar([rutaCliPrisma, 'migrate', 'deploy'], entorno);
       ejecutar(['--experimental-strip-types', rutaSeed], entorno);

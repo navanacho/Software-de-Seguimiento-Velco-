@@ -1,6 +1,7 @@
 export interface OrdenTrabajo {
   readonly id: string;
   readonly numeroOp: string;
+  readonly codigoPlano: string | null;
   readonly clienteId: string;
   readonly descripcionPieza: string;
   readonly fechaIngreso: string;
@@ -13,6 +14,7 @@ export interface OrdenTrabajo {
 
 export interface NuevaOrdenTrabajo {
   readonly numeroOp: string;
+  readonly codigoPlano?: string | null;
   readonly clienteId: string;
   readonly descripcionPieza: string;
   readonly fechaEntrega: string;

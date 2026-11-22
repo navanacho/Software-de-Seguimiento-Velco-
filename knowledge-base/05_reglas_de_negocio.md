@@ -8,6 +8,8 @@ Cada regla tiene un código único `RN-{DOMINIO}-{NN}` para trazabilidad. La evi
 - **RN-OP-02 — Datos obligatorios:** toda OP tiene cliente, descripción de pieza, fecha de ingreso, fecha de entrega y monto vendido (Docs: HU-01).
 - **RN-OP-03 — Entidad raíz:** el seguimiento gira alrededor de `ordenes_trabajo`; no existe seguimiento de flotas ni de vehículos.
 - **RN-OP-04 — Cliente normalizado:** el cliente se resuelve por `cliente_id` contra `clientes`; no se acepta texto libre en la OP (Decisión 6).
+- **RN-OP-05 — ID de plano opcional y único:** `codigo_plano VARCHAR(80)` es nullable; si está presente es único en toda la base mediante índice parcial `WHERE codigo_plano IS NOT NULL`. Varias OP pueden no tener plano (`NULL` / `Sin plano`) (Docs: HU-01 CA; DD-11).
+- **RN-OP-06 — Normalización y conflicto de plano:** en la frontera HTTP se aplica `trim()` + `toUpperCase()`; cadena vacía ⇒ `NULL`; `CHECK` prohíbe `''`. Duplicado ⇒ `409 {error:'codigo_plano_duplicado', message:'El ID de plano PL-2026-045 ya está asignado a la OP 1871.', codigoPlano:'PL-2026-045', opExistente:{id:'<uuid>', numeroOp:'1871'}}`, con fallback a P2002 por carrera (DD-11).
 
 ## Dominio: Etapas y avance (RN-ETAPA / RN-AVANCE / RN-AHORA)
 
@@ -63,7 +65,14 @@ Evidencia: `Docs/definici_n_del_mvp_velco.md` §2.B y `Docs/historias_de_usuario
 - **RN-EXPORT-04 — Contenido operativo:** el archivo de OP incluye datos de la orden, detalle técnico de la pieza, fechas, ruta de etapas y horas asignadas/ejecutadas. **No expone rentabilidad comercial** (Docs: HU-20B CA).
 - **RN-EXPORT-05 — Por OP con plantillas oficiales:** `exportOp(opId, { incluirMargenes })` es una **función pura**; los adaptadores `exportCosteo` y `exportOpSinMargenes` rellenan `MASTER COSTEO NUEVO.xlsx` y `A - OP-MASTER.xlsx` (HU-20A/HU-20B; Decisión 8). No hay consolidado en los documentos vigentes.
 - **RN-EXPORT-06 — Variantes:** `incluirMargenes: true` genera la variante de costeo; `false` genera la variante operativa. Cubre la distinción entre uso administrativo y uso en planta (HU-20B CA; Decisión 8).
-- **RN-EXPORT-07 — Listado filtrable:** `listOps({ fechaDesde, fechaHasta, estado })` ya existe desde HU-09 y alimenta la grilla y los filtros (Decisión 8).
+- **RN-EXPORT-07 — Listado filtrable:** `listOps({ fechaDesde, fechaHasta, estado })` ya existe desde HU-09 y alimenta la grilla y los filtros (Decisión 8). `fechaDesde`/`fechaHasta` filtran `fecha_entrega` (fecha comprometida), etiquetada así en UI y specs; la búsqueda global incluye `numero_op`, `codigo_plano`, cliente y pieza (HU-09).
+- **RN-EXPORT-08 — ID de plano en OP-MASTER:** la variante operativa escribe `ID Plano:` con el valor de `codigo_plano` o `S/P` en el rango `O7:R8` de `A - OP-MASTER.xlsx`. No se usa `J7:N8` (`PC N°:`). El mapeo queda **bloqueado** por C-13/IN-08 hasta confirmar la plantilla real (DD-11).
+
+## Dominio: Dashboard general (RN-DASH)
+
+- **RN-DASH-01 — Alcance MVP:** `/dashboard` (HU-21) muestra KPIs globales, tiempos promedio por etapa y una matriz ordenable de todas las OP con `N° OP`, `ID Plano`, cliente, horas vendidas/reales, desvío en horas y % y margen neto. No es analítica histórica avanzada (HU-17 sigue en Fase 2).
+- **RN-DASH-02 — Filtro por fecha comprometida:** los filtros de período y el KPI de ciclo usan `fecha_entrega` (entrega prometida), nunca la fecha de imputación de horas ni la fecha de ejecución. El rango significa "entregas prometidas en el período" y se etiqueta en UI/spec como `Fecha comprometida` (contrato vigente en `listOps`).
+- **RN-DASH-03 — Derivados, no duplicados:** todos los indicadores se calculan con las reglas ya existentes (RN-HORAS, RN-MARGEN, RN-AVANCE, RN-SEMAFORO); el dashboard no persiste agregados ni reimplementa fórmulas en React (RN-GLOBAL-02, R3).
 
 ## Dominio: Autenticación (RN-AU)
 

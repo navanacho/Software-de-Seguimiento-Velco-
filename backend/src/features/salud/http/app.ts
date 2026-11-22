@@ -8,9 +8,15 @@ import { crearDependenciasProduccion } from '../../../shared/dependencias.ts';
 import type { DependenciasApi } from '../../../shared/dependencias.ts';
 import { registrarRutasOrdenes } from '../../ordenes/http/registrarRutas.ts';
 import { registrarRutasEtapas } from '../../etapas/http/registrarRutas.ts';
+import { registrarRutasClientes } from '../../clientes/http/registrarRutas.ts';
+import { registrarRutasMateriales } from '../../materiales/http/registrarRutas.ts';
 import { obtenerSalud } from '../application/obtenerSalud.ts';
 import { ZodError, z } from 'zod';
-import { RecursoNoEncontradoError } from '../../../shared/errores.ts';
+import {
+  CodigoPlanoDuplicadoError,
+  NumeroOpDuplicadoError,
+  RecursoNoEncontradoError,
+} from '../../../shared/errores.ts';
 
 const RespuestaSaludSchema = z.object({ estado: z.literal('ok') });
 
@@ -31,6 +37,9 @@ export async function buildApp(configuracion: ConfiguracionServidor, dependencia
     if (error instanceof RecursoNoEncontradoError) {
       return reply.code(404).send({ error: 'not_found', message: error.message });
     }
+    if (error instanceof CodigoPlanoDuplicadoError || error instanceof NumeroOpDuplicadoError) {
+      return reply.code(error.statusCode).send(error.body);
+    }
     return reply.send(error);
   });
 
@@ -49,6 +58,8 @@ export async function buildApp(configuracion: ConfiguracionServidor, dependencia
   if (dependencias) {
     registrarRutasOrdenes(app, dependencias);
     registrarRutasEtapas(app, dependencias);
+    registrarRutasClientes(app, dependencias);
+    registrarRutasMateriales(app, dependencias);
   }
 
   app.get('/documentation/json', async () => app.swagger());

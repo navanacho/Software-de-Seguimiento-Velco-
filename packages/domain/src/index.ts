@@ -10,10 +10,19 @@ export type {
   TarjetaOrdenDTO,
 } from './ordenes/tarjeta.ts';
 export { construirTarjetaOrden } from './ordenes/tarjeta.ts';
+export { normalizarCodigoPlano } from './ordenes/codigo-plano.ts';
+export type { CodigoPlano } from './ordenes/codigo-plano.ts';
 export { calcularAvance } from './ordenes/avance.ts';
 export { etapaAhora } from './ordenes/etapa-ahora.ts';
 export { agruparFlujo } from './ordenes/flujo.ts';
 export type { GrupoFlujo, OrdenConEtapas } from './ordenes/flujo.ts';
+export { nombreEtapaDuplicado } from './etapas/nombres.ts';
+export { calcularHorasVendidasTotales } from './etapas/horas-vendidas.ts';
 export { calcularSemaforo } from './costos/semaforo.ts';
 export { diasRestantes, etiquetaPlazo } from './costos/plazo.ts';
 export type { ContextoPlazo, EstadoSemaforo } from './costos/contrato.ts';
+export type { MaterialOrden, NuevoMaterialOrden, TipoMaterial } from './materiales/contrato.ts';
+export { TIPOS_MATERIAL } from './materiales/contrato.ts';
+export { validarNuevoMaterial } from './materiales/validar.ts';
+export { calcularAgregadosMateriales } from './materiales/agregados.ts';
+export type { AgregadosMateriales, MaterialParaAgregado } from './materiales/agregados.ts';

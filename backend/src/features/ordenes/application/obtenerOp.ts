@@ -1,4 +1,4 @@
-import { construirTarjetaOrden } from '@velco/domain';
+import { calcularAgregadosMateriales, construirTarjetaOrden } from '@velco/domain';
 import type { DependenciasApi } from '../../../shared/dependencias.ts';
 import { contextoTarjeta } from '../../configuracion/application/contextoTarjeta.ts';
 import type { DetalleOpDTO, EtapaDetalleDTO } from './DetalleOpDTO.ts';
@@ -28,6 +28,8 @@ export async function obtenerOp(
     }
     return { ...etapa, horasVendidas };
   });
+  const materiales = await dependencias.materiales.listarPorOrden(id);
+  const agregados = calcularAgregadosMateriales(materiales);
 
   return {
     ...tarjeta,
@@ -37,6 +39,8 @@ export async function obtenerOp(
     montoVendido: orden.montoVendido,
     observaciones: orden.observaciones,
     horas: [],
-    materiales: [],
+    materiales,
+    costoMaterialesCotizado: agregados.costoMaterialesCotizado,
+    costoMaterialesReal: agregados.costoMaterialesReal,
   };
 }

@@ -7,15 +7,17 @@ Organizadas por **épica** y luego por **historia de usuario** (`HU-NN`, identif
 ### HU-01 — Alta de Orden de Producción (OP/OT) completa — MVP
 
 **Como** administrador o responsable de producción  
-**Quiero** crear una nueva orden ingresando N° de OP/OT, Cliente, Descripción/Pieza, Fecha de ingreso, Fecha de entrega prometida y Monto vendido  
-**Para** centralizar todos los trabajos en un único registro maestro.
+**Quiero** crear una nueva orden ingresando N° de OP/OT, ID/Código de Plano (opcional), Cliente, Descripción/Pieza, Fecha de ingreso, Fecha de entrega prometida y Monto vendido  
+**Para** centralizar todos los trabajos en un único registro maestro y vincularlos con su documentación técnica cuando corresponda.
 
 **Criterios de aceptación**:
 - [ ] `numero_op` único, validado al guardar.
+- [ ] `codigo_plano` opcional y único cuando está presente; vacío ⇒ `NULL` ⇒ `Sin plano`; normalización `trim()` + `toUpperCase()` en la frontera HTTP.
+- [ ] Conflicto de plano ⇒ 409 `codigo_plano_duplicado` con `codigoPlano` y `opExistente` (id y `numeroOp`), con fallback P2002.
 - [ ] El estado de plazo se calcula automáticamente (`En plazo`, `En riesgo`, `Atrasado`, `Terminado`).
 - [ ] El cliente se selecciona de `clientes` (entidad propia).
 
-**Reglas relacionadas**: RN-OP-01, RN-OP-02, RN-OP-04, RN-SEMAFORO-01..05.
+**Reglas relacionadas**: RN-OP-01, RN-OP-02, RN-OP-04..06, RN-SEMAFORO-01..05.
 
 ### HU-02 — Carga de Horas Vendidas y Costos Teóricos (Línea Base) — MVP
 
@@ -105,14 +107,16 @@ Organizadas por **épica** y luego por **historia de usuario** (`HU-NN`, identif
 ### HU-09 — Filtros, Búsqueda y Ordenamiento — MVP
 
 **Como** usuario  
-**Quiero** filtrar por Cliente, Estado, Etapa actual (`ahora`) o buscar por N° de OP/pieza  
+**Quiero** filtrar por Cliente, Estado, Etapa actual (`ahora`) o buscar por N° de OP, ID de Plano, cliente y pieza  
 **Para** encontrar rápidamente una orden cuando crezca el volumen.
 
 **Criterios de aceptación**:
-- [ ] Implementado en la consulta `listOps({ fechaDesde, fechaHasta, estado })` + filtros de cliente y etapa.
+- [ ] Implementado en la consulta `listOps({ fechaDesde, fechaHasta, estado })` + filtros de cliente y etapa; el predicado global cubre `numero_op`, `codigo_plano`, cliente y `descripcion_pieza`.
+- [ ] Filtro rápido para ver órdenes con plano asignado vs. sin plano.
 - [ ] Los filtros respetan el semáforo calculado, no un estado almacenado.
+- [ ] `fechaDesde`/`fechaHasta` filtran `fecha_entrega` (fecha comprometida), etiquetada así en la UI.
 
-**Reglas relacionadas**: RN-SEMAFORO-01..05, RN-AHORA-01, RN-EXPORT-07.
+**Reglas relacionadas**: RN-SEMAFORO-01..05, RN-AHORA-01, RN-OP-05/06, RN-EXPORT-07.
 
 ## Épica 3: Registro de Horas Reales (Imputación de Tiempos)
 
@@ -194,11 +198,26 @@ Organizadas por **épica** y luego por **historia de usuario** (`HU-NN`, identif
 
 **Reglas relacionadas**: RN-MARGEN-01..06.
 
-### HU-17 — Dashboard de Métricas Históricas — F2
+### HU-21 — Dashboard General de Panorama y Tiempos de Producción — MVP
+
+**Como** gerente o responsable de producción  
+**Quiero** contar con una sección dedicada (`/dashboard`) con panorama general, tiempos acumulados, promedios de ejecución y desvíos globales  
+**Para** tomar decisiones sobre capacidad y rentabilidad sin revisar tarjeta por tarjeta.
+
+**Criterios de aceptación**:
+- [ ] KPIs globales: horas vendidas vs. reales, eficiencia global (%), distribución de OP por estado y tiempo promedio de ciclo en días.
+- [ ] Tiempos por etapa/sector: horas vendidas vs. reales y tiempo promedio invertido por etapa.
+- [ ] Matriz consolidada y ordenable de todas las OP con `N° OP`, `ID Plano`, cliente, estado, horas vendidas/reales, desvío (hs y %) y margen neto.
+- [ ] Filtros por período de `fecha_entrega` (`Fecha comprometida`) y estado (`Todas`, `Activas`, `Terminadas`).
+- [ ] Todos los valores son derivados; el dashboard no persiste agregados.
+
+**Reglas relacionadas**: RN-DASH-01..03, RN-HORAS-01..04, RN-MARGEN-01/05, RN-GLOBAL-02.
+
+### HU-17 — Analítica Histórica Avanzada y Tendencias por Cliente — F2
 
 **Como** gerente  
-**Quiero** ver desvío promedio por cliente/tipo de trabajo, horas productivas por mes y tasa de entregas en término  
-**Para** ajustar futuros presupuestos. Diferida.
+**Quiero** ver curvas de tendencia intermensuales y rankings históricos de rentabilidad por cliente y tipo de pieza  
+**Para** ajustar futuros presupuestos. Diferida; el dashboard general HU-21 sí está en el MVP.
 
 **Reglas relacionadas**: RN-HORAS-02.
 
@@ -258,9 +277,10 @@ Organizadas por **épica** y luego por **historia de usuario** (`HU-NN`, identif
 
 | Sprint | Historias | Entregable |
 |---|---|---|
-| 1 | HU-05, HU-06, HU-07, HU-09 | Tablero visual y estructura base |
-| 2 | HU-01, HU-02, HU-04, HU-10, HU-13 | Alta/edición de OP y partes de horas |
+| 1 | HU-05, HU-06, HU-07, HU-09 | Tablero visual y estructura base; búsqueda por OP/pieza, extendida a plano y cliente en C-06 |
+| 2 | HU-01, HU-02, HU-04, HU-10, HU-13 | Alta/edición de OP con `codigo_plano` opcional y partes de horas |
 | 3 | HU-14, HU-15, HU-16, HU-18 | Analítica de desvíos y configuración |
 | 4 | HU-20A, HU-20B | Motor de exportación Excel dual |
+| 5 (registrada) | HU-21 + tokens del design system | Dashboard y UI del design system: C-17/C-18, registrados pero sin propuesta mientras C-08/C-11 no estén implementados |
 
 El plan original menciona Node/Express o Next.js, SQLite y openpyxl; esas opciones quedan **superadas** por el stack elegido (ver DD-01).

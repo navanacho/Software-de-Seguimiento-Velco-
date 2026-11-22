@@ -63,7 +63,7 @@ describe('integridad del modelo relacional de C-02', () => {
       const cliente = await insertarCliente(repos, 'Cliente OP');
       await insertarOp(repos, 'OT-1001', cliente);
       const mensaje = await mensajeDeRechazo(() => insertarOp(repos, 'OT-1001', cliente));
-      expect(mensaje).toMatch(/duplicate key|unique constraint/i);
+      expect(mensaje).toMatch(/duplicate key|unique constraint|ya existe/i);
     });
   }, 180_000);
 

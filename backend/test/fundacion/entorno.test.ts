@@ -23,7 +23,7 @@ describe('entorno de desarrollo', () => {
     expect(esquema).toMatch(/generator\s+client/);
     expect(esquema).toContain('provider = "prisma-client-js"');
     const modelos = esquema.match(/^model\s+\w+/gm) ?? [];
-    expect(modelos).toEqual(['model Configuracion', 'model Cliente', 'model OrdenTrabajo', 'model EtapaOrden']);
+    expect(modelos).toEqual(['model Configuracion', 'model Cliente', 'model OrdenTrabajo', 'model MaterialOrden', 'model EtapaOrden']);
     for (const derivado of [
       /\bporcentaje_avance\b/,
       /\bhoras_totales\b/,

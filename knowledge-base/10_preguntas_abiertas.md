@@ -80,7 +80,7 @@
 
 **Impacto:** `exceljs` podría eliminar o corromper el enlace externo, o fallar al resolver la UNC; bloquea Sprint 4 si no se valida.
 
-**Resolución propuesta:** spike técnico acotado antes de Sprint 4: clonar la plantilla, rellenarla, abrirla con Excel y decidir si el enlace se preserva, se elimina o se reemplaza por un valor estático. Ver [08_arquitectura_propuesta.md](08_arquitectura_propuesta.md).
+**Resolución propuesta:** spike técnico acotado antes de Sprint 4: clonar la plantilla, rellenarla, abrirla con Excel y decidir si el enlace se preserva, se elimina o se reemplaza por un valor estático. Ver [08_arquitectura_propuesta.md](08_arquitectura_propuesta.md). **Ampliación DD-11:** además, confirmar en la plantilla real el rango `O7:R8` para `ID Plano:` / `S/P`; hasta cerrar C-13, ese mapeo es un bloqueo explícito de C-15. No usar `J7:N8` (`PC N°:`).
 
 ### IN-09 — Validez como fuente de los documentos recuperados del historial de git — **RESUELTA**
 
@@ -90,11 +90,30 @@
 
 **Resolución:** **RESUELTA**. Los documentos recuperados de git (`Docs/MVP.md`, `Docs/HistoriasDeUsuario.md`, `Docs/Relevamiento.pdf`) no son fuente válida. Solo valen los documentos vigentes (`Docs/definici_n_del_mvp_velco.md`, `Docs/historias_de_usuario_velco.md`, `Docs/tablero-taller-v2.html`) y las plantillas reales (`Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx`, `Docs/FichasExcel/A - OP-MASTER.xlsx`). En consecuencia se revisaron DD-04, DD-07 y DD-08 para eliminar requisitos sin respaldo: exportación consolidada, PIN y tasa por etapa.
 
+### IN-10 — Dashboard: HU-17 diferido vs. HU-21 en MVP — **RESUELTA**
+
+**Fuente (`Docs/definici_n_del_mvp_velco.md` §1/§2.C y `Docs/historias_de_usuario_velco.md` HU-21):** `/dashboard` con KPIs, promedios por etapa y tabla de desvíos está incluido en el MVP.
+
+**Fuente (KB anterior):** HU-17 figuraba como "dashboard histórico y promedios" en Fase 2 y el roadmap no contemplaba el dashboard.
+
+**Impacto (si no se resolviera):** dos versiones incompatibles de alcance y una UI que consume datos sin contrato de agregación.
+
+**Resolución:** **RESUELTA** en DD-12. HU-21 entra al MVP (C-17 datos/API, C-18 UI/tokens); HU-17 queda estrictamente como analítica histórica avanzada y tendencias de Fase 2. El filtro de período usa `fecha_entrega` y se rotula `Fecha comprometida`. C-17/C-18 se registran en el roadmap, sin propuesta hasta completar C-08/C-11.
+
+### IN-11 — ID de plano, búsqueda global y celda de OP-MASTER — **RESUELTA**
+
+**Fuente (`Docs/definici_n_del_mvp_velco.md` §2.A/F y `Docs/historias_de_usuario_velco.md` HU-01/HU-09/HU-20B):** `codigo_plano` opcional y único, búsqueda por plano/cliente y volcado en la OP-MASTER.
+
+**Fuente (KB y roadmap anteriores):** HU-01/HU-09 no mencionaban plano; C-04/C-05 buscaban solo OP/pieza; C-14/C-15 no contemplaban el campo.
+
+**Resolución:** **RESUELTA** en DD-11 y RN-OP-05/06, RN-EXPORT-08. La migración 002 absorbe la columna de forma aditiva; el contrato 409 incluye `opExistente`; el mapeo `O7:R8` con `S/P` queda condicionado a C-13/IN-08.
+
 ## Preguntas abiertas (priorizadas)
 
 | Prioridad | Pregunta | Bloquea | Decisor |
 |---|---|---|---|
 | Alta | ¿Cómo maneja `exceljs` el enlace externo de ~577 KB y la ruta UNC? (IN-08) | Sprint 4 — exportación | Equipo técnico + Velco (acceso al servidor) |
+| Alta | ¿Confirma la plantilla `A - OP-MASTER.xlsx` el rango `O7:R8` para `ID Plano:` / `S/P`? (IN-08, DD-11) | C-15 — mapeo de plano | Velco + spike C-13 |
 | Alta | ¿Se aprueba el diseño de auth de Fase 2 antes de escribir cualquier código de autenticación? (DD-07) | Fase 2 | Aprobación humana explícita |
 | Media | ¿Velco quiere un catálogo maestro de etapas o texto libre por OP? (IN-07) | Carga de OP | Jefe de taller |
 | Media | ¿Qué zonas horaria y moneda se fijan en configuración? (SU-02, SU-05) | Semáforo y exportación | Gerente / contaduría |
@@ -107,6 +126,6 @@ Los seis campos de `state.kb.discovery` se obtuvieron de las fuentes y de las de
 
 ## Fuentes
 
-- Fuentes vigentes: `Docs/definici_n_del_mvp_velco.md`, `Docs/historias_de_usuario_velco.md`, `Docs/tablero-taller-v2.html`, `Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx` y `Docs/FichasExcel/A - OP-MASTER.xlsx`.
+- Fuentes vigentes: `Docs/definici_n_del_mvp_velco.md`, `Docs/historias_de_usuario_velco.md`, `Docs/design_system_velco.md`, `Docs/tablero-taller-v2.html`, `Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx` y `Docs/FichasExcel/A - OP-MASTER.xlsx`.
 - `Docs/MVP.md`, `Docs/HistoriasDeUsuario.md` y `Docs/Relevamiento.pdf` no son fuente: borrado deliberado por obsoletos (IN-09).
 - Decisiones 2, 3, 4, 5, 7 y 8 de [09_decisiones_y_supuestos.md](09_decisiones_y_supuestos.md).

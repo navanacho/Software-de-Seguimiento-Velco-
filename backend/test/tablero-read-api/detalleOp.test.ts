@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+﻿import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/features/salud/http/app.ts';
@@ -56,7 +56,7 @@ describe('GET /api/ops/:id', () => {
     }
   });
 
-  it('D3 RN-GLOBAL-02 OQ-3 exige campos de detalle y colecciones vacías tipadas', async () => {
+  it('D3 RN-GLOBAL-02 OQ-3 exige campos de detalle y horas vacía tipada hasta C-08', async () => {
     const ordenId = randomUUID();
     const orden = crearOrden({
       id: ordenId,
@@ -80,6 +80,8 @@ describe('GET /api/ops/:id', () => {
         observaciones: 'Revisar tolerancia',
         horas: [],
         materiales: [],
+        costoMaterialesCotizado: '0.00',
+        costoMaterialesReal: '0.00',
       });
     } finally {
       await app.close();
@@ -123,7 +125,7 @@ describe('GET /api/ops/:id', () => {
     }
   });
 
-  it('D3 RN-GLOBAL-02 / R9 el caso de uso no replica la conversión de Prisma.Decimal', () => {
+  it('D3 RN-GLOBAL-02 / R9 el caso de uso no replica la conversiÃ³n de Prisma.Decimal', () => {
     const casoDeUso = readFileSync(
       new URL('../../src/features/ordenes/application/obtenerOp.ts', import.meta.url),
       'utf8',

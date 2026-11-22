@@ -22,6 +22,7 @@ export interface EtapaTarjeta {
 export interface TarjetaOrdenDTO {
   readonly id: string;
   readonly numeroOp: string;
+  readonly codigoPlano: string | null;
   readonly clienteId: string;
   readonly clienteNombre: string | null;
   readonly descripcionPieza: string;
@@ -46,6 +47,7 @@ export function construirTarjetaOrden(
   return {
     id: orden.id,
     numeroOp: orden.numeroOp,
+    codigoPlano: orden.codigoPlano,
     clienteId: orden.clienteId,
     clienteNombre: contexto.clienteNombre ?? null,
     descripcionPieza: orden.descripcionPieza,

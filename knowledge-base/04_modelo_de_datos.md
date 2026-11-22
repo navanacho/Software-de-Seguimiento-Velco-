@@ -60,10 +60,11 @@ No existe tabla `usuarios` en el MVP. No existen columnas `porcentaje_avance`, `
 
 ### ordenes_trabajo
 
-- Atributos: `id UUID PK DEFAULT gen_random_uuid()`, `numero_op VARCHAR(50) UNIQUE NOT NULL`, `cliente_id UUID NOT NULL FK -> clientes(id)`, `descripcion_pieza TEXT NOT NULL`, `fecha_ingreso DATE NOT NULL DEFAULT CURRENT_DATE`, `fecha_entrega DATE NOT NULL`, `monto_vendido NUMERIC(14,2) NOT NULL DEFAULT 0`, `observaciones TEXT`, `created_at TIMESTAMPTZ DEFAULT NOW()`, `updated_at TIMESTAMPTZ DEFAULT NOW()`.
+- Atributos: `id UUID PK DEFAULT gen_random_uuid()`, `numero_op VARCHAR(50) UNIQUE NOT NULL`, `codigo_plano VARCHAR(80) NULL`, `cliente_id UUID NOT NULL FK -> clientes(id)`, `descripcion_pieza TEXT NOT NULL`, `fecha_ingreso DATE NOT NULL DEFAULT CURRENT_DATE`, `fecha_entrega DATE NOT NULL`, `monto_vendido NUMERIC(14,2) NOT NULL DEFAULT 0`, `observaciones TEXT`, `created_at TIMESTAMPTZ DEFAULT NOW()`, `updated_at TIMESTAMPTZ DEFAULT NOW()`.
 - Relaciones: `N:1` con `clientes`; `1:N` con `etapas_orden`, `registros_horas` y `materiales_orden`.
-- Constraints: `numero_op` único (CA de HU-01); `fecha_entrega` obligatoria; montos en `NUMERIC`, nunca `FLOAT`.
-- Índices: único en `numero_op`; índices en `cliente_id`, `fecha_entrega`.
+- Constraints: `numero_op` único (CA de HU-01); `fecha_entrega` obligatoria; montos en `NUMERIC`, nunca `FLOAT`; `codigo_plano` opcional con `CHECK (codigo_plano <> '')` (la normalización `trim()` + `toUpperCase()` y el vacío → `NULL` ocurren en la frontera HTTP).
+- Índices: único en `numero_op`; índice único parcial sobre `codigo_plano WHERE codigo_plano IS NOT NULL`; índices en `cliente_id`, `fecha_entrega`.
+- Nota: `codigo_plano` se muestra como `Plano: [codigo]` en la tarjeta y como `Sin plano` cuando es `NULL`. Su unicidad condicional y el contrato 409 se registran en RN-OP-05/RN-OP-06.
 - Derivados (no columnas):
   - `porcentaje_avance = ROUND(100.0 * COUNT(*) FILTER (WHERE completada) / NULLIF(COUNT(*), 0))` sobre `etapas_orden` de la OP. Si la OP no tiene etapas, avance = 0.
   - `terminado` = todas las etapas completadas (o avance = 100 por la definición del documento).
