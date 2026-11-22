@@ -1,6 +1,7 @@
 ﻿import { describe, expect, it, afterEach, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import { TableroPage } from './TableroPage.tsx';
 import { crearEnvelope, crearTarjeta, crearEtapa } from '../../../test/tablero/fixtures.ts';
 import type { ReactNode } from 'react';
@@ -15,7 +16,11 @@ function respuestaJson(cuerpo: unknown, status = 200): Response {
 }
 
 function renderCon(qc: QueryClient, ui: ReactNode) {
-  return render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
+  return render(
+    <QueryClientProvider client={qc}>
+      <MemoryRouter initialEntries={['/']}>{ui}</MemoryRouter>
+    </QueryClientProvider>,
+  );
 }
 
 describe('TableroPage integración (6.x, 7.x, 8.x)', () => {

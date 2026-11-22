@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { useTablero } from './hooks/useTablero.ts';
 import { useActualizarEtapa } from './hooks/useActualizarEtapa.ts';
 import type { FiltrosTablero } from '../../shared/domain-client/consultarTablero.ts';
@@ -16,8 +17,10 @@ export function TableroPage() {
   const [filtros, setFiltros] = useState<FiltrosTablero>(FILTROS_VACIOS);
   const [clientesBase, setClientesBase] = useState<{ clienteId: string; clienteNombre: string }[]>([]);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data, isLoading, isError } = useTablero(filtros);
   const mutacion = useActualizarEtapa();
+  const nuevaOp = () => { navigate('/ops/nueva'); };
 
   const hayFiltrosActivos = Object.values(filtros).some((v) => typeof v === 'string' && v.trim() !== '');
 
@@ -51,6 +54,9 @@ export function TableroPage() {
       <header className={estilos.encabezado}>
         <div className={estilos.franja} aria-hidden="true" />
         <h1 className={estilos.titulo}>Tablero de producción</h1>
+        <div className={estilos.acciones}>
+          <button type="button" onClick={nuevaOp}>Nueva OP</button>
+        </div>
       </header>
       <ControlesFiltros filtros={filtros} clientes={clientes} etapas={etapas} onChange={setFiltros} onLimpiar={limpiar} />
       {isLoading ? <p>Cargando tablero...</p> : null}
@@ -58,7 +64,12 @@ export function TableroPage() {
       {data ? <KpisTablero kpis={data.kpis} /> : null}
       {data ? <TiraFlujo flujo={data.flujo} /> : null}
       {data && data.ops.length === 0 ? (
-        <EstadoVacioTablero hayFiltrosActivos={hayFiltrosActivos} onLimpiar={limpiar} onRecargar={recargar} />
+        <EstadoVacioTablero
+          hayFiltrosActivos={hayFiltrosActivos}
+          onNuevaOp={nuevaOp}
+          onLimpiar={limpiar}
+          onRecargar={recargar}
+        />
       ) : null}
       {data && data.ops.length > 0 ? (
         <section className={estilos.grilla} data-testid="grilla-tarjetas">

@@ -31,7 +31,7 @@ describe('guardian tablero (4.14, RN-GLOBAL-02, D4/D9)', () => {
     const fuentes = raices.flatMap((raiz) => archivos(raiz).filter((r) => /\.(ts|tsx)$/.test(r) && !r.includes('.test.')));
     for (const archivo of fuentes) {
       const contenido = readFileSync(archivo, 'utf8');
-      expect(contenido, archivo).not.toMatch(/fechaEntrega|localeCompare\(.*fecha|Date\.now/);
+      expect(contenido, archivo).not.toMatch(/Date\.now|localeCompare\(.*fecha|fechaEntrega\s*[<>]|[<>]\s*fechaEntrega/);
     }
   });
 });

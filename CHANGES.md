@@ -254,7 +254,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 ---
 
 ### [C-07] `ordenes-form`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**: Alta y edición de OP desde la UI
   - Vistas `/ops/nueva` y `/ops/:id/editar`: cliente existente o alta inline, N° OP, campo `ID/Código de plano` con placeholder `Opcional — Ej: PL-2026-045`, pieza, fechas, monto vendido, horas vendidas por etapa y materiales por tipo
   - Tarjeta y detalle muestran el badge `Plano: [codigo]` o `Sin plano` cuando no hay plano (HU-05/HU-09)

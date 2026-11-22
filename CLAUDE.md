@@ -85,7 +85,7 @@ El plan de implementación completo está en [CHANGES.md](CHANGES.md). Resumen:
 - **Total**: 18 changes en 6 fases (FASE 0 — Fundación; FASE 1 — Tablero; FASE 2 — OP y horas; FASE 3 — Analítica; FASE 4 — Exportación; FASE 5 — Dashboard y design system).
 - **Camino crítico** (11 changes, dos terminales obligatorias): `C-01 → C-02 → C-03 → C-04 → C-05 → C-06 → C-08 → C-11 → C-14 → C-15 → C-16`, más la rama paralela `C-11 → C-17 → C-18` desde `C-11`.
 - **Registrados sin propuesta**: `C-17` (`dashboard-datos`) y `C-18` (`dashboard-ui-y-design-system`); no ejecutar `/opsx:propose` hasta completar `C-08`/`C-11`.
-- **Estado**: `C-01` completado; siguiente change disponible `C-02` (`core-order-models`).
+- **Estado**: `C-01` a `C-07` completados y archivados; siguientes changes disponibles `C-08` (`horas-reales-api`, camino crítico) y `C-13` (`excel-template-spike`, paralelo). `C-09` (`horas-reales-ui`) depende de `C-08` + `C-05`; `C-17`/`C-18` siguen registrados sin propuesta hasta `C-08`/`C-11`.
 
 **Antes de cualquier `/opsx:propose`**: leé [CHANGES.md](CHANGES.md), identificá las dependencias del change y los archivos de "Leer antes". El slug del comando es el nombre entre backticks del change, no el ID `C-NN`.
 
