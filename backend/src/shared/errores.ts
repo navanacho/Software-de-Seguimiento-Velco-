@@ -47,3 +47,18 @@ export class NumeroOpDuplicadoError extends Error {
     this.body = { error: 'numero_op_duplicado', message, numeroOp };
   }
 }
+export class RegistroHoraNoEncontradoError extends Error {
+  constructor(mensaje = 'Registro de horas no encontrado') {
+    super(mensaje);
+    this.name = 'RegistroHoraNoEncontradoError';
+  }
+}
+
+export class EtapaInexistenteError extends Error {
+  readonly etapaId: string;
+  constructor(etapaId: string) {
+    super(`Etapa ${etapaId} inexistente o no pertenece a la OP`);
+    this.name = 'EtapaInexistenteError';
+    this.etapaId = etapaId;
+  }
+}

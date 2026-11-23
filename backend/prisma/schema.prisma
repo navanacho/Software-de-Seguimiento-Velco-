@@ -46,6 +46,7 @@ model OrdenTrabajo {
   updatedAt        DateTime        @default(now()) @db.Timestamptz(6) @map("updated_at")
   etapas           EtapaOrden[]
   materiales       MaterialOrden[]
+  registrosHoras   RegistroHora[]
 
   @@index([clienteId], map: "ordenes_trabajo_cliente_id_idx")
   @@index([fechaEntrega], map: "ordenes_trabajo_fecha_entrega_idx")
@@ -75,14 +76,33 @@ model MaterialOrden {
 }
 
 model EtapaOrden {
-  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  ordenId       String       @db.Uuid @map("orden_id")
-  orden         OrdenTrabajo @relation(fields: [ordenId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "etapas_orden_orden_id_fkey")
-  nombre        String       @db.VarChar(100)
-  ordenSecuencia Int         @map("orden_secuencia")
-  completada    Boolean      @default(false)
-  horasVendidas Decimal      @default(0) @db.Decimal(8, 2) @map("horas_vendidas")
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ordenId       String          @db.Uuid @map("orden_id")
+  orden         OrdenTrabajo    @relation(fields: [ordenId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "etapas_orden_orden_id_fkey")
+  nombre        String          @db.VarChar(100)
+  ordenSecuencia Int            @map("orden_secuencia")
+  completada    Boolean         @default(false)
+  horasVendidas Decimal         @default(0) @db.Decimal(8, 2) @map("horas_vendidas")
+  registrosHoras RegistroHora[]
 
   @@unique([ordenId, ordenSecuencia], map: "etapas_orden_orden_id_orden_secuencia_key")
   @@map("etapas_orden")
+}
+
+model RegistroHora {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ordenId     String       @db.Uuid @map("orden_id")
+  orden       OrdenTrabajo @relation(fields: [ordenId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "registros_horas_orden_id_fkey")
+  etapaId     String?      @db.Uuid @map("etapa_id")
+  etapa       EtapaOrden?  @relation(fields: [etapaId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "registros_horas_etapa_id_fkey")
+  operario    String       @db.VarChar(100)
+  fecha       DateTime     @default(dbgenerated("CURRENT_DATE")) @db.Date
+  horas       Decimal      @db.Decimal(6, 2)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(6) @map("created_at")
+  observacion String?      @db.Text
+
+  @@index([ordenId, fecha], map: "registros_horas_orden_id_fecha_idx")
+  @@index([etapaId], map: "registros_horas_etapa_id_idx")
+  @@index([operario], map: "registros_horas_operario_idx")
+  @@map("registros_horas")
 }

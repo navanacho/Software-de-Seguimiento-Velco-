@@ -26,3 +26,11 @@ export { TIPOS_MATERIAL } from './materiales/contrato.ts';
 export { validarNuevoMaterial } from './materiales/validar.ts';
 export { calcularAgregadosMateriales } from './materiales/agregados.ts';
 export type { AgregadosMateriales, MaterialParaAgregado } from './materiales/agregados.ts';
+export type { RegistroHora, NuevoRegistroHora, ResultadoValidacion, EntradaAlertaDesvio } from './horas/index.ts';
+export {
+  validarRegistroHora,
+  calcularHorasRealesTotales,
+  calcularDesvioHoras,
+  calcularConsumoHoras,
+  evaluarAlertaDesvio,
+} from './horas/index.ts';

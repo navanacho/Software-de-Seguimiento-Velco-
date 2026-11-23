@@ -91,8 +91,6 @@ export const RespuestaListadoOpsJSONSchema = z.toJSONSchema(RespuestaListadoOpsS
   target: 'draft-07',
 });
 
-const ObservacionHoras = 'Pendiente de C-08; arreglo vacío tipado sin datos inventados.';
-
 const MaterialDetalleSchema = z.object({
   id: z.string(),
   ordenId: z.string(),
@@ -114,7 +112,11 @@ const DetalleOpSchema = TarjetaOrdenSchema.extend({
   fechaEntrega: z.string(),
   montoVendido: z.string(),
   observaciones: z.string().nullable(),
-  horas: z.array(z.never()).describe(ObservacionHoras),
+  horas: z.array(z.object({ id: z.string(), ordenId: z.string(), etapaId: z.string().nullable(), operario: z.string(), fecha: z.string(), horas: z.string(), createdAt: z.string(), observacion: z.string().nullable() })),
+  horasRealesTotales: z.string(),
+  desvioHoras: z.string(),
+  porcentajeConsumo: z.string().nullable(),
+  alertaDesvio: z.boolean(),
   materiales: z.array(MaterialDetalleSchema),
   costoMaterialesCotizado: z.string(),
   costoMaterialesReal: z.string(),

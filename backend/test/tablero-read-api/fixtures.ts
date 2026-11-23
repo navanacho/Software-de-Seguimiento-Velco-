@@ -1,4 +1,4 @@
-﻿import type { Cliente, Configuracion, EtapaOrden, OrdenTrabajo } from '@velco/domain';
+﻿import type { Cliente, Configuracion, EtapaOrden, NuevoRegistroHora, OrdenTrabajo, RegistroHora } from '@velco/domain';
 import type { DependenciasApi } from '../../src/shared/dependencias.ts';
 import type { ConfiguracionServidor } from '../../src/shared/configuracion.ts';
 
@@ -202,6 +202,13 @@ export function crearDependenciasFalsas(opciones: OpcionesFalsas = {}): {
       crearVarios: async () => [],
       listarPorOrden: async () => [],
     },
+    horas: {
+      crear: async (datos: NuevoRegistroHora): Promise<RegistroHora> => ({ id: 'h-1', createdAt: '2026-03-08T12:00:00.000Z', observacion: datos.observacion ?? null, ...datos, etapaId: datos.etapaId ?? null }),
+      listarPorOrden: async () => [],
+      buscarPorId: async () => null,
+      actualizar: async () => null,
+      eliminar: async () => false,
+    },
     configuracion: {
       obtener: async () => estado.configuracion,
     },
@@ -220,6 +227,10 @@ export function crearDependenciasFalsas(opciones: OpcionesFalsas = {}): {
           clientes: dependencias.clientes,
           materiales: { crearVarios: async () => [], listarPorOrden: async () => [] },
         }),
+    },
+    unidadTrabajoHoras: {
+      ejecutar: async <T>(operacion: (repos: { horas: DependenciasApi['horas']; ops: DependenciasApi['ops']; etapas: DependenciasApi['etapas'] }) => Promise<T>) =>
+        operacion({ horas: dependencias.horas, ops: dependencias.ops, etapas: dependencias.etapas }),
     },
     reloj: {
       ahora: () => opciones.instante ?? INSTANTE_FIJO,

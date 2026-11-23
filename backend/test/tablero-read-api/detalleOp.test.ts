@@ -79,6 +79,10 @@ describe('GET /api/ops/:id', () => {
         montoVendido: '1250.50',
         observaciones: 'Revisar tolerancia',
         horas: [],
+        horasRealesTotales: '0.00',
+        desvioHoras: '1.50',
+        porcentajeConsumo: '0.00',
+        alertaDesvio: false,
         materiales: [],
         costoMaterialesCotizado: '0.00',
         costoMaterialesReal: '0.00',
@@ -139,3 +143,4 @@ describe('GET /api/ops/:id', () => {
     expect(casoDeUso).not.toContain('Prisma');
   });
 });
+

@@ -1,4 +1,12 @@
-import { calcularAgregadosMateriales, construirTarjetaOrden } from '@velco/domain';
+import {
+  calcularAgregadosMateriales,
+  calcularConsumoHoras,
+  calcularDesvioHoras,
+  calcularHorasRealesTotales,
+  calcularHorasVendidasTotales,
+  construirTarjetaOrden,
+  evaluarAlertaDesvio,
+} from '@velco/domain';
 import type { DependenciasApi } from '../../../shared/dependencias.ts';
 import { contextoTarjeta } from '../../configuracion/application/contextoTarjeta.ts';
 import type { DetalleOpDTO, EtapaDetalleDTO } from './DetalleOpDTO.ts';
@@ -30,6 +38,19 @@ export async function obtenerOp(
   });
   const materiales = await dependencias.materiales.listarPorOrden(id);
   const agregados = calcularAgregadosMateriales(materiales);
+  const horas = await dependencias.horas.listarPorOrden(id);
+  const horasReales = horas.map((h) => h.horas);
+  const horasVendidas = etapas.map((e) => e.horasVendidas);
+  const horasRealesTotales = calcularHorasRealesTotales(horasReales);
+  const horasVendidasTotales = calcularHorasVendidasTotales(horasVendidas);
+  const desvioHoras = calcularDesvioHoras(horasVendidas, horasReales);
+  const porcentajeConsumo = calcularConsumoHoras(horasRealesTotales, horasVendidasTotales);
+  const alertaDesvio = evaluarAlertaDesvio({
+    consumo: porcentajeConsumo,
+    avance: tarjeta.avance,
+    horasReales: horasRealesTotales,
+    horasVendidas: horasVendidasTotales,
+  });
 
   return {
     ...tarjeta,
@@ -38,7 +59,11 @@ export async function obtenerOp(
     fechaEntrega: orden.fechaEntrega,
     montoVendido: orden.montoVendido,
     observaciones: orden.observaciones,
-    horas: [],
+    horas,
+    horasRealesTotales,
+    desvioHoras,
+    porcentajeConsumo,
+    alertaDesvio,
     materiales,
     costoMaterialesCotizado: agregados.costoMaterialesCotizado,
     costoMaterialesReal: agregados.costoMaterialesReal,
