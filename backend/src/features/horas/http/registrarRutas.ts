@@ -3,6 +3,7 @@ import type { DependenciasApi } from '../../../shared/dependencias.ts';
 import { preValidar, validar } from '../../../shared/validacion.ts';
 import { EtapaInexistenteError, RegistroHoraNoEncontradoError } from '../../../shared/errores.ts';
 import { ParamsOpSchema, ParamsOpJSONSchema } from '../../ordenes/http/esquemas.ts';
+import { listarHoras } from '../application/listarHoras.ts';
 import { registrarHora } from '../application/registrarHora.ts';
 import { editarHora } from '../application/editarHora.ts';
 import { eliminarHora } from '../application/eliminarHora.ts';
@@ -15,9 +16,18 @@ import {
   ParamsOpHoraSchema,
   ParteHoraJSONSchema,
   RespuestaEliminarHoraJSONSchema,
+  RespuestaListarHorasJSONSchema,
 } from './esquemas.ts';
 
 export function registrarRutasHoras(app: FastifyInstance, dependencias: DependenciasApi): void {
+  app.get('/api/ops/:id/horas', {
+    schema: { tags: ['horas'], params: ParamsOpJSONSchema, response: { 200: RespuestaListarHorasJSONSchema, 404: { type: 'object', additionalProperties: true } } },
+    preValidation: [preValidar(ParamsOpSchema, (r) => r.params)],
+  }, async (request) => {
+    const { id } = validar(ParamsOpSchema, request.params);
+    return listarHoras(dependencias.unidadTrabajoHoras, id);
+  });
+
   app.post('/api/ops/:id/horas', {
     schema: { tags: ['horas'], params: ParamsOpJSONSchema, body: BodyCrearHoraJSONSchema, response: { 201: ParteHoraJSONSchema, 404: { type: 'object', additionalProperties: true }, 422: { type: 'object', additionalProperties: true } } },
     preValidation: [preValidar(ParamsOpSchema, (r) => r.params), preValidar(BodyCrearHoraSchema, (r) => r.body)],

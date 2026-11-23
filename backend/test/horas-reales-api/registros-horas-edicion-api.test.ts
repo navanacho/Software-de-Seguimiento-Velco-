@@ -1,8 +1,9 @@
 ﻿import { describe, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
+import type { FastifyInstance } from 'fastify';
 import { conAppReal, hayDocker } from '../tablero-read-api/ayuda.ts';
 
-async function crearOp(app: any) {
+async function crearOp(app: FastifyInstance) {
   const sufijo = randomUUID().slice(0, 8);
   const res = await app.inject({
     method: 'POST', url: '/api/ops',

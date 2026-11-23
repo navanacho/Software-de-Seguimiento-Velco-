@@ -41,4 +41,5 @@ export const ParteHoraSchema = z.object({
   observacion: z.string().nullable(),
 });
 export const ParteHoraJSONSchema = z.toJSONSchema(ParteHoraSchema, { target: 'draft-07' });
+export const RespuestaListarHorasJSONSchema = z.toJSONSchema(z.array(ParteHoraSchema), { target: 'draft-07' });
 export const RespuestaEliminarHoraJSONSchema = z.toJSONSchema(z.object({ ok: z.literal(true) }), { target: 'draft-07' });

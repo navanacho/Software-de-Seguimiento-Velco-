@@ -1,8 +1,9 @@
 ﻿import { describe, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
+import type { FastifyInstance } from 'fastify';
 import { conAppReal, hayDocker } from '../tablero-read-api/ayuda.ts';
 
-async function crearOp(app: any, etapas = [{ nombre: 'Corte', horasVendidas: '4.00' }]) {
+async function crearOp(app: FastifyInstance, etapas = [{ nombre: 'Corte', horasVendidas: '4.00' }]) {
   const sufijo = randomUUID().slice(0, 8);
   const res = await app.inject({ method: 'POST', url: '/api/ops', payload: { numeroOp: `OT-D-${sufijo}`, clienteNombre: `C ${sufijo}`, descripcionPieza: 'P', fechaEntrega: '2027-01-01', montoVendido: '100.00', materiales: [], etapas } });
   return res.json() as { id: string; etapas: Array<{ id: string }> };
