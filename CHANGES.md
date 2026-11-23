@@ -14,7 +14,9 @@
 4. Al terminar el change, archivarlo con `/opsx:archive <slug-del-change>`.
 5. Marcar el checkbox `[x]` en este archivo.
 
-> `C-17` y `C-18` están registrados en el roadmap pero **no se proponen ahora**: dependen de `C-08`/`C-11`, todavía no implementados.
+> `C-17` y `C-18` están registrados en el roadmap pero **no se proponen ahora**: `C-08` ya está completado, pero siguen dependiendo de `C-11`, todavía no implementado.
+>
+> `C-08` (`horas-reales-api`) fue archivado el 2026-11-23 en `openspec/changes/archive/2026-11-23-horas-reales-api/`; sus seis delta specs quedaron sincronizados en `openspec/specs/`.
 
 ---
 
@@ -273,7 +275,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 ---
 
 ### [C-08] `horas-reales-api`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado y archivado (2026-11-23)
 - **Scope**: Imputación y corrección de partes de horas
   - Migración 003: `registros_horas` con FK `orden_id` CASCADE, `etapa_id` SET NULL, `operario VARCHAR(100)`, `horas NUMERIC(6,2) > 0`, `fecha`, `created_at`; índices `(orden_id, fecha)`, `(etapa_id)`, `(operario)`; sin `usuario_id` en MVP
   - Caso de uso `imputarHoras` y endpoints `POST /api/ops/:id/horas`, `GET /api/ops/:id/horas`, `PATCH /api/ops/:id/horas/:horaId`, `DELETE /api/ops/:id/horas/:horaId`; 422 si `horas <= 0`
@@ -297,7 +299,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
   - Listado editable de partes en el detalle de la OP con editar/eliminar y recálculo visible de totales
   - Barra `Horas Reales / Horas Vendidas` en la tarjeta alimentada por el DTO, sin cálculo en React
   - Tests de componente: validación de horas, actualización de la lista, ausencia de lógica de negocio en componentes
-- **Dependencias**: C-08, C-05
+- **Dependencias**: C-08 (completado), C-05 (completado)
 - **Governance**: BAJO
 - **Leer antes**:
   - `knowledge-base/06_funcionalidades.md` HU-10, HU-13
@@ -338,7 +340,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
   - Aritmética decimal con `NUMERIC`; redondeo a 2 decimales solo al mostrar y exportar, nunca con coma flotante
   - Modelo de planilla compartido por ambas variantes de `exportOp`, sin acceso a archivos
   - Tests Vitest: RN-HORAS-01..07, RN-MARGEN-01..06, RN-HORAS-06, tasa global diferida (IN-02)
-- **Dependencias**: C-08, C-03
+- **Dependencias**: C-08 (completado), C-03 (completado); según GATE 8 se ejecuta después de C-09
 - **Governance**: MEDIO
 - **Leer antes**:
   - `knowledge-base/05_reglas_de_negocio.md` §Horas, §Costos y margen
@@ -447,10 +449,10 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 
 ## FASE 5 — Dashboard y design system (registrada, sin propuesta)
 
-> HU-21 y tokens visuales. `C-17` y `C-18` se registran aquí para preservar la trazabilidad del MVP, pero **no se ejecutan `/opsx:propose`** hasta que `C-08`/`C-11` estén implementados y archivados (DD-12).
+> HU-21 y tokens visuales. `C-17` y `C-18` se registran aquí para preservar la trazabilidad del MVP, pero **no se ejecutan `/opsx:propose`** hasta que `C-11` esté implementado y archivado (`C-08` ya cumplió esa condición; DD-12).
 
 ### [C-17] `dashboard-datos`
-- **Estado**: `[ ]` pendiente — registrado, sin propuesta (depende de C-08/C-11)
+- **Estado**: `[ ]` pendiente — registrado, sin propuesta (depende de C-11; C-08 completado)
 - **Scope**: Agregaciones y contrato de datos del dashboard
   - Funciones puras nuevas en `packages/domain/src/dashboard`: `calcularKpisGlobales`, `conteoPorEstado`, `tiempoPromedioCiclo`, `promedioPorEtapa` y `filaDesvioOp`; reutilizan RN-HORAS, RN-MARGEN, RN-AVANCE y RN-SEMAFORO sin duplicarlos ni persistir agregados (R3, RN-GLOBAL-02)
   - Filtro de período sobre `fecha_entrega` (fecha comprometida): `fechaDesde`/`fechaHasta` significan entregas prometidas en el rango; etiqueta `Fecha comprometida` en el contrato y en la UI; no filtran fecha de imputación ni ejecución
@@ -458,7 +460,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
   - Endpoint `GET /api/dashboard` con respuesta `{ kpis, promediosPorEtapa, filas }`; cada fila expone `numeroOp`, `codigoPlano`, `cliente`, `estado`, `horasVendidas`, `horasReales`, `desvioHoras`, `desvioPorcentaje`, `margenNeto`; ordenable por cualquiera de esas columnas
   - Esquemas Zod de request/response y DTO de salida; división por cero y OP sin etapas resueltas en dominio, nunca en React
   - Tests: unitarios de agregaciones y orden (mínimo 2 casos por regla, TDD) e integración contra PostgreSQL real para límites de fecha comprometida, estado, orden y ausencia de columnas persistidas
-- **Dependencias**: C-08, C-11
+- **Dependencias**: C-08 (completado), C-11 (pendiente)
 - **Governance**: MEDIO
 - **Leer antes**:
   - `Docs/definici_n_del_mvp_velco.md` §2.C
@@ -513,4 +515,4 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 
 **Total**: 18 changes en 6 fases. **Gates**: 14. **Camino crítico**: 11 changes con dos terminales obligatorias (`C-16` y `C-18`).
 
-**Primer change recomendado**: `C-01` (`velco-mvp-foundation`). Para arrancar: `/opsx:propose velco-mvp-foundation`.
+**Siguientes changes disponibles**: `C-09` (`horas-reales-ui`, GATE 7, junto con `C-05` ya completado) y `C-13` (`excel-template-spike`, paralelo desde GATE 1, bloqueante para `C-14`). `C-11` (`desvios-y-margen-domain`) queda en GATE 8, detrás de `C-09`, según el plan óptimo. `C-17`/`C-18` permanecen registrados sin propuesta hasta archivar `C-11`.
