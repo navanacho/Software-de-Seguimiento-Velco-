@@ -1,7 +1,7 @@
 ﻿import { z } from 'zod';
 import { TIPOS_MATERIAL } from '@velco/domain';
 import type { EstadoSemaforo, EtapaTarjeta, GrupoFlujo, TarjetaOrdenDTO } from '@velco/domain';
-import type { DetalleOpDTO, KpisTablero, RespuestaListadoTablero } from './tipos.ts';
+import type { DetalleOpDTO, KpisTablero, ParteHoraDTO, RespuestaListadoTablero } from './tipos.ts';
 
 // Los valores espejan el tipo canónico porque @velco/domain exporta EstadoSemaforo como type, no como array runtime (R2 impide cambiar domain aquí).
 export const ESTADOS = ['Terminado', 'Atrasado', 'En riesgo', 'En plazo'] as const satisfies readonly EstadoSemaforo[];
@@ -28,6 +28,8 @@ const EsquemaTarjetaOrdenBase = z.object({
   diasRestantes: z.number(),
   etapaAhora: z.string(),
   etiquetaPlazo: z.string(),
+  horasVendidasTotales: z.string(),
+  horasRealesTotales: z.string(),
 });
 
 export const EsquemaTarjetaOrden: z.ZodType<TarjetaOrdenDTO> = EsquemaTarjetaOrdenBase;
@@ -75,6 +77,36 @@ const FechaCalendario = z.string().refine((valor) => {
   return dia <= (diasPorMes[mes - 1] ?? 0);
 }, 'fecha calendaria inválida');
 const TextoOpcional50 = z.string().trim().max(50).optional().nullable();
+const RE_HORAS_PARTE = /^-?\d+(\.\d{1,2})?$/;
+const HorasParte = z.string()
+  .refine((valor) => RE_HORAS_PARTE.test(valor), 'horas debe ser un número decimal válido')
+  .refine((valor) => Number(valor) > 0, 'las horas deben ser mayores a cero');
+const EtapaIdOpcional = z.string().uuid().nullable().optional();
+const ObservacionOpcional = z.string().nullable().optional();
+
+export const EsquemaParteHora: z.ZodType<ParteHoraDTO> = z.object({
+  id: z.string(),
+  ordenId: z.string(),
+  etapaId: z.string().nullable(),
+  operario: z.string(),
+  fecha: z.string(),
+  horas: z.string(),
+  createdAt: z.string(),
+  observacion: z.string().nullable(),
+});
+
+export const EsquemaCargarHora = z.object({
+  etapaId: EtapaIdOpcional,
+  operario: z.string().trim().min(1).max(100),
+  fecha: FechaCalendario,
+  horas: HorasParte,
+  observacion: ObservacionOpcional,
+}).strict();
+
+export const EsquemaEditarHora = EsquemaCargarHora.partial().refine(
+  (cambios) => Object.keys(cambios).length > 0,
+  'no hay cambios para guardar',
+);
 
 export const EsquemaAltaMaterial = z.object({
   tipo: z.enum(TIPOS_MATERIAL),
@@ -139,13 +171,21 @@ export const EsquemaDetalleOp: z.ZodType<DetalleOpDTO> = EsquemaTarjetaOrdenBase
   fechaEntrega: z.string(),
   montoVendido: z.string(),
   observaciones: z.string().nullable(),
-  horas: z.array(z.never()),
+  horas: z.array(EsquemaParteHora),
+  horasRealesTotales: z.string(),
+  desvioHoras: z.string(),
+  porcentajeConsumo: z.string().nullable(),
+  alertaDesvio: z.boolean(),
   materiales: z.array(EsquemaMaterialDetalle),
   costoMaterialesCotizado: z.string(),
   costoMaterialesReal: z.string(),
 });
 
 export type CrearOp = z.infer<typeof EsquemaCrearOp>;
+export type CargarHora = z.infer<typeof EsquemaCargarHora>;
+export type CargarHoraEntrada = z.input<typeof EsquemaCargarHora>;
+export type EditarHora = z.infer<typeof EsquemaEditarHora>;
+export type EditarHoraEntrada = z.input<typeof EsquemaEditarHora>;
 export type ActualizarOp = z.infer<typeof EsquemaActualizarOp>;
 export type AltaEtapa = z.infer<typeof EsquemaAltaEtapa>;
 export type AltaMaterial = z.infer<typeof EsquemaAltaMaterial>;

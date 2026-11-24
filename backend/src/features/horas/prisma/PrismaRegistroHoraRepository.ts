@@ -55,6 +55,15 @@ export class PrismaRegistroHoraRepository implements RegistroHoraRepository {
     return filas.map(aRegistroHora);
   }
 
+  async listarPorOrdenes(ordenIds: readonly string[]): Promise<readonly RegistroHora[]> {
+    if (ordenIds.length === 0) return [];
+    const filas = await this.prisma.registroHora.findMany({
+      where: { ordenId: { in: [...ordenIds] } },
+      orderBy: [{ fecha: 'asc' }, { createdAt: 'asc' }],
+    });
+    return filas.map(aRegistroHora);
+  }
+
   async buscarPorId(id: string): Promise<RegistroHora | null> {
     const fila = await this.prisma.registroHora.findUnique({ where: { id } });
     return fila ? aRegistroHora(fila) : null;

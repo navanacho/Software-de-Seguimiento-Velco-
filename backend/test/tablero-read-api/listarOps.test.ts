@@ -10,6 +10,7 @@ import {
   crearEtapa,
   crearEtapas,
   crearOrden,
+  crearRegistroHora,
 } from '../tablero-read-api/fixtures.ts';
 
 describe('listarOps', () => {
@@ -367,6 +368,60 @@ describe('listarOps', () => {
 
     expect(respuesta.flujo).toEqual([{ etapa: 'Corte', cantidad: 3 }]);
     expect(permutada.flujo).toEqual(respuesta.flujo);
+  });
+
+  it('C-09 OQ-1=A: el listado trae totales de horas por OP calculados en dominio', async () => {
+    const { dependencias } = crearDependenciasFalsas({
+      ops: [crearOrden({ id: 'op-a', numeroOp: 'OT-A' }), crearOrden({ id: 'op-b', numeroOp: 'OT-B' })],
+      etapas: [
+        crearEtapa({ id: 'e-a', ordenId: 'op-a', horasVendidas: '4.00' }),
+        crearEtapa({ id: 'e-b', ordenId: 'op-b', horasVendidas: '2.50' }),
+      ],
+      horas: [
+        crearRegistroHora({ id: 'h-1', ordenId: 'op-a', horas: '2.50' }),
+        crearRegistroHora({ id: 'h-2', ordenId: 'op-a', horas: '1.25' }),
+        crearRegistroHora({ id: 'h-3', ordenId: 'op-b', horas: '0.75' }),
+      ],
+    });
+
+    const respuesta = await listarOps(dependencias, {});
+
+    expect(respuesta.ops.find((op) => op.id === 'op-a')).toMatchObject({
+      horasVendidasTotales: '4.00',
+      horasRealesTotales: '3.75',
+    });
+    expect(respuesta.ops.find((op) => op.id === 'op-b')).toMatchObject({
+      horasVendidasTotales: '2.50',
+      horasRealesTotales: '0.75',
+    });
+  });
+
+  it('C-09 OQ-1=A TRIANGULA: sin partes el listado reporta 0.00 horas reales', async () => {
+    const { dependencias } = crearDependenciasFalsas({
+      ops: [crearOrden({ id: 'op-sin-horas', numeroOp: 'OT-SIN-HORAS' })],
+      etapas: [crearEtapa({ id: 'e-unica', ordenId: 'op-sin-horas', horasVendidas: '4.00' })],
+    });
+
+    const respuesta = await listarOps(dependencias, {});
+
+    expect(respuesta.ops[0]).toMatchObject({ horasVendidasTotales: '4.00', horasRealesTotales: '0.00' });
+  });
+
+  it('C-09 GET /api/ops serializa los totales de horas en el contrato', async () => {
+    const { dependencias } = crearDependenciasFalsas({
+      ops: [crearOrden({ id: 'op-http', numeroOp: 'OT-HTTP' })],
+      etapas: [crearEtapa({ id: 'e-http', ordenId: 'op-http', horasVendidas: '4.00' })],
+      horas: [crearRegistroHora({ id: 'h-http', ordenId: 'op-http', horas: '3.00' })],
+    });
+    const app = await buildApp(configuracionPrueba(), dependencias);
+    try {
+      const respuesta = await app.inject({ method: 'GET', url: '/api/ops' });
+      expect(respuesta.statusCode).toBe(200);
+      const cuerpo = respuesta.json() as { ops: readonly { horasVendidasTotales?: string; horasRealesTotales?: string }[] };
+      expect(cuerpo.ops[0]).toMatchObject({ horasVendidasTotales: '4.00', horasRealesTotales: '3.00' });
+    } finally {
+      await app.close();
+    }
   });
 
   it('D2 RN-GLOBAL-02 el handler no calcula semáforos ni agrupa flujo', () => {

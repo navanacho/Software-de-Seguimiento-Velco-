@@ -69,6 +69,8 @@ const TarjetaOrdenSchema = z.object({
   diasRestantes: z.number(),
   etapaAhora: z.string(),
   etiquetaPlazo: z.string(),
+  horasVendidasTotales: z.string(),
+  horasRealesTotales: z.string(),
 });
 
 const RespuestaListadoOpsSchema = z.object({
@@ -113,7 +115,6 @@ const DetalleOpSchema = TarjetaOrdenSchema.extend({
   montoVendido: z.string(),
   observaciones: z.string().nullable(),
   horas: z.array(z.object({ id: z.string(), ordenId: z.string(), etapaId: z.string().nullable(), operario: z.string(), fecha: z.string(), horas: z.string(), createdAt: z.string(), observacion: z.string().nullable() })),
-  horasRealesTotales: z.string(),
   desvioHoras: z.string(),
   porcentajeConsumo: z.string().nullable(),
   alertaDesvio: z.boolean(),

@@ -8,6 +8,7 @@ import {
   crearEtapa,
   crearEtapas,
   crearOrden,
+  crearRegistroHora,
 } from './fixtures.ts';
 
 describe('GET /api/ops/:id', () => {
@@ -127,6 +128,42 @@ describe('GET /api/ops/:id', () => {
     } finally {
       await app.close();
     }
+  });
+
+  it('C-09 OQ-1=A: el detalle expone los totales de la tarjeta calculados con las horas', async () => {
+    const ordenId = randomUUID();
+    const { dependencias } = crearDependenciasFalsas({
+      ops: [crearOrden({ id: ordenId })],
+      etapas: [
+        crearEtapa({ id: 'e-1', ordenId, horasVendidas: '4.00' }),
+        crearEtapa({ id: 'e-2', ordenId, horasVendidas: '1.50', ordenSecuencia: 2 }),
+      ],
+      horas: [
+        crearRegistroHora({ id: 'h-1', ordenId, horas: '2.50' }),
+        crearRegistroHora({ id: 'h-2', ordenId, horas: '1.25' }),
+      ],
+    });
+    const app = await buildApp(configuracionPrueba(), dependencias);
+    try {
+      const cuerpo = (await app.inject({ method: 'GET', url: `/api/ops/${ordenId}` })).json() as {
+        horasVendidasTotales: string;
+        horasRealesTotales: string;
+      };
+      expect(cuerpo.horasVendidasTotales).toBe('5.50');
+      expect(cuerpo.horasRealesTotales).toBe('3.75');
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('C-09 RN-GLOBAL-02: el detalle reutiliza la tarjeta del dominio sin recalcular totales', () => {
+    const casoDeUso = readFileSync(
+      new URL('../../src/features/ordenes/application/obtenerOp.ts', import.meta.url),
+      'utf8',
+    );
+    expect(casoDeUso).toMatch(/construirTarjetaOrden\([\s\S]*?horas\.map\(/);
+    expect(casoDeUso).not.toContain('calcularHorasVendidasTotales(');
+    expect(casoDeUso).not.toContain('calcularHorasRealesTotales(');
   });
 
   it('D3 RN-GLOBAL-02 / R9 el caso de uso no replica la conversiÃ³n de Prisma.Decimal', () => {

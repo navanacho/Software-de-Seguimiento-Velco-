@@ -2,8 +2,6 @@ import {
   calcularAgregadosMateriales,
   calcularConsumoHoras,
   calcularDesvioHoras,
-  calcularHorasRealesTotales,
-  calcularHorasVendidasTotales,
   construirTarjetaOrden,
   evaluarAlertaDesvio,
 } from '@velco/domain';
@@ -27,7 +25,13 @@ export async function obtenerOp(
     },
     cliente?.nombre ?? null,
   );
-  const tarjeta = construirTarjetaOrden(orden, etapas, contexto);
+  const horas = await dependencias.horas.listarPorOrden(id);
+  const tarjeta = construirTarjetaOrden(
+    orden,
+    etapas,
+    contexto,
+    horas.map((hora) => hora.horas),
+  );
   const horasPorId = new Map(etapas.map((etapa) => [etapa.id, etapa.horasVendidas]));
   const etapasDetalle: EtapaDetalleDTO[] = tarjeta.etapas.map((etapa) => {
     const horasVendidas = horasPorId.get(etapa.id);
@@ -38,18 +42,19 @@ export async function obtenerOp(
   });
   const materiales = await dependencias.materiales.listarPorOrden(id);
   const agregados = calcularAgregadosMateriales(materiales);
-  const horas = await dependencias.horas.listarPorOrden(id);
-  const horasReales = horas.map((h) => h.horas);
-  const horasVendidas = etapas.map((e) => e.horasVendidas);
-  const horasRealesTotales = calcularHorasRealesTotales(horasReales);
-  const horasVendidasTotales = calcularHorasVendidasTotales(horasVendidas);
-  const desvioHoras = calcularDesvioHoras(horasVendidas, horasReales);
-  const porcentajeConsumo = calcularConsumoHoras(horasRealesTotales, horasVendidasTotales);
+  const desvioHoras = calcularDesvioHoras(
+    [tarjeta.horasVendidasTotales],
+    [tarjeta.horasRealesTotales],
+  );
+  const porcentajeConsumo = calcularConsumoHoras(
+    tarjeta.horasRealesTotales,
+    tarjeta.horasVendidasTotales,
+  );
   const alertaDesvio = evaluarAlertaDesvio({
     consumo: porcentajeConsumo,
     avance: tarjeta.avance,
-    horasReales: horasRealesTotales,
-    horasVendidas: horasVendidasTotales,
+    horasReales: tarjeta.horasRealesTotales,
+    horasVendidas: tarjeta.horasVendidasTotales,
   });
 
   return {
@@ -60,7 +65,6 @@ export async function obtenerOp(
     montoVendido: orden.montoVendido,
     observaciones: orden.observaciones,
     horas,
-    horasRealesTotales,
     desvioHoras,
     porcentajeConsumo,
     alertaDesvio,

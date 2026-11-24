@@ -68,6 +68,13 @@ export async function listarOps(
   filtros: FiltrosListadoOps,
 ): Promise<RespuestaListadoOps> {
   const filas = await dependencias.ops.listarConEtapas();
+  const horas = await dependencias.horas.listarPorOrdenes(filas.map((fila) => fila.orden.id));
+  const horasPorOrden = new Map<string, string[]>();
+  for (const hora of horas) {
+    const horasDeLaOrden = horasPorOrden.get(hora.ordenId);
+    if (horasDeLaOrden) horasDeLaOrden.push(hora.horas);
+    else horasPorOrden.set(hora.ordenId, [hora.horas]);
+  }
   const derivadas = await Promise.all(
     filas.map(async (fila) => {
       const contexto = await contextoTarjeta(
@@ -84,7 +91,12 @@ export async function listarOps(
         descripcionPieza: fila.orden.descripcionPieza,
         codigoPlano: fila.orden.codigoPlano,
         clienteNombre: fila.clienteNombre,
-        tarjeta: construirTarjetaOrden(fila.orden, fila.etapas, contexto),
+        tarjeta: construirTarjetaOrden(
+          fila.orden,
+          fila.etapas,
+          contexto,
+          horasPorOrden.get(fila.orden.id) ?? [],
+        ),
       };
     }),
   );

@@ -3,3 +3,4 @@
 .rojo { border-left: 6px solid #d32f2f; }
 .amarillo { border-left: 6px solid #fbc02d; }
 .verde { border-left: 6px solid #388e3c; }
+.barra { height: 0.35rem; border-radius: 999px; background: #d0d5dd; }

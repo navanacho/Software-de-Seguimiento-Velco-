@@ -1,0 +1,58 @@
+.seccion {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid #d0d5dd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.derivados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0;
+}
+
+.derivados div {
+  min-width: 8rem;
+}
+
+.derivados dt {
+  color: #475467;
+  font-size: 0.85rem;
+}
+
+.derivados dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.partes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.partes li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error {
+  border: 1px solid #d92d20;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  color: #b42318;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 40%);
+}

@@ -69,4 +69,17 @@ describe('construirTarjetaOrden', () => {
     );
     expect(semaforoDe(dto)).toBe('En plazo');
   });
+
+  it('C-09 OQ-1=A: la tarjeta incluye totales de horas vendidas y reales calculados en dominio', () => {
+    const etapas = crearEtapas(['Corte', 'Soldadura'], 1);
+    const dto = construirTarjetaOrden(crearOrden(), etapas, contexto, ['2.50', '1.25']);
+    expect(dto.horasVendidasTotales).toBe('8.00');
+    expect(dto.horasRealesTotales).toBe('3.75');
+  });
+
+  it('C-09 OQ-1=A TRIANGULA: sin partes, horas reales es 0.00 y vendidas surge de etapas', () => {
+    const dto = construirTarjetaOrden(crearOrden(), crearEtapas(['Corte'], 0), contexto, []);
+    expect(dto.horasVendidasTotales).toBe('4.00');
+    expect(dto.horasRealesTotales).toBe('0.00');
+  });
 });

@@ -1,4 +1,4 @@
-﻿import type { EstadoSemaforo, EtapaTarjeta, GrupoFlujo, TarjetaOrdenDTO, TipoMaterial } from '@velco/domain';
+﻿import type { EstadoSemaforo, EtapaTarjeta, GrupoFlujo, RegistroHora, TarjetaOrdenDTO, TipoMaterial } from '@velco/domain';
 
 export interface KpisTablero {
   readonly total: number;
@@ -30,13 +30,19 @@ export interface MaterialDetalleDTO {
   readonly po: string | null;
 }
 
+export type ParteHoraDTO = RegistroHora;
+
 export type DetalleOpDTO = Omit<TarjetaOrdenDTO, 'etapas'> & {
   readonly etapas: readonly EtapaDetalleDTO[];
   readonly fechaIngreso: string;
   readonly fechaEntrega: string;
   readonly montoVendido: string;
   readonly observaciones: string | null;
-  readonly horas: readonly never[];
+  readonly horas: readonly ParteHoraDTO[];
+  readonly horasRealesTotales: string;
+  readonly desvioHoras: string;
+  readonly porcentajeConsumo: string | null;
+  readonly alertaDesvio: boolean;
   readonly materiales: readonly MaterialDetalleDTO[];
   readonly costoMaterialesCotizado: string;
   readonly costoMaterialesReal: string;

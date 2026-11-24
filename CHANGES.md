@@ -17,6 +17,7 @@
 > `C-17` y `C-18` están registrados en el roadmap pero **no se proponen ahora**: `C-08` ya está completado, pero siguen dependiendo de `C-11`, todavía no implementado.
 >
 > `C-08` (`horas-reales-api`) fue archivado el 2026-11-23 en `openspec/changes/archive/2026-11-23-horas-reales-api/`; sus seis delta specs quedaron sincronizados en `openspec/specs/`.
+> `C-09` (`horas-reales-ui`) fue archivado el 2026-11-24 en `openspec/changes/archive/2026-11-24-horas-reales-ui/`; sus cinco delta specs quedaron sincronizados en `openspec/specs/` (`openspec validate --specs --strict`: 34 passed, 0 failed).
 
 ---
 
@@ -293,7 +294,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 ---
 
 ### [C-09] `horas-reales-ui`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado y archivado (2026-11-24)
 - **Scope**: Carga rápida y edición de horas desde tarjeta y detalle
   - Modal "Cargar horas" con fecha, etapa opcional, operario en texto libre y validación `horas > 0`
   - Listado editable de partes en el detalle de la OP con editar/eliminar y recálculo visible de totales
@@ -515,4 +516,4 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 
 **Total**: 18 changes en 6 fases. **Gates**: 14. **Camino crítico**: 11 changes con dos terminales obligatorias (`C-16` y `C-18`).
 
-**Siguientes changes disponibles**: `C-09` (`horas-reales-ui`, GATE 7, junto con `C-05` ya completado) y `C-13` (`excel-template-spike`, paralelo desde GATE 1, bloqueante para `C-14`). `C-11` (`desvios-y-margen-domain`) queda en GATE 8, detrás de `C-09`, según el plan óptimo. `C-17`/`C-18` permanecen registrados sin propuesta hasta archivar `C-11`.
+**Siguientes changes disponibles**: `C-10` (`configuracion-global`, GATE 8), `C-11` (`desvios-y-margen-domain`, GATE 8) y `C-13` (`excel-template-spike`, paralelo desde GATE 1, bloqueante para `C-14`). No hay changes activos (`openspec list --json` → `{"changes":[]}`). `C-17`/`C-18` permanecen registrados sin propuesta hasta archivar `C-11`.

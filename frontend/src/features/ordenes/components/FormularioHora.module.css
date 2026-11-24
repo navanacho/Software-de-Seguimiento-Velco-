@@ -1,0 +1,13 @@
+.formulario {
+  display: grid;
+  gap: 0.5rem;
+  min-width: min(24rem, 90vw);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: #ffffff;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.5rem;
+}

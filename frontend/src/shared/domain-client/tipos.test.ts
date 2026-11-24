@@ -28,6 +28,8 @@ describe('tipos de transporte del tablero (2.1-2.4)', () => {
       diasRestantes: 2,
       etapaAhora: 'Corte',
       etiquetaPlazo: 'Faltan 2 días',
+      horasVendidasTotales: '40.00',
+      horasRealesTotales: '0.00',
     };
     const kpis: KpisTablero = {
       total: 1,
@@ -52,6 +54,8 @@ describe('tipos de transporte del tablero (2.1-2.4)', () => {
       diasRestantes: 0,
       etapaAhora: 'Todo listo',
       etiquetaPlazo: 'Terminado',
+      horasVendidasTotales: '0.00',
+      horasRealesTotales: '0.00',
     };
     const respuesta: RespuestaListadoTablero = {
       ops: [op],

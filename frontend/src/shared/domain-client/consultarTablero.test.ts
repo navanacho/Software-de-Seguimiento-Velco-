@@ -5,7 +5,8 @@ const envelopeValido = {
   ops: [{
     id: 'op1', numeroOp: 'OT-1', codigoPlano: null, clienteId: 'c1', clienteNombre: 'Cliente', descripcionPieza: 'Pieza',
     etapas: [{ id: 'e1', nombre: 'Corte', ordenSecuencia: 1, completada: false }],
-    avance: 0, semaforo: 'En plazo', diasRestantes: 2, etapaAhora: 'Corte', etiquetaPlazo: 'Faltan 2 d�as',
+    avance: 0, semaforo: 'En plazo', diasRestantes: 2, etapaAhora: 'Corte', etiquetaPlazo: 'Faltan 2 días',
+    horasVendidasTotales: '0.00', horasRealesTotales: '0.00',
   }],
   kpis: { total: 1, porEstado: { Terminado: 0, Atrasado: 0, 'En riesgo': 0, 'En plazo': 1 } },
   flujo: [{ etapa: 'Corte', cantidad: 1 }],

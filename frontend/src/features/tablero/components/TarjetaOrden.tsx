@@ -20,6 +20,7 @@ export function TarjetaOrden({ tarjeta, onAlternarEtapa }: Props) {
   const estado: EstadoSemaforo = tarjeta.semaforo;
   const enRouter = useInRouterContext();
   const rutaDetalle = `/ops/${tarjeta.id}`;
+  const rutaCargarHoras = `${rutaDetalle}?accion=cargar-horas`;
   return (
     <article data-testid="tarjeta-orden" className={clsx(estilos.tarjeta, CLASE_ESTADO[estado])}>
       <h3>{tarjeta.numeroOp}</h3>
@@ -29,6 +30,10 @@ export function TarjetaOrden({ tarjeta, onAlternarEtapa }: Props) {
       <p data-testid="tarjeta-avance">Avance: {tarjeta.avance}%</p>
       <p data-testid="tarjeta-dias-restantes">Días restantes: {tarjeta.diasRestantes}</p>
       <p data-testid="tarjeta-etiqueta-plazo">{tarjeta.etiquetaPlazo}</p>
+      <p data-testid="tarjeta-horas">
+        Horas Reales / Horas Vendidas: {tarjeta.horasRealesTotales} / {tarjeta.horasVendidasTotales}
+      </p>
+      <div data-testid="barra-horas" className={estilos.barra} aria-hidden="true" />
       <ul>
         {[...tarjeta.etapas]
           .sort((a, b) => a.ordenSecuencia - b.ordenSecuencia)
@@ -50,6 +55,9 @@ export function TarjetaOrden({ tarjeta, onAlternarEtapa }: Props) {
           })}
         </ul>
         {enRouter ? <Link to={rutaDetalle}>Ver detalle</Link> : <a href={rutaDetalle}>Ver detalle</a>}
+        {enRouter
+          ? <Link to={rutaCargarHoras}>Cargar horas</Link>
+          : <a href={rutaCargarHoras}>Cargar horas</a>}
     </article>
   );
 }

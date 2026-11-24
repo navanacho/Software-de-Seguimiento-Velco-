@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useOrden } from './hooks/useOrden.ts';
 import { BadgePlano } from './components/BadgePlano.tsx';
+import { SeccionHoras } from './components/SeccionHoras.tsx';
 import estilos from './DetalleOpPage.module.css';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 
 export function DetalleOpPage({ ordenId }: Props) {
   const { data, isLoading, isError } = useOrden(ordenId);
+  const [parametros] = useSearchParams();
 
   if (isLoading) {
     return <main data-testid="detalle-op-page" className={estilos.pagina}><p>Cargando orden...</p></main>;
@@ -44,6 +46,18 @@ export function DetalleOpPage({ ordenId }: Props) {
             ))}
         </ul>
       </section>
+      <SeccionHoras
+        ordenId={ordenId}
+        etapas={data.etapas}
+        derivados={{
+          horasVendidasTotales: data.horasVendidasTotales,
+          horasRealesTotales: data.horasRealesTotales,
+          desvioHoras: data.desvioHoras,
+          porcentajeConsumo: data.porcentajeConsumo,
+          alertaDesvio: data.alertaDesvio,
+        }}
+        abrirModalInicial={parametros.get('accion') === 'cargar-horas'}
+      />
       <section aria-label="Materiales">
         <h2>Materiales</h2>
         <ul>

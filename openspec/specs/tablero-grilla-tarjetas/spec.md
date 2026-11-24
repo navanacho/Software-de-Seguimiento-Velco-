@@ -15,7 +15,7 @@ La SPA DEBE (SHALL) renderizar el arreglo `ops` de `GET /api/ops` como una grill
 #### Scenario: Tarjeta autocontenida
 
 - **WHEN** se inspecciona una tarjeta del tablero
-- **THEN** muestra `numeroOp`, `clienteNombre`, `descripcionPieza`, su lista de `etapas` y los derivados del DTO sin depender del estado de otras tarjetas
+- **THEN** muestra `numeroOp`, `clienteNombre`, `descripcionPieza`, su lista de `etapas`, los derivados del DTO y el indicador de horas `Horas Reales / Horas Vendidas` sin depender del estado de otras tarjetas
 
 #### Scenario: Ausencia de slider de avance
 
@@ -24,7 +24,7 @@ La SPA DEBE (SHALL) renderizar el arreglo `ops` de `GET /api/ops` como una grill
 
 ### Requirement: Derivados renderizados tal como vienen del dominio
 
-El frontend DEBE (SHALL) mostrar `semaforo`, `avance`, `diasRestantes` y `etiquetaPlazo` exactamente como llegan en `TarjetaOrdenDTO`. NO DEBE (SHALL NOT) invocar `calcularSemaforo`, `diasRestantes`, `etapaAhora` ni `construirTarjetaOrden`, ni comparar fechas para obtener el estado (RN-GLOBAL-02, RN-GLOBAL-04, RN-SEMAFORO-01..06).
+El frontend DEBE (SHALL) mostrar `semaforo`, `avance`, `diasRestantes`, `etiquetaPlazo`, `horasVendidasTotales` y `horasRealesTotales` exactamente como llegan en `TarjetaOrdenDTO`. NO DEBE (SHALL NOT) invocar `calcularSemaforo`, `diasRestantes`, `etapaAhora`, `construirTarjetaOrden`, `calcularHorasVendidasTotales`, `calcularHorasRealesTotales`, ni comparar fechas para obtener el estado (RN-GLOBAL-02, RN-GLOBAL-04, RN-SEMAFORO-01..06).
 
 #### Scenario: Semáforo en los cuatro estados
 
@@ -35,6 +35,11 @@ El frontend DEBE (SHALL) mostrar `semaforo`, `avance`, `diasRestantes` y `etique
 
 - **WHEN** una tarjeta trae `etiquetaPlazo` `"Faltan 2 días"` y `diasRestantes` `2`
 - **THEN** la tarjeta muestra ese texto y ese número sin reformularlos ni recalcularlos
+
+#### Scenario: Barra de horas desde DTO
+
+- **WHEN** una tarjeta trae `horasVendidasTotales: "40.00"` y `horasRealesTotales: "32.00"`
+- **THEN** la tarjeta muestra `32.00 / 40.00` (o formato equivalente de solo lectura) usando esos campos del DTO, sin sumar partes ni etapas en React
 
 #### Scenario: Sin lógica de cálculo en el feature
 

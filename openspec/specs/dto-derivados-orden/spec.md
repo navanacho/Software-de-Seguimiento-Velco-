@@ -15,7 +15,7 @@ El dominio DEBE (SHALL) exponer un DTO de salida que incluya, junto a los datos 
 #### Scenario: Datos mínimos de tarjeta
 
 - **WHEN** se inspecciona el DTO
-- **THEN** incluye número de OP, cliente, pieza y etapas con su estado, sin requerir datos de horas ni de costos
+- **THEN** incluye número de OP, cliente, pieza y etapas con su estado, además de los derivados de fecha/avance y los totales de horas definidos en su propio requirement, sin requerir datos de costos
 
 #### Scenario: Sin persistencia de derivados
 
@@ -24,7 +24,7 @@ El dominio DEBE (SHALL) exponer un DTO de salida que incluya, junto a los datos 
 
 ### Requirement: Una sola implementación consumida por API y frontend
 
-La API DEBE (SHALL) servir el DTO construido por el dominio sin recalcular ninguno de sus derivados, y el frontend DEBE (SHALL) limitarse a renderizarlos. NI la API NI el frontend DEBEN invocar directamente las funciones de cálculo ni comparar fechas para obtener el semáforo (RN-GLOBAL-02, C-04 y C-05 del roadmap). En C-04 esto alcanza a los tres endpoints `GET /api/ops`, `GET /api/ops/:id` y `PATCH /api/ops/:id/etapas/:etapaId`: los filtros y el recálculo posterior al PATCH se resuelven con las mismas funciones puras del dominio, nunca con lógica en los handlers ni con columnas derivadas.
+La API DEBE (SHALL) servir el DTO construido por el dominio sin recalcular ninguno de sus derivados, y el frontend DEBE (SHALL) limitarse a renderizarlos. NI la API NI el frontend DEBEN invocar directamente las funciones de cálculo ni comparar fechas para obtener el semáforo (RN-GLOBAL-02, C-04 y C-05 del roadmap). En C-04 esto alcanza a los tres endpoints `GET /api/ops`, `GET /api/ops/:id` y `PATCH /api/ops/:id/etapas/:etapaId`: los filtros y el recálculo posterior al PATCH se resuelven con las mismas funciones puras del dominio, nunca con lógica en los handlers ni con columnas derivadas. A partir de C-09, `horasVendidasTotales` y `horasRealesTotales` en `TarjetaOrdenDTO` siguen la misma regla: calculados en dominio, transportados por API, renderizados por frontend sin sumar ni recalcular.
 
 #### Scenario: Consumo por la API
 
@@ -50,6 +50,11 @@ La API DEBE (SHALL) servir el DTO construido por el dominio sin recalcular ningu
 
 - **WHEN** se persiste `completada` y se construye la respuesta
 - **THEN** el caso de uso invoca `construirTarjetaOrden` con etapas frescas y el handler solo devuelve el resultado, sin escribir derivados en PostgreSQL (R3)
+
+#### Scenario: Totales de horas en tarjeta sin cálculo en React
+
+- **WHEN** el tablero renderiza la barra `Horas Reales / Horas Vendidas`
+- **THEN** usa `horasRealesTotales` y `horasVendidasTotales` del `TarjetaOrdenDTO` sin importar funciones de horas ni sumar partes/etapas en el componente
 
 ### Requirement: Envelope de respuesta del tablero y del detalle
 
@@ -113,9 +118,28 @@ Los esquemas Zod/JSON del backend (`backend/src/features/ordenes/http/esquemas.t
 - **WHEN** se ejecuta el typecheck de dominio, backend y frontend
 - **THEN** no hay errores ni apariciones de `any` derivadas del campo nuevo (R9)
 
+### Requirement: Totales de horas en TarjetaOrdenDTO
+
+`TarjetaOrdenDTO` DEBE (SHALL) incluir `horasVendidasTotales` y `horasRealesTotales` como cadenas decimales exactas, calculadas en `packages/domain` mediante las funciones puras canónicas (`calcularHorasVendidasTotales`, `calcularHorasRealesTotales`) al construir la tarjeta. Estos campos DEBEN (SHALL) estar presentes en `GET /api/ops` y en toda construcción de `TarjetaOrdenDTO`, para que C-09 pueda renderizar la barra de horas en tarjeta sin cálculo en React (RN-GLOBAL-02, R3). Esta decisión enmienda explícitamente P-6=B de C-08 mediante delta spec de C-09, confirmada por el usuario el 2026-11-24 (OQ-1=A).
+
+#### Scenario: Tarjeta con horas reales
+
+- **WHEN** se construye una tarjeta para una OP con horas vendidas 40.00 y partes que suman 32.00 horas reales
+- **THEN** el DTO incluye `horasVendidasTotales: "40.00"` y `horasRealesTotales: "32.00"`
+
+#### Scenario: Tarjeta sin partes
+
+- **WHEN** se construye una tarjeta para una OP sin registros de horas
+- **THEN** `horasRealesTotales` es `"0.00"` y `horasVendidasTotales` refleja la suma de horas vendidas por etapas
+
+#### Scenario: Sin persistencia de totales
+
+- **WHEN** se inspecciona el esquema Prisma y la migración
+- **THEN** no existen columnas persistidas para `horasVendidasTotales` ni `horasRealesTotales` (R3)
+
 ### Requirement: Derivados de horas reales con una sola implementación en el DTO
 
-Los derivados de horas reales (`horasRealesTotales`, `desvioHoras`, `porcentajeConsumo` y `alertaDesvio`) DEBEN (SHALL) construirse mediante las funciones puras de `packages/domain/src/horas/` y viajar en el DTO que consume la API y el frontend, sin recálculo en handlers ni en componentes React (RN-HORAS-01..04, RN-GLOBAL-02, R3). Estos derivados DEBEN (SHALL) viajar en `DetalleOpDTO` como campos hermanos de `horas` (P-2, confirmado el 2026-11-22). `TarjetaOrdenDTO` y `GET /api/ops` (`api-listado-ops`) NO DEBEN (SHALL NOT) modificarse en C-08 (P-6); C-09 obtendrá los totales del detalle o de `GET /api/ops/:id/horas`.
+Los derivados de horas reales (`horasRealesTotales`, `desvioHoras`, `porcentajeConsumo` y `alertaDesvio`) DEBEN (SHALL) construirse mediante las funciones puras de `packages/domain/src/horas/` y viajar en el DTO que consume la API y el frontend, sin recálculo en handlers ni en componentes React (RN-HORAS-01..04, RN-GLOBAL-02, R3). Estos derivados DEBEN (SHALL) viajar en `DetalleOpDTO` como campos hermanos de `horas` (P-2, confirmado el 2026-11-22). En C-08, `TarjetaOrdenDTO` y `GET /api/ops` (`api-listado-ops`) no se modificaron (P-6=B); C-09 enmienda esa decisión mediante OQ-1=A y agrega `horasVendidasTotales` y `horasRealesTotales` calculados en dominio a la tarjeta y al listado, conforme al requirement `Totales de horas en TarjetaOrdenDTO`.
 
 #### Scenario: Construcción del derivado en dominio
 
@@ -127,10 +151,10 @@ Los derivados de horas reales (`horasRealesTotales`, `desvioHoras`, `porcentajeC
 - **WHEN** se inspecciona `DetalleOpDTO` después de C-08
 - **THEN** expone `horas` como arreglo de partes y los cuatro derivados como campos hermanos, sin objeto `{ partes, totales }` (P-2)
 
-#### Scenario: Listado de OP intacto
+#### Scenario: Listado de OP con totales de horas calculados
 
-- **WHEN** se comparan `TarjetaOrdenDTO`, `GET /api/ops` y su spec `api-listado-ops` antes y después de C-08
-- **THEN** permanecen sin cambios: no se agrega `horasRealesTotales` ni ningún otro campo de horas (P-6)
+- **WHEN** se comparan `TarjetaOrdenDTO`, `GET /api/ops` y su spec `api-listado-ops` antes y después de C-09
+- **THEN** C-08 permanece sin cambios y C-09 agrega únicamente `horasVendidasTotales` y `horasRealesTotales`, calculados en `packages/domain`, transportados por la API y renderizados por el frontend sin columnas persistidas ni cálculo en React (P-6 enmendado por OQ-1=A, R3)
 
 #### Scenario: Recálculo homogéneo en el caso de uso
 

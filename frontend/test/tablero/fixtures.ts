@@ -10,6 +10,7 @@ export function crearTarjeta(parcial: Partial<TarjetaOrdenDTO> = {}): TarjetaOrd
     id: 'op1', numeroOp: 'OT-1', codigoPlano: null, clienteId: 'c1', clienteNombre: 'Cliente',
     descripcionPieza: 'Pieza', etapas: [crearEtapa()],
     avance: 0, semaforo: 'En plazo', diasRestantes: 2, etapaAhora: 'Corte', etiquetaPlazo: 'Faltan 2 días',
+    horasVendidasTotales: '40.00', horasRealesTotales: '0.00',
     ...parcial,
   };
 }

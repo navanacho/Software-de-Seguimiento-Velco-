@@ -39,6 +39,11 @@ const detalle = {
   materiales: [],
   costoMaterialesCotizado: '0.00',
   costoMaterialesReal: '0.00',
+  horasVendidasTotales: '7.50',
+  horasRealesTotales: '0.00',
+  desvioHoras: '-7.50',
+  porcentajeConsumo: '0.00',
+  alertaDesvio: false,
 };
 
 const baseOp = {

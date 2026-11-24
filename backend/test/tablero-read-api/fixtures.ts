@@ -60,6 +60,20 @@ export function crearEtapas(
   );
 }
 
+export function crearRegistroHora(cambios: Partial<RegistroHora> = {}): RegistroHora {
+  return {
+    id: 'hora-1',
+    ordenId: 'op-1',
+    etapaId: null,
+    operario: 'Ana',
+    fecha: '2026-03-05',
+    horas: '2.50',
+    createdAt: '2026-03-05T10:00:00.000Z',
+    observacion: null,
+    ...cambios,
+  };
+}
+
 export function crearCliente(cambios: Partial<Cliente> = {}): Cliente {
   return {
     id: 'cli-1',
@@ -83,6 +97,7 @@ export function crearConfiguracion(cambios: Partial<Configuracion> = {}): Config
 export interface EstadoFalso {
   ops: OrdenTrabajo[];
   etapas: EtapaOrden[];
+  horas: RegistroHora[];
   clientes: Cliente[];
   configuracion: Configuracion | null;
   escrituras: { etapaId: string; completada: boolean }[];
@@ -92,6 +107,7 @@ export interface EstadoFalso {
 export interface OpcionesFalsas {
   readonly ops?: readonly OrdenTrabajo[];
   readonly etapas?: readonly EtapaOrden[];
+  readonly horas?: readonly RegistroHora[];
   readonly clientes?: readonly Cliente[];
   readonly configuracion?: Configuracion | null;
   readonly instante?: Date;
@@ -105,6 +121,7 @@ export function crearDependenciasFalsas(opciones: OpcionesFalsas = {}): {
   const estado: EstadoFalso = {
     ops: [...(opciones.ops ?? [crearOrden()])],
     etapas: [...(opciones.etapas ?? crearEtapas(['Corte', 'Soldadura', 'Mecanizado']))],
+    horas: [...(opciones.horas ?? [])],
     clientes: [...(opciones.clientes ?? [crearCliente()])],
     configuracion: opciones.configuracion === undefined ? crearConfiguracion() : opciones.configuracion,
     escrituras: [],
@@ -203,9 +220,24 @@ export function crearDependenciasFalsas(opciones: OpcionesFalsas = {}): {
       listarPorOrden: async () => [],
     },
     horas: {
-      crear: async (datos: NuevoRegistroHora): Promise<RegistroHora> => ({ id: 'h-1', createdAt: '2026-03-08T12:00:00.000Z', observacion: datos.observacion ?? null, ...datos, etapaId: datos.etapaId ?? null }),
-      listarPorOrden: async () => [],
-      buscarPorId: async () => null,
+      crear: async (datos: NuevoRegistroHora): Promise<RegistroHora> => {
+        const creado = crearRegistroHora({ ...datos, id: `hora-${estado.horas.length + 1}`, etapaId: datos.etapaId ?? null });
+        estado.horas.push(creado);
+        return creado;
+      },
+      listarPorOrden: async (ordenId) =>
+        estado.horas
+          .filter((hora) => hora.ordenId === ordenId)
+          .slice()
+          .sort((a, b) => a.fecha.localeCompare(b.fecha) || a.createdAt.localeCompare(b.createdAt)),
+      listarPorOrdenes: async (ordenIds) => {
+        const ids = new Set(ordenIds);
+        return estado.horas
+          .filter((hora) => ids.has(hora.ordenId))
+          .slice()
+          .sort((a, b) => a.fecha.localeCompare(b.fecha) || a.createdAt.localeCompare(b.createdAt));
+      },
+      buscarPorId: async (id) => estado.horas.find((hora) => hora.id === id) ?? null,
       actualizar: async () => null,
       eliminar: async () => false,
     },
