@@ -5,6 +5,7 @@ import { Salud } from '../features/salud/components/Salud.tsx';
 import { TableroPage } from '../features/tablero/TableroPage.tsx';
 import { DetalleOpPage } from '../features/ordenes/DetalleOpPage.tsx';
 import { OrdenFormPage } from '../features/ordenes/OrdenFormPage.tsx';
+import { ConfiguracionPage } from '../features/configuracion/ConfiguracionPage.tsx';
 
 interface PropiedadesApp {
   rutaInicial?: string;
@@ -29,6 +30,7 @@ export function App({ rutaInicial = '/' }: PropiedadesApp) {
         <Routes>
           <Route path="/" element={<TableroPage />} />
           <Route path="/salud" element={<Salud respuesta={{ estado: 'ok' }} />} />
+          <Route path="/configuracion" element={<ConfiguracionPage />} />
           <Route path="/ops/nueva" element={<OrdenFormPage />} />
           <Route path="/ops/:id/editar" element={<EditarOrdenRoute />} />
           <Route path="/ops/:id" element={<DetalleOrdenRoute />} />

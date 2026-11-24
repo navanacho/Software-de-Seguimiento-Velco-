@@ -11,6 +11,7 @@ import { registrarRutasEtapas } from '../../etapas/http/registrarRutas.ts';
 import { registrarRutasClientes } from '../../clientes/http/registrarRutas.ts';
 import { registrarRutasMateriales } from '../../materiales/http/registrarRutas.ts';
 import { registrarRutasHoras } from '../../horas/http/registrarRutas.ts';
+import { registrarRutasConfiguracion } from '../../configuracion/http/registrarRutas.ts';
 import { obtenerSalud } from '../application/obtenerSalud.ts';
 import { ZodError, z } from 'zod';
 import {
@@ -21,6 +22,13 @@ import {
 
 const RespuestaSaludSchema = z.object({ estado: z.literal('ok') });
 
+function rutaDelIssue(issue: z.ZodIssue): string {
+  if (issue.code === 'unrecognized_keys') {
+    return [...issue.path, ...issue.keys].join('.');
+  }
+  return issue.path.join('.');
+}
+
 export async function buildApp(configuracion: ConfiguracionServidor, dependencias?: DependenciasApi) {
   const app = Fastify({ logger: false });
 
@@ -30,7 +38,7 @@ export async function buildApp(configuracion: ConfiguracionServidor, dependencia
         error: 'validation_error',
         message: 'datos inválidos en la solicitud',
         details: error.issues.map((issue) => ({
-          path: issue.path.join('.'),
+          path: rutaDelIssue(issue),
           message: issue.message,
         })),
       });
@@ -62,6 +70,7 @@ export async function buildApp(configuracion: ConfiguracionServidor, dependencia
     registrarRutasClientes(app, dependencias);
     registrarRutasMateriales(app, dependencias);
     registrarRutasHoras(app, dependencias);
+    registrarRutasConfiguracion(app, dependencias);
   }
 
   app.get('/documentation/json', async () => app.swagger());

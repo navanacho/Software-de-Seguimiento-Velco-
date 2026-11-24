@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useInRouterContext } from 'react-router-dom';
 import { TIPOS_MATERIAL } from '@velco/domain';
 import {
@@ -51,6 +51,7 @@ interface Props {
   readonly modo: 'alta' | 'edicion';
   readonly clientes?: readonly ClienteOpcion[] | undefined;
   readonly valoresIniciales?: Partial<ValoresFormulario> | undefined;
+  readonly etapasPrecargadas?: readonly EtapaFormulario[] | undefined;
   readonly fechaIngreso?: string | null | undefined;
   readonly errores?: ErroresFormulario | undefined;
   readonly onGuardar: (valores: ValoresFormulario) => void;
@@ -61,7 +62,11 @@ interface Props {
   readonly onReordenarEtapa?: ((etapaId: string, ordenSecuencia: number) => Promise<readonly EtapaFormulario[]>) | undefined;
 }
 
-function valoresPorDefecto(modo: Props['modo'], iniciales: Partial<ValoresFormulario> = {}): ValoresFormulario {
+function valoresPorDefecto(
+  modo: Props['modo'],
+  iniciales: Partial<ValoresFormulario> = {},
+  etapasPrecargadas: readonly EtapaFormulario[] = ETAPAS_PRECARGADAS,
+): ValoresFormulario {
   return {
     numeroOp: iniciales.numeroOp ?? '',
     codigoPlano: iniciales.codigoPlano ?? null,
@@ -70,7 +75,7 @@ function valoresPorDefecto(modo: Props['modo'], iniciales: Partial<ValoresFormul
     fechaEntrega: iniciales.fechaEntrega ?? '',
     montoVendido: iniciales.montoVendido ?? '',
     observaciones: iniciales.observaciones ?? null,
-    etapas: iniciales.etapas ?? (modo === 'alta' ? ETAPAS_PRECARGADAS : []),
+    etapas: iniciales.etapas ?? (modo === 'alta' ? etapasPrecargadas : []),
     etapasModificadas: iniciales.etapasModificadas ?? false,
     materiales: iniciales.materiales ?? [],
   };
@@ -80,6 +85,7 @@ export function FormularioOrden({
   modo,
   clientes = [],
   valoresIniciales,
+  etapasPrecargadas = ETAPAS_PRECARGADAS,
   fechaIngreso = null,
   errores,
   onGuardar,
@@ -89,8 +95,8 @@ export function FormularioOrden({
   onBajaEtapa,
   onReordenarEtapa,
 }: Props) {
-  const [valores, setValores] = useState<ValoresFormulario>(() => valoresPorDefecto(modo, valoresIniciales));
-  const [etapasModificadas, setEtapasModificadas] = useState(false);
+  const [valores, setValores] = useState<ValoresFormulario>(() => valoresPorDefecto(modo, valoresIniciales, etapasPrecargadas));
+  const [etapasModificadas, setEtapasModificadas] = useState(valoresIniciales?.etapasModificadas ?? false);
   const [clientesLocales, setClientesLocales] = useState<readonly ClienteOpcion[]>(() => {
     const nombreInicial = valoresIniciales?.clienteNombre;
     const existe = clientes.some((cliente) => cliente.nombre === nombreInicial);
@@ -106,6 +112,11 @@ export function FormularioOrden({
   const [errorMaterial, setErrorMaterial] = useState('');
   const [errorCliente, setErrorCliente] = useState('');
   const enRouter = useInRouterContext();
+
+  useEffect(() => {
+    if (modo !== 'alta' || etapasModificadas) return;
+    setValores((anteriores) => ({ ...anteriores, etapas: etapasPrecargadas }));
+  }, [etapasPrecargadas, etapasModificadas, modo]);
 
   const erroresVisibles: Readonly<Record<string, string>> = { ...erroresLocales, ...errores?.campos };
   const mensajeGeneral = errores?.mensaje !== undefined && !Object.values(erroresVisibles).includes(errores.mensaje)

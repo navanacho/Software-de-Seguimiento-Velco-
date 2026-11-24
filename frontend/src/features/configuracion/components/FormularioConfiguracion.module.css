@@ -1,0 +1,23 @@
+.formulario {
+  display: grid;
+  gap: 1rem;
+  max-width: 40rem;
+}
+
+.campo {
+  display: grid;
+  gap: 0.35rem;
+  border: 0;
+  padding: 0;
+}
+
+.etapa {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.etapa p {
+  flex-basis: 100%;
+}

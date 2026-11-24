@@ -4,6 +4,7 @@ import { useGuardarOrden } from './hooks/useGuardarOrden.ts';
 import { useAltaClienteInline } from './hooks/useAltaClienteInline.ts';
 import { useAltaMaterial } from './hooks/useAltaMaterial.ts';
 import { useEditorEtapas } from './hooks/useEditorEtapas.ts';
+import { useEtapasPrecargadas } from './hooks/useEtapasPrecargadas.ts';
 import { FormularioOrden } from './components/FormularioOrden.tsx';
 import type { ClienteOpcion, ErroresFormulario, ValoresFormulario } from './tiposFormulario.ts';
 import estilos from './OrdenFormPage.module.css';
@@ -21,6 +22,7 @@ export function OrdenFormPage({ ordenId, clientes = [] }: Props) {
   const altaCliente = useAltaClienteInline();
   const altaMaterial = useAltaMaterial(ordenId ?? '');
   const editorEtapas = useEditorEtapas(ordenId ?? '');
+  const etapasPrecargadas = useEtapasPrecargadas(!esEdicion);
 
   const valoresIniciales: Partial<ValoresFormulario> | undefined = data
     ? {
@@ -61,6 +63,7 @@ export function OrdenFormPage({ ordenId, clientes = [] }: Props) {
           modo={esEdicion ? 'edicion' : 'alta'}
           clientes={clientes}
           valoresIniciales={valoresIniciales}
+          etapasPrecargadas={etapasPrecargadas}
           fechaIngreso={data?.fechaIngreso ?? null}
           errores={errores}
           onGuardar={(valores) => { guardar.mutate(valores); }}

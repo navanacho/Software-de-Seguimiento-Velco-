@@ -243,6 +243,10 @@ export function crearDependenciasFalsas(opciones: OpcionesFalsas = {}): {
     },
     configuracion: {
       obtener: async () => estado.configuracion,
+      actualizar: async (configuracion) => {
+        estado.configuracion = configuracion;
+        return configuracion;
+      },
     },
     unidadTrabajoOps: {
       ejecutar: async <T>(

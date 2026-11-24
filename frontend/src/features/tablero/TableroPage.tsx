@@ -21,6 +21,8 @@ export function TableroPage() {
   const { data, isLoading, isError } = useTablero(filtros);
   const mutacion = useActualizarEtapa();
   const nuevaOp = () => { navigate('/ops/nueva'); };
+  const configuracion = () => { navigate('/configuracion'); };
+
 
   const hayFiltrosActivos = Object.values(filtros).some((v) => typeof v === 'string' && v.trim() !== '');
 
@@ -55,6 +57,7 @@ export function TableroPage() {
         <div className={estilos.franja} aria-hidden="true" />
         <h1 className={estilos.titulo}>Tablero de producción</h1>
         <div className={estilos.acciones}>
+          <button type="button" onClick={configuracion}>Configuración</button>
           <button type="button" onClick={nuevaOp}>Nueva OP</button>
         </div>
       </header>

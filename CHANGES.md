@@ -18,6 +18,7 @@
 >
 > `C-08` (`horas-reales-api`) fue archivado el 2026-11-23 en `openspec/changes/archive/2026-11-23-horas-reales-api/`; sus seis delta specs quedaron sincronizados en `openspec/specs/`.
 > `C-09` (`horas-reales-ui`) fue archivado el 2026-11-24 en `openspec/changes/archive/2026-11-24-horas-reales-ui/`; sus cinco delta specs quedaron sincronizados en `openspec/specs/` (`openspec validate --specs --strict`: 34 passed, 0 failed).
+> `C-10` (`configuracion-global`) fue archivado el 2026-11-24 en `openspec/changes/archive/2026-11-24-configuracion-global/`; sus cinco delta specs quedaron sincronizados en `openspec/specs/` (`openspec validate --specs --strict`: 37 passed, 0 failed).
 
 ---
 
@@ -316,7 +317,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 > HU-14, HU-15, HU-16, HU-18 y HU-21 (datos/API en C-17). `C-10` y `C-11` pueden ejecutarse en paralelo tras `C-09`.
 
 ### [C-10] `configuracion-global`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado y archivado (2026-11-24)
 - **Scope**: Parámetros globales editables sin cambio de código
   - `GET /api/configuracion` y `PUT /api/configuracion` sobre la fila singleton `id=1`; validación `valor_hora >= 0`, `dias_alerta_riesgo >= 0`, `0 <= porcentaje_avance_riesgo <= 100`, 422 fuera de rango
   - Vista `/configuracion`: valor hora estándar, días para "En riesgo", % de avance de riesgo y edición de `etapas_default`
@@ -516,4 +517,4 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 
 **Total**: 18 changes en 6 fases. **Gates**: 14. **Camino crítico**: 11 changes con dos terminales obligatorias (`C-16` y `C-18`).
 
-**Siguientes changes disponibles**: `C-10` (`configuracion-global`, GATE 8), `C-11` (`desvios-y-margen-domain`, GATE 8) y `C-13` (`excel-template-spike`, paralelo desde GATE 1, bloqueante para `C-14`). No hay changes activos (`openspec list --json` → `{"changes":[]}`). `C-17`/`C-18` permanecen registrados sin propuesta hasta archivar `C-11`.
+**Siguientes changes disponibles**: `C-11` (`desvios-y-margen-domain`, GATE 8) y `C-13` (`excel-template-spike`, paralelo desde GATE 1, bloqueante para `C-14`). No hay changes activos (`openspec list --json` → `{"changes":[]}`). `C-17`/`C-18` permanecen registrados sin propuesta hasta archivar `C-11`.

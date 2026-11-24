@@ -3,6 +3,7 @@ import { fechaCalendarioEnZona } from '../../../shared/reloj.ts';
 import type { Reloj } from '../../../shared/reloj.ts';
 import type { ConfiguracionRepository } from './ports/ConfiguracionRepository.ts';
 
+export const VALOR_HORA_DEFAULT = '0.00';
 export const DIAS_ALERTA_DEFAULT = 3;
 export const PORCENTAJE_RIESGO_DEFAULT = 80;
 export const ETAPAS_DEFAULT = ['Corte', 'Soldadura', 'Mecanizado', 'Pintura', 'Entrega'] as const;
@@ -23,6 +24,7 @@ export async function contextoTarjeta(
     zonaHoraria: dependencias.zonaHoraria,
     diasAlertaRiesgo: configuracion?.diasAlertaRiesgo ?? DIAS_ALERTA_DEFAULT,
     porcentajeAvanceRiesgo: configuracion?.porcentajeAvanceRiesgo ?? PORCENTAJE_RIESGO_DEFAULT,
+    valorHoraEstandar: configuracion?.valorHoraEstandar ?? VALOR_HORA_DEFAULT,
   };
   return clienteNombre !== null && clienteNombre !== undefined
     ? { ...base, clienteNombre }

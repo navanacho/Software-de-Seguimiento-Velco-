@@ -12,6 +12,7 @@ import { etapaAhora } from './etapa-ahora.ts';
 
 export interface ContextoTarjeta extends ContextoPlazo {
   readonly clienteNombre?: string;
+  readonly valorHoraEstandar?: string;
 }
 
 export interface EtapaTarjeta {
