@@ -10,6 +10,13 @@ describe('calcularAgregadosMateriales', () => {
     expect(r).toEqual({ costoMaterialesCotizado: '26.00', costoMaterialesReal: '30.00' });
   });
 
+  it('C-11 delega el agregado a la regla exacta de margen sin truncar escala 4', () => {
+    const r = calcularAgregadosMateriales([
+      { cantidad: '1.2345', costoUnitarioCotizado: '10.00', costoUnitarioReal: null },
+    ]);
+    expect(r).toEqual({ costoMaterialesCotizado: '12.3450', costoMaterialesReal: '12.3450' });
+  });
+
   it('7.6 TRIANGULA: todos null usan cotizado; vacío da cero decimal', () => {
     expect(calcularAgregadosMateriales([
       { cantidad: '1.00', costoUnitarioCotizado: '5.50', costoUnitarioReal: null },

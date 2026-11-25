@@ -90,4 +90,48 @@ describe('esquemas zod del tablero (2.3-2.4)', () => {
     expect(validado.porcentajeConsumo).toBe('6.25');
     expect(validado.alertaDesvio).toBe(false);
   });
+
+  it('C-11 valida la comparativa y el margen transportados sin calcularlos', () => {
+    const comparativaPorEtapa = [{
+      etapaId: null,
+      nombreEtapa: 'Sin etapa',
+      horasVendidas: '40.00',
+      horasReales: '2.50',
+      desvioHoras: '37.50',
+      porcentajeConsumo: '6.25',
+      alertaDesvio: false,
+    }];
+    const detalle = {
+      ...crearDetalle(),
+      comparativaPorEtapa,
+      margenReal: '900.00',
+      tasaGlobalNoConfigurada: false,
+    };
+    const validado = EsquemaDetalleOp.parse(detalle);
+    expect(validado.comparativaPorEtapa).toEqual(comparativaPorEtapa);
+    expect(validado.margenReal).toBe('900.00');
+    expect(validado.tasaGlobalNoConfigurada).toBe(false);
+  });
+
+  it('C-11 TRIANGULA conserva tasa no configurada y consumo nulo', () => {
+    const detalle = crearDetalle({
+      porcentajeConsumo: null,
+      comparativaPorEtapa: [{
+        etapaId: 'e-1',
+        nombreEtapa: 'Corte',
+        horasVendidas: '40.00',
+        horasReales: '2.50',
+        desvioHoras: '37.50',
+        porcentajeConsumo: null,
+        alertaDesvio: false,
+      }],
+      margenReal: '1000.00',
+      tasaGlobalNoConfigurada: true,
+    });
+    const validado = EsquemaDetalleOp.parse(detalle);
+    expect(validado.porcentajeConsumo).toBeNull();
+    expect(validado.comparativaPorEtapa[0]?.porcentajeConsumo).toBeNull();
+    expect(validado.margenReal).toBe('1000.00');
+    expect(validado.tasaGlobalNoConfigurada).toBe(true);
+  });
 });

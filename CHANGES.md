@@ -14,11 +14,12 @@
 4. Al terminar el change, archivarlo con `/opsx:archive <slug-del-change>`.
 5. Marcar el checkbox `[x]` en este archivo.
 
-> `C-17` y `C-18` están registrados en el roadmap pero **no se proponen ahora**: `C-08` ya está completado, pero siguen dependiendo de `C-11`, todavía no implementado.
+> `C-17` y `C-18` están registrados en el roadmap pero **siguen sin propuesta** hasta su momento: sus dependencias (`C-08` y `C-11`) ya están completadas y archivadas (DD-12).
 >
 > `C-08` (`horas-reales-api`) fue archivado el 2026-11-23 en `openspec/changes/archive/2026-11-23-horas-reales-api/`; sus seis delta specs quedaron sincronizados en `openspec/specs/`.
 > `C-09` (`horas-reales-ui`) fue archivado el 2026-11-24 en `openspec/changes/archive/2026-11-24-horas-reales-ui/`; sus cinco delta specs quedaron sincronizados en `openspec/specs/` (`openspec validate --specs --strict`: 34 passed, 0 failed).
 > `C-10` (`configuracion-global`) fue archivado el 2026-11-24 en `openspec/changes/archive/2026-11-24-configuracion-global/`; sus cinco delta specs quedaron sincronizados en `openspec/specs/` (`openspec validate --specs --strict`: 37 passed, 0 failed).
+> `C-11` (`desvios-y-margen-domain`) fue archivado el 2026-11-25 en `openspec/changes/archive/2026-11-25-desvios-y-margen-domain/`; sus cinco delta specs quedaron sincronizados en `openspec/specs/` (`openspec validate --specs --strict`: 40 passed, 0 failed).
 
 ---
 
@@ -335,7 +336,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 ---
 
 ### [C-11] `desvios-y-margen-domain`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado y archivado (2026-11-25), con cinco delta specs sincronizados en `openspec/specs/`
 - **Scope**: Reglas puras de desvío, comparativa y rentabilidad (tests antes que la implementación)
   - Funciones puras: `horasVendidasTotales`, `horasRealesTotales`, `desvioHoras`, `consumoPorcentaje`, `alertaDesvio` (consumo > avance + 15% o reales > vendidas), `comparativaPorEtapa`, `costoMaterialReal` con `COALESCE`, `margenReal` con tasa global inyectada
   - División por cero: con horas vendidas = 0 no se calcula `% consumo` y la alerta se evalúa solo con `reales > vendidas`
@@ -451,10 +452,10 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 
 ## FASE 5 — Dashboard y design system (registrada, sin propuesta)
 
-> HU-21 y tokens visuales. `C-17` y `C-18` se registran aquí para preservar la trazabilidad del MVP, pero **no se ejecutan `/opsx:propose`** hasta que `C-11` esté implementado y archivado (`C-08` ya cumplió esa condición; DD-12).
+> HU-21 y tokens visuales. `C-17` y `C-18` se registran aquí para preservar la trazabilidad del MVP y **siguen sin propuesta** hasta su momento: `C-08` y `C-11` ya están completados y archivados (DD-12).
 
 ### [C-17] `dashboard-datos`
-- **Estado**: `[ ]` pendiente — registrado, sin propuesta (depende de C-11; C-08 completado)
+- **Estado**: `[ ]` pendiente — registrado, sin propuesta (C-08 y C-11 completados y archivados)
 - **Scope**: Agregaciones y contrato de datos del dashboard
   - Funciones puras nuevas en `packages/domain/src/dashboard`: `calcularKpisGlobales`, `conteoPorEstado`, `tiempoPromedioCiclo`, `promedioPorEtapa` y `filaDesvioOp`; reutilizan RN-HORAS, RN-MARGEN, RN-AVANCE y RN-SEMAFORO sin duplicarlos ni persistir agregados (R3, RN-GLOBAL-02)
   - Filtro de período sobre `fecha_entrega` (fecha comprometida): `fechaDesde`/`fechaHasta` significan entregas prometidas en el rango; etiqueta `Fecha comprometida` en el contrato y en la UI; no filtran fecha de imputación ni ejecución
@@ -462,7 +463,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
   - Endpoint `GET /api/dashboard` con respuesta `{ kpis, promediosPorEtapa, filas }`; cada fila expone `numeroOp`, `codigoPlano`, `cliente`, `estado`, `horasVendidas`, `horasReales`, `desvioHoras`, `desvioPorcentaje`, `margenNeto`; ordenable por cualquiera de esas columnas
   - Esquemas Zod de request/response y DTO de salida; división por cero y OP sin etapas resueltas en dominio, nunca en React
   - Tests: unitarios de agregaciones y orden (mínimo 2 casos por regla, TDD) e integración contra PostgreSQL real para límites de fecha comprometida, estado, orden y ausencia de columnas persistidas
-- **Dependencias**: C-08 (completado), C-11 (pendiente)
+- **Dependencias**: C-08 (completado), C-11 (completado y archivado)
 - **Governance**: MEDIO
 - **Leer antes**:
   - `Docs/definici_n_del_mvp_velco.md` §2.C
@@ -506,7 +507,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 | C-08 | `horas-reales-api` | 2 — OP y horas | MEDIO | C-06 | HU-10, HU-13 |
 | C-09 | `horas-reales-ui` | 2 — OP y horas | BAJO | C-08, C-05 | HU-10, HU-13 |
 | C-10 | `configuracion-global` | 3 — Analítica | MEDIO | C-09 | HU-18 |
-| C-11 | `desvios-y-margen-domain` | 3 — Analítica | MEDIO | C-08, C-03 | HU-14, HU-15, HU-16 |
+| C-11 | `desvios-y-margen-domain` (archivado 2026-11-25) | 3 — Analítica | MEDIO | C-08, C-03 | HU-14, HU-15, HU-16 |
 | C-12 | `analitica-de-rentabilidad-ui` | 3 — Analítica | BAJO | C-11, C-10, C-05 | HU-14, HU-15, HU-16 |
 | C-13 | `excel-template-spike` | 4 — Exportación | MEDIO | C-01 | IN-08, DD-11 |
 | C-14 | `exportacion-costeo` | 4 — Exportación | MEDIO | C-11, C-13 | HU-20A |
@@ -517,4 +518,4 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 
 **Total**: 18 changes en 6 fases. **Gates**: 14. **Camino crítico**: 11 changes con dos terminales obligatorias (`C-16` y `C-18`).
 
-**Siguientes changes disponibles**: `C-11` (`desvios-y-margen-domain`, GATE 8) y `C-13` (`excel-template-spike`, paralelo desde GATE 1, bloqueante para `C-14`). No hay changes activos (`openspec list --json` → `{"changes":[]}`). `C-17`/`C-18` permanecen registrados sin propuesta hasta archivar `C-11`.
+**Siguientes changes disponibles**: `C-12` (`analitica-de-rentabilidad-ui`, GATE 9, junto con `C-10` y `C-05` ya completados), `C-13` (`excel-template-spike`, paralelo desde GATE 1, bloqueante para `C-14`) y `C-17` (`dashboard-datos`, GATE 10, depende de `C-08` y `C-11`, ya archivados). No hay changes activos (`openspec list --json` → `{"changes":[]}`). `C-17`/`C-18` permanecen registrados sin propuesta hasta su momento; `C-18` sigue esperando a que `C-17` se archive.

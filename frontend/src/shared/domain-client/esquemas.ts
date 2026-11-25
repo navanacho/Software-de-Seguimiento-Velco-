@@ -1,6 +1,6 @@
 ﻿import { z } from 'zod';
 import { TIPOS_MATERIAL } from '@velco/domain';
-import type { EstadoSemaforo, EtapaTarjeta, GrupoFlujo, TarjetaOrdenDTO } from '@velco/domain';
+import type { EstadoSemaforo, EtapaTarjeta, FilaComparativaPorEtapa, GrupoFlujo, TarjetaOrdenDTO } from '@velco/domain';
 import type { DetalleOpDTO, KpisTablero, ParteHoraDTO, RespuestaListadoTablero } from './tipos.ts';
 
 // Los valores espejan el tipo canónico porque @velco/domain exporta EstadoSemaforo como type, no como array runtime (R2 impide cambiar domain aquí).
@@ -165,6 +165,16 @@ export const EsquemaMaterialDetalle = z.object({
   po: z.string().nullable(),
 });
 
+const EsquemaFilaComparativaPorEtapa: z.ZodType<FilaComparativaPorEtapa> = z.object({
+  etapaId: z.string().nullable(),
+  nombreEtapa: z.string(),
+  horasVendidas: z.string(),
+  horasReales: z.string(),
+  desvioHoras: z.string(),
+  porcentajeConsumo: z.string().nullable(),
+  alertaDesvio: z.boolean(),
+});
+
 export const EsquemaDetalleOp: z.ZodType<DetalleOpDTO> = EsquemaTarjetaOrdenBase.extend({
   etapas: z.array(EsquemaEtapaTarjetaBase.extend({ horasVendidas: z.string() })),
   fechaIngreso: z.string(),
@@ -179,6 +189,9 @@ export const EsquemaDetalleOp: z.ZodType<DetalleOpDTO> = EsquemaTarjetaOrdenBase
   materiales: z.array(EsquemaMaterialDetalle),
   costoMaterialesCotizado: z.string(),
   costoMaterialesReal: z.string(),
+  comparativaPorEtapa: z.array(EsquemaFilaComparativaPorEtapa),
+  margenReal: z.string(),
+  tasaGlobalNoConfigurada: z.boolean(),
 });
 
 export type CrearOp = z.infer<typeof EsquemaCrearOp>;

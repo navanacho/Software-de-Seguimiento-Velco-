@@ -1,0 +1,1 @@
+export const UMBRAL_DESVIO_PORCENTAJE = 15;

@@ -1,4 +1,4 @@
-﻿import type { EstadoSemaforo, EtapaTarjeta, GrupoFlujo, RegistroHora, TarjetaOrdenDTO, TipoMaterial } from '@velco/domain';
+﻿import type { EstadoSemaforo, EtapaTarjeta, FilaComparativaPorEtapa, GrupoFlujo, RegistroHora, TarjetaOrdenDTO, TipoMaterial } from '@velco/domain';
 
 export interface KpisTablero {
   readonly total: number;
@@ -46,6 +46,9 @@ export type DetalleOpDTO = Omit<TarjetaOrdenDTO, 'etapas'> & {
   readonly materiales: readonly MaterialDetalleDTO[];
   readonly costoMaterialesCotizado: string;
   readonly costoMaterialesReal: string;
+  readonly comparativaPorEtapa: readonly FilaComparativaPorEtapa[];
+  readonly margenReal: string;
+  readonly tasaGlobalNoConfigurada: boolean;
 };
 
 export interface ClienteCreado {

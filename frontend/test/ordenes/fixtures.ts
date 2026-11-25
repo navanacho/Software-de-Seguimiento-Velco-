@@ -49,6 +49,9 @@ export function crearDetalle(parcial: Partial<DetalleOpDTO> = {}): DetalleOpDTO 
     materiales: [crearMaterialDetalle()],
     costoMaterialesCotizado: '21.00',
     costoMaterialesReal: '0.00',
+    comparativaPorEtapa: [],
+    margenReal: '979.00',
+    tasaGlobalNoConfigurada: false,
     ...parcial,
   };
 }

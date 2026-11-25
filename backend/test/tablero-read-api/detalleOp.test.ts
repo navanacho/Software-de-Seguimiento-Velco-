@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/features/salud/http/app.ts';
 import {
   configuracionPrueba,
+  crearConfiguracion,
   crearDependenciasFalsas,
   crearEtapa,
   crearEtapas,
@@ -151,6 +152,58 @@ describe('GET /api/ops/:id', () => {
       };
       expect(cuerpo.horasVendidasTotales).toBe('5.50');
       expect(cuerpo.horasRealesTotales).toBe('3.75');
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('C-11 RN-GLOBAL-02 el handler transporta los derivados que produce el dominio', async () => {
+    const ordenId = randomUUID();
+    const { dependencias } = crearDependenciasFalsas({
+      ops: [crearOrden({ id: ordenId, montoVendido: '1250.50' })],
+      etapas: crearEtapas(['Corte'], ordenId),
+    });
+    const app = await buildApp(configuracionPrueba(), dependencias);
+    try {
+      const cuerpo = (await app.inject({ method: 'GET', url: `/api/ops/${ordenId}` })).json() as {
+        comparativaPorEtapa: readonly { nombreEtapa: string }[];
+        margenReal: string;
+        tasaGlobalNoConfigurada: boolean;
+      };
+      expect(cuerpo.comparativaPorEtapa.length).toBeGreaterThan(0);
+      expect(cuerpo.margenReal).toBe('1250.50');
+      expect(cuerpo.tasaGlobalNoConfigurada).toBe(true);
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('C-11 RN-GLOBAL-02 TRIANGULA: tasa configurada calcula margen y apaga el flag', async () => {
+    const ordenId = randomUUID();
+    const etapas = crearEtapas(['Corte'], ordenId);
+    const { dependencias } = crearDependenciasFalsas({
+      ops: [crearOrden({ id: ordenId, montoVendido: '1250.50' })],
+      etapas,
+      horas: [
+        crearRegistroHora({
+          id: 'hora-c11',
+          ordenId,
+          etapaId: etapas[0]!.id,
+          horas: '2.00',
+        }),
+      ],
+      configuracion: crearConfiguracion({ valorHoraEstandar: '10.00' }),
+    });
+    const app = await buildApp(configuracionPrueba(), dependencias);
+    try {
+      const cuerpo = (await app.inject({ method: 'GET', url: `/api/ops/${ordenId}` })).json() as {
+        margenReal: string;
+        tasaGlobalNoConfigurada: boolean;
+        comparativaPorEtapa: readonly { horasReales: string }[];
+      };
+      expect(cuerpo.margenReal).toBe('1230.50');
+      expect(cuerpo.tasaGlobalNoConfigurada).toBe(false);
+      expect(cuerpo.comparativaPorEtapa[0]?.horasReales).toBe('2.00');
     } finally {
       await app.close();
     }

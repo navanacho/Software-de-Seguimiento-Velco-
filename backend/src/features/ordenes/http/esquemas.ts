@@ -121,6 +121,17 @@ const DetalleOpSchema = TarjetaOrdenSchema.extend({
   materiales: z.array(MaterialDetalleSchema),
   costoMaterialesCotizado: z.string(),
   costoMaterialesReal: z.string(),
+  comparativaPorEtapa: z.array(z.object({
+    etapaId: z.string().nullable(),
+    nombreEtapa: z.string(),
+    horasVendidas: z.string(),
+    horasReales: z.string(),
+    desvioHoras: z.string(),
+    porcentajeConsumo: z.string().nullable(),
+    alertaDesvio: z.boolean(),
+  })),
+  margenReal: z.string(),
+  tasaGlobalNoConfigurada: z.boolean(),
 });
 
 export const DetalleOpJSONSchema = z.toJSONSchema(DetalleOpSchema, { target: 'draft-07' });
