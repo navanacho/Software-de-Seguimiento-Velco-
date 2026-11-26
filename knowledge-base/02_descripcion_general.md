@@ -60,8 +60,9 @@ Reglas de alto nivel:
 | `MASTER COSTEO NUEVO.xlsx` | Plantilla oficial para la exportación económica | Archivo local leído por `exceljs` | Requerida en MVP |
 | `A - OP-MASTER.xlsx` | Plantilla oficial para la orden de producción imprimible | Archivo local leído por `exceljs` | Requerida en MVP |
 | Impresión / guardado como PDF | Vista limpia de la OP desde el navegador | `window.print()` / diálogo del navegador | Requerida en MVP (HU-20B) |
-| Enlace externo embebido en la plantilla de costeo (~577 KB) | Dependencia histórica de la planilla | Referencia externa dentro del `.xlsx` | **Spike abierto** |
-| Ruta UNC `\\Servidor\g\OPERACIONES\ORDENES DE PROCESO\OP - DIGITALIZADA\` | Ubicación histórica de las plantillas / OP digitalizadas | Recurso de red | **Spike abierto** |
+| Enlace externo embebido en `A - OP-MASTER.xlsx` (577.125 B, Target `/COMERCIAL/FG48%20-%20FACTURACION%20REGISTRO.xlsx`) | Metadata histórica conservada byte-a-byte; las 12 fórmulas `[1]` se neutralizan con valores de BD | Referencia externa dentro del `.xlsx`, no fuente de datos | Resuelta en C-13, condicionada al ADR y a la firma humana |
+| Enlace externo embebido en `MASTER COSTEO NUEVO.xlsx` (994 B) | Metadata histórica conservada byte-a-byte | Referencia externa dentro del `.xlsx`, no fuente de datos | Resuelta en C-13 |
+| Ruta UNC `\\Servidor\g\OPERACIONES\ORDENES DE PROCESO\OP - DIGITALIZADA\` | Ubicación histórica de las OP digitalizadas, presente solo como `x15ac:absPath` | Referencia documental, sin uso en runtime | Referencia histórica; no bloquea C-13 |
 | Roles (Fase 2, HU-19; sin PIN definido en docs vigentes) | — | — | No aplica en MVP; cualquier auth requiere aprobación humana (R5) |
 
 No hay integraciones REST, webhooks ni SDK de terceros en el MVP. El alcance es una aplicación web interna para uso de una sola persona.

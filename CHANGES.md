@@ -378,13 +378,14 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 > HU-20A y HU-20B. El spike `C-13` corre desde GATE 1 pero debe estar cerrado antes de `C-14`. Se rellenan plantillas; nunca se genera un workbook desde cero.
 
 ### [C-13] `excel-template-spike`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado y archivado (2026-11-26), con cinco delta specs sincronizados en `openspec/specs/`
 - **Scope**: Spike técnico acotado sobre las plantillas oficiales (IN-08)
-  - Clonar `Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx` y `Docs/FichasExcel/A - OP-MASTER.xlsx`; cargar y volver a guardar con `exceljs` 4+ y comparar celdas combinadas, estilos, encabezados, bloques y fórmulas antes/después
-  - Probar el enlace externo de ~577 KB y la ruta UNC `\\Servidor\g\OPERACIONES\ORDENES DE PROCESO\OP - DIGITALIZADA\` leyendo `EXCEL_UNC_BASE` desde configuración, sin hardcodearla
-  - Confirmar en la plantilla real el rango `O7:R8` para `ID Plano:` con valor o `S/P`, sin usar `J7:N8` (`PC N°:`) (DD-11)
-  - Entregable: informe/ADR con la decisión de preservar, eliminar o reemplazar el enlace por un valor estático y la mitigación antes de `C-14`; ajustar DD-02 si corresponde
-  - Tests de contrato: round-trip de plantilla y verificación de fórmulas/celdas combinadas; plantilla ausente ⇒ 500 operativo, nunca workbook improvisado
+  - Clonar `Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx` y `Docs/FichasExcel/A - OP-MASTER.xlsx`; aplicar parche OOXML quirúrgico y comparar por hash todas las piezas salvo el diff controlado en las celdas autorizadas; `exceljs` 4.4.0 solo para lectura/verificación
+  - Verificar en el OOXML real los enlaces externos: `A - OP-MASTER.xlsx` contiene el de 577.125 B (`/COMERCIAL/FG48%20-%20FACTURACION%20REGISTRO.xlsx`) y `MASTER COSTEO NUEVO.xlsx` el de 994 B; conservar `externalLinks/*` byte-a-byte como metadata histórica, sin usarlos como fuente, y reemplazar las 12 fórmulas `[1]` por valores estáticos de BD
+  - La ruta UNC `\\Servidor\g\OPERACIONES\ORDENES DE PROCESO\OP - DIGITALIZADA\` es referencia histórica documentada en `EXCEL_UNC_BASE`, sin uso en runtime; su resolución no bloquea el spike
+  - Confirmar en la plantilla real `O7` como celda maestra (`ID Plano: <valor>` / `ID Plano: S/P` con `inlineStr`), conservando merge y estilo, sin usar `J7:N8` (`PC N°:`) (DD-11)
+  - Entregable: informe/ADR con las cinco decisiones aprobadas, DD-02 enmendada, IN-08 resuelta condicionada al ADR y a la checklist manual, y mitigación antes de `C-14`
+  - Tests de contrato: patcher OOXML y comparador por hash (merges/estilos, `[1]` 12 → 0 en celdas reemplazadas, `O7`/`J7:N8`, `_xlnm.Print_Area`, `printerSettings1.bin`, `externalLinks/*`); plantilla ausente ⇒ 500 operativo sin workbook; checklist manual firmada como compuerta
 - **Dependencias**: C-01
 - **Governance**: MEDIO
 - **Leer antes**:
@@ -400,9 +401,9 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 - **Estado**: `[ ]` pendiente
 - **Scope**: Variante económica de `exportOp`
   - Función pura `exportOp(opId, { incluirMargenes })` con MAP entidades → celdas; con `incluirMargenes: true` construye el modelo de `MASTER COSTEO NUEVO.xlsx`: cliente, OP, bloques `INSUMOS / MP / TERCEROS` con `UN / COST. UNIT. / COSTO TOTAL`, horas vendidas y reales, valor hora y comparativa de márgenes
-  - Adaptador `backend/src/features/exportacion/excel`: carga la plantilla desde `EXCEL_TEMPLATES_DIR`, preserva estilos, combinaciones y fórmulas, devuelve `Buffer`; `Content-Disposition: COSTEO_[NroOP]_[Cliente].xlsx`
+  - Adaptador `backend/src/features/exportacion/excel`: copia la plantilla desde `EXCEL_TEMPLATES_DIR` y aplica parche OOXML quirúrgico; preserva estilos, combinaciones, `externalLinks/*` y fórmulas propias, y neutraliza las fórmulas `[1]` de las 12 celdas maestras con valores estáticos de BD; devuelve `Buffer`; `Content-Disposition: COSTEO_[NroOP]_[Cliente].xlsx`
   - Endpoint `GET /api/ops/:id/export?variante=costeo`; 500 operativo si falta la plantilla
-  - Tests: unidad del MAP puro, contrato de modelo compartido entre variantes, round-trip con la plantilla y comparación contra un costeo real de Velco
+  - Tests: unidad del MAP puro, contrato de modelo compartido entre variantes, comparación por hash del parche OOXML y cotejo contra un costeo real de Velco
 - **Dependencias**: C-11, C-13
 - **Governance**: MEDIO
 - **Leer antes**:
@@ -438,7 +439,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 - **Scope**: Superficie de descarga e impresión
   - Botones "Costeo" y "OP" en tarjeta y detalle; el nombre del archivo lo define `Content-Disposition`, sin exponer rutas del servidor
   - Vista de impresión/PDF de la OP con estilos de impresión y sin importes, accesible desde el detalle
-  - Errores operativos (plantilla ausente, UNC inaccesible) con mensaje accionable y sin reintentos infinitos
+  - Errores operativos genéricos de plantilla/ruta (por ejemplo, plantilla ausente o directorio inaccesible) con mensaje accionable y sin reintentos infinitos; sin menciones a UNC ni rutas del servidor
   - Tests de componente: dos descargas independientes, nombre de archivo, variante operativa sin márgenes, manejo del error 500
 - **Dependencias**: C-15
 - **Governance**: BAJO
@@ -510,7 +511,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 | C-10 | `configuracion-global` | 3 — Analítica | MEDIO | C-09 | HU-18 |
 | C-11 | `desvios-y-margen-domain` (archivado 2026-11-25) | 3 — Analítica | MEDIO | C-08, C-03 | HU-14, HU-15, HU-16 |
 | C-12 | `analitica-de-rentabilidad-ui` (archivado 2026-11-26) | 3 — Analítica | BAJO | C-11, C-10, C-05 | HU-14, HU-15, HU-16 |
-| C-13 | `excel-template-spike` | 4 — Exportación | MEDIO | C-01 | IN-08, DD-11 |
+| C-13 | `excel-template-spike` (archivado 2026-11-26) | 4 — Exportación | MEDIO | C-01 | IN-08, DD-11 |
 | C-14 | `exportacion-costeo` | 4 — Exportación | MEDIO | C-11, C-13 | HU-20A |
 | C-15 | `exportacion-op-master` | 4 — Exportación | MEDIO | C-14, C-13 | HU-20B |
 | C-16 | `descargas-y-impresion-ui` | 4 — Exportación | BAJO | C-15 | HU-20A, HU-20B |
@@ -519,4 +520,4 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 
 **Total**: 18 changes en 6 fases. **Gates**: 14. **Camino crítico**: 11 changes con dos terminales obligatorias (`C-16` y `C-18`).
 
-**Siguientes changes disponibles**: `C-13` (`excel-template-spike`, paralelo desde GATE 1, bloqueante para `C-14`) y `C-17` (`dashboard-datos`, GATE 10, depende de `C-08` y `C-11`, ya archivados). No hay changes activos (`openspec list --json` → `{"changes":[]}`). `C-17`/`C-18` permanecen registrados sin propuesta hasta su momento; `C-18` sigue esperando a que `C-17` se archive.
+**Siguientes changes disponibles**: `C-17` (`dashboard-datos`, GATE 10, depende de `C-08` y `C-11`, ya archivados). No hay changes activos (`openspec list --json` → `{"changes":[]}`). `C-17`/`C-18` permanecen registrados sin propuesta hasta su momento; `C-18` sigue esperando a que `C-17` se archive.

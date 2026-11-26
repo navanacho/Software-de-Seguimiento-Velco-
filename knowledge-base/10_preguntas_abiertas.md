@@ -72,15 +72,19 @@
 
 **Resolución propuesta:** mantener etapas como texto libre por OP, con `etapas_default` solo como plantilla inicial (RN-ETAPA-03). Confirmar si Velco quiere un catálogo maestro en Fase 2.
 
-### IN-08 — Enlace externo de ~577 KB y ruta UNC en las plantillas — **ABIERTA (spike)**
+### IN-08 — Enlace externo de ~577 KB y ruta UNC en las plantillas — **RESUELTA (condicionada al ADR y a la firma humana)**
 
-**Fuente (`Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx`):** contiene un enlace externo de ~577 KB; la ruta de las OP digitalizadas es `\\Servidor\g\OPERACIONES\ORDENES DE PROCESO\OP - DIGITALIZADA\`.
+**Fuente (`Docs/FichasExcel/A - OP-MASTER.xlsx`):** `xl/externalLinks/externalLink1.xml` mide **577.125 bytes** y su Target es `/COMERCIAL/FG48%20-%20FACTURACION%20REGISTRO.xlsx`.
+
+**Fuente (`Docs/FichasExcel/MASTER COSTEO NUEVO.xlsx`):** su `externalLink1.xml` mide **994 bytes** y apunta a `file:///K:\COMERCIAL\...COSTEO MASTER - PETROLERA EL TREBOL - MENDOZA.xlsx`. La atribución anterior del enlace grande a esta plantilla era errónea.
 
 **Fuente (`Docs/historias_de_usuario_velco.md` principio 3 y HU-20A/B CA):** el MVP debe preservar celdas combinadas, estilos y fórmulas al rellenar la plantilla.
 
-**Impacto:** `exceljs` podría eliminar o corromper el enlace externo, o fallar al resolver la UNC; bloquea Sprint 4 si no se valida.
+**Impacto:** la estrategia de guardado con `exceljs` no preserva el paquete OOXML; la UNC no es fuente ni requisito de la exportación. El mapeo de plano quedó confirmado y el riesgo operativo se traslada a la compuerta manual en Excel.
 
-**Resolución propuesta:** spike técnico acotado antes de Sprint 4: clonar la plantilla, rellenarla, abrirla con Excel y decidir si el enlace se preserva, se elimina o se reemplaza por un valor estático. Ver [08_arquitectura_propuesta.md](08_arquitectura_propuesta.md). **Ampliación DD-11:** además, confirmar en la plantilla real el rango `O7:R8` para `ID Plano:` / `S/P`; hasta cerrar C-13, ese mapeo es un bloqueo explícito de C-15. No usar `J7:N8` (`PC N°:`).
+**Decisor:** usuario en nombre de Velco (2026-11-26).
+
+**Resolución:** **RESUELTA** por las cinco decisiones aprobadas: (1) conservar `externalLinks/*` byte-a-byte como metadata histórica y reemplazar las 12 fórmulas `[1]` por valores estáticos de BD; (2) parche OOXML quirúrgico con `exceljs` solo para lectura/verificación; (3) `O7` = `ID Plano: <codigoPlano>` o `ID Plano: S/P` con `inlineStr`, `J7:N8` intacto; (4) UNC histórica sin uso en runtime, sin eliminar `EXCEL_UNC_BASE` y conservando `absPath`; (5) doble capa de validación con checklist manual firmada como compuerta. Queda **condicionada** al ADR de C-13 y a la firma de esa checklist: sin firma, `verify-report.md` marca CRITICAL y C-13 no se archiva. Ver [09_decisiones_y_supuestos.md](09_decisiones_y_supuestos.md) DD-02 y DD-11, y el ADR de `openspec/changes/excel-template-spike/`.
 
 ### IN-09 — Validez como fuente de los documentos recuperados del historial de git — **RESUELTA**
 
@@ -106,19 +110,19 @@
 
 **Fuente (KB y roadmap anteriores):** HU-01/HU-09 no mencionaban plano; C-04/C-05 buscaban solo OP/pieza; C-14/C-15 no contemplaban el campo.
 
-**Resolución:** **RESUELTA** en DD-11 y RN-OP-05/06, RN-EXPORT-08. La migración 002 absorbe la columna de forma aditiva; el contrato 409 incluye `opExistente`; el mapeo `O7:R8` con `S/P` queda condicionado a C-13/IN-08.
+**Resolución:** **RESUELTA** en DD-11 y RN-OP-05/06, RN-EXPORT-08. La migración 002 absorbe la columna de forma aditiva; el contrato 409 incluye `opExistente`; el mapeo `O7:R8` con `ID Plano: <valor>` / `ID Plano: S/P` quedó confirmado por C-13/IN-08, sujeto a la compuerta humana del ADR.
 
 ## Preguntas abiertas (priorizadas)
 
 | Prioridad | Pregunta | Bloquea | Decisor |
 |---|---|---|---|
-| Alta | ¿Cómo maneja `exceljs` el enlace externo de ~577 KB y la ruta UNC? (IN-08) | Sprint 4 — exportación | Equipo técnico + Velco (acceso al servidor) |
-| Alta | ¿Confirma la plantilla `A - OP-MASTER.xlsx` el rango `O7:R8` para `ID Plano:` / `S/P`? (IN-08, DD-11) | C-15 — mapeo de plano | Velco + spike C-13 |
 | Alta | ¿Se aprueba el diseño de auth de Fase 2 antes de escribir cualquier código de autenticación? (DD-07) | Fase 2 | Aprobación humana explícita |
 | Media | ¿Velco quiere un catálogo maestro de etapas o texto libre por OP? (IN-07) | Carga de OP | Jefe de taller |
 | Media | ¿Qué zonas horaria y moneda se fijan en configuración? (SU-02, SU-05) | Semáforo y exportación | Gerente / contaduría |
 | Media | ¿Se confirma la tasa por etapa/categoría para reemplazar la global? (IN-02) | Fase 2 | Gerente / contaduría |
 | Baja | ¿Se conserva la numeración `HU-20A/B` sin `HU-20`? (IN-06) | Trazabilidad | Product Owner |
+
+IN-08 ya no figura entre las preguntas abiertas: quedó resuelta por el usuario en nombre de Velco, condicionada al ADR de C-13 y a la firma de la checklist manual.
 
 ## Campos de discovery
 

@@ -113,12 +113,12 @@ Checkbox → PATCH /ops/:id/etapas/:etapaId → dominio (avance + ahora + semáf
 exportOp(opId,{incluirMargenes})  [PURO, testeable]
         |
         v
-ExcelTemplateRepository (exceljs) → plantilla .xlsx existente → Buffer → descarga
+ExcelTemplateRepository (parche OOXML) → plantilla .xlsx existente → Buffer → descarga
 ```
 
 **Casos de error:**
 - Plantilla ausente → 500 con mensaje operativo; no se genera un workbook improvisado (RN-EXPORT-02).
-- Enlace externo de ~577 KB o ruta UNC inaccesible → **spike abierto**; ver IN-08.
+- Enlace externo (577.125 B en OP, 994 B en costeo) y UNC inaccesible → **resueltos en C-13**: `externalLinks/*` se conserva como metadata, las fórmulas `[1]` se sustituyen por valores de BD y la UNC no se usa en runtime; ver IN-08 y DD-02.
 - `incluirMargenes: false` → se omiten columnas de rentabilidad en la salida (RN-EXPORT-06).
 
 ## Flujo 7: Configuración de parámetros

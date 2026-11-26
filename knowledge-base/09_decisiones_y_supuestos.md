@@ -19,20 +19,21 @@ Las decisiones 1–10 provienen de la conversación de fundación y **no figuran
 
 **Trade-offs aceptados:** no hay SSR ni server actions; se construye un SPA más una API separada, con dos proyectos que mantener. Se resigna la simplicidad de un único framework full-stack a cambio de dominio testeable.
 
-### DD-02 — Estrategia Excel: rellenar plantillas existentes
+### DD-02 — Estrategia Excel: parche OOXML quirúrgico sobre plantillas existentes
 
-**Decisión:** cargar y rellenar `MASTER COSTEO NUEVO.xlsx` y `A - OP-MASTER.xlsx` con `exceljs`, preservando formato oficial, celdas combinadas y bloques. **No** generar los archivos desde cero.
+**Decisión:** copiar `MASTER COSTEO NUEVO.xlsx` y `A - OP-MASTER.xlsx` y parchear solo el OOXML de las celdas gobernadas: sustituir el par `<f>…</f><v>…</v>` por `<v>` con datos de BD en 12 celdas maestras (OP, hoja `1640`, `D10`/`D11`; costeo, hojas `1`..`5`, `C6`/`C7`) y escribir `ID Plano: <codigoPlano>` o `ID Plano: S/P` en `O7` de la hoja `1640`. `exceljs` 4.4.0 queda solo para lectura y verificación. Toda otra pieza OOXML se conserva byte-a-byte y el contenedor ZIP se recomprime. **No** generar los archivos desde cero.
 
-**Contexto:** Velco tiene continuidad contable y operativa apoyada en esas dos planillas; regenerarlas desde cero rompería fórmulas y disposición visual.
+**Contexto:** Velco tiene continuidad contable y operativa apoyada en esas dos planillas; regenerarlas desde cero rompería fórmulas y disposición visual. El OOXML real muestra un enlace de 577.125 bytes en `A - OP-MASTER.xlsx` (`/COMERCIAL/FG48%20-%20FACTURACION%20REGISTRO.xlsx`) y uno de 994 bytes en `MASTER COSTEO NUEVO.xlsx`. La UNC documentada es una referencia histórica sin uso en runtime.
 
 **Alternativas consideradas:**
 - Generar `.xlsx` nuevos con estilos recreados.
-- Exportar CSV.
-- Reemplazar las planillas por reportes HTML/PDF.
+- Guardar y reabrir con `exceljs` (round-trip de `exceljs`, alternativa descartada).
+- Exportar CSV o reemplazar las planillas por reportes HTML/PDF.
+- Eliminar `externalLinks/*` o seguir consumiendo las fórmulas `[1]`.
 
-**Justificación:** la continuidad documental es uno de los tres principios del producto (Docs: principios 3, HU-20A/B CA).
+**Justificación:** la continuidad documental es uno de los tres principios del producto (Docs: principios 3, HU-20A/B CA). El round-trip de `exceljs` conservó celdas, estilos y combinaciones (0 diferencias en 1.366 y 23.013 celdas), pero perdió `externalLinks`, `calcChain` y `printerSettings1.bin` y corrompió `_xlnm.Print_Area` de `'1640'!$A:$S` a `$ANaN:$SNaN`; tamaños OP 136.961 → 21.288 B (−84,5 %) y costeo 273.751 → 311.479 B (+13,8 %).
 
-**Trade-offs aceptados:** dependencia de archivos binarios como activos del servidor; mayor fragilidad ante cambios de la plantilla; queda abierto el spike por el enlace externo de ~577 KB y las rutas UNC.
+**Trade-offs aceptados:** dependencia de archivos binarios como activos del servidor; `externalLinks/*` se conserva como metadata histórica sin usarla como fuente y las 12 fórmulas `[1]` se neutralizan con valores estáticos de BD; `EXCEL_UNC_BASE` se documenta como referencia histórica sin uso en runtime y `absPath` se conserva byte-idéntico; IN-08 queda RESUELTA condicionada al ADR de C-13 y a la firma de la checklist humana, sin crear DD-14.
 
 ### DD-03 — Avance derivado de etapas (muere el slider)
 
@@ -151,7 +152,7 @@ Las decisiones 1–10 provienen de la conversación de fundación y **no figuran
 
 ### DD-11 — ID de plano opcional, único y normalizado
 
-**Decisión:** `codigo_plano VARCHAR(80) NULL` se agrega de forma aditiva en la migración 002 (sin renumerar migraciones). La frontera HTTP aplica `trim()` + `toUpperCase()` y convierte vacío en `NULL`; la BD prohibe `''` con `CHECK` y garantiza unicidad con índice parcial `WHERE codigo_plano IS NOT NULL`. Duplicado ⇒ 409 `codigo_plano_duplicado` con `codigoPlano` y `opExistente`, más fallback P2002 por carrera. La búsqueda global cubre OP, plano, cliente y pieza. En OP-MASTER se mapea a `O7:R8` como `ID Plano:` / `S/P`, nunca a `J7:N8` (`PC N°:`).
+**Decisión:** `codigo_plano VARCHAR(80) NULL` se agrega de forma aditiva en la migración 002 (sin renumerar migraciones). La frontera HTTP aplica `trim()` + `toUpperCase()` y convierte vacío en `NULL`; la BD prohibe `''` con `CHECK` y garantiza unicidad con índice parcial `WHERE codigo_plano IS NOT NULL`. Duplicado ⇒ 409 `codigo_plano_duplicado` con `codigoPlano` y `opExistente`, más fallback P2002 por carrera. La búsqueda global cubre OP, plano, cliente y pieza. En OP-MASTER se mapea a la celda maestra `O7` del merge `O7:R8` como `ID Plano: <codigoPlano>` o `ID Plano: S/P` con `inlineStr`, nunca a `J7:N8` (`PC N°:`).
 
 **Contexto:** los documentos vigentes incorporan el ID de plano a HU-01, HU-05, HU-09 y HU-20B; el diseño anterior no lo contemplaba.
 
@@ -159,7 +160,7 @@ Las decisiones 1–10 provienen de la conversación de fundación y **no figuran
 
 **Justificación:** los trabajos sin plano deben poder repetirse; la normalización evita duplicados por formato; el mapeo respeta la plantilla oficial.
 
-**Trade-offs aceptados:** el rango `O7:R8` y el enlace/UNC siguen sujetos a la confirmación de C-13/IN-08; hasta entonces C-15 queda bloqueado en ese mapeo.
+**Trade-offs aceptados:** el rango `O7:R8` quedó confirmado sobre la plantilla real (`O7` vacía con `s="73"`, `J7:N8` = `PC N°: `); la etiqueta `ID Plano:` y el literal `S/P` se generan como dato en `O7` con `inlineStr`, sin modificar `sharedStrings.xml` ni agregar prefijo `PL-`. La UNC histórica no es requerida para la exportación; el mapeo de `C-15` depende del ADR y de la compuerta humana de C-13.
 
 ### DD-12 — Dashboard general en el MVP con filtro de fecha comprometida
 

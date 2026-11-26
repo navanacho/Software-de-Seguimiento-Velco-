@@ -95,7 +95,7 @@ Software-de-Seguimiento-Velco-/
 | `DATABASE_URL` | Cadena de conexión a PostgreSQL | `postgresql://velco:***@localhost:5432/velco` | Sí |
 | `PORT` | Puerto HTTP de Fastify | `3001` | No |
 | `EXCEL_TEMPLATES_DIR` | Directorio con las dos plantillas oficiales | `./Docs/FichasExcel` | No |
-| `EXCEL_UNC_BASE` | Ruta UNC histórica de OP digitalizadas (Fase 2 / spike) | `\\Servidor\g\OPERACIONES\ORDENES DE PROCESO\OP - DIGITALIZADA\` | No |
+| `EXCEL_UNC_BASE` | Ruta UNC histórica de OP digitalizadas; referencia histórica sin uso en runtime (C-13) | `\\Servidor\g\OPERACIONES\ORDENES DE PROCESO\OP - DIGITALIZADA\` | No |
 | `CORS_ORIGIN` | Origen permitido del SPA de Vite | `http://localhost:5173` | No |
 | `LOG_LEVEL` | Nivel de logging del backend | `info` | No |
 | `TZ` | Zona horaria para comparación de fechas de entrega | `America/Argentina/Mendoza` | No |
@@ -106,7 +106,7 @@ Software-de-Seguimiento-Velco-/
 
 1. **Unitarias:** reglas `RN-*` como funciones puras (semáforo en los cuatro estados, avance derivado, alerta 15%, margen con fallback de costo). Se escriben **antes** que la implementación.
 2. **Integración:** repositorios Prisma contra PostgreSQL 18.7 en contenedor (`@testcontainers/postgresql` 12.2.2); transacciones de alta de OP y recálculo de derivados.
-3. **Contrato:** `exportOp` produce el mismo modelo para ambas variantes; el adaptador `exceljs` respeta celdas combinadas y bloques de la plantilla.
+3. **Contrato:** `exportOp` produce el mismo modelo para ambas variantes; el parche OOXML respeta celdas combinadas y bloques de la plantilla y `exceljs` se usa solo para lectura y verificación (DD-02 enmendada en C-13).
 4. **Componentes:** tarjeta con etapa `ahora` y semáforo; verificación de que no existe el slider de avance del prototipo.
 5. **Aceptación:** recorridos HU-01, HU-07, HU-14, HU-20A y HU-20B.
 
@@ -118,13 +118,14 @@ Software-de-Seguimiento-Velco-/
 - Plantillas `.xlsx` se tratan como activos del servidor, no como blobs en la base de datos.
 - No hay colas, caché, cron jobs ni servicios externos en el MVP.
 
-## Spike técnico pendiente (Excel)
+## Spike técnico resuelto (Excel — C-13)
 
-Verificar con un spike acotado antes de Sprint 4:
+Resultado del spike C-13 (IN-08 resuelta, condicionada al ADR y a la checklist firmada):
 
-- Cómo `exceljs` preserva el **enlace externo de ~577 KB** incluido en `MASTER COSTEO NUEVO.xlsx`.
-- Cómo se comporta con referencias a la ruta UNC `\\Servidor\g\OPERACIONES\ORDENES DE PROCESO\OP - DIGITALIZADA\`.
-- Si el enlace se mantiene, se elimina o se reemplaza por un valor estático sin romper la planilla oficial.
+- El enlace externo de **577.125 bytes** está en `A - OP-MASTER.xlsx`; el de `MASTER COSTEO NUEVO.xlsx` mide 994 bytes.
+- `exceljs` no lo preserva al guardar: se descarta como escritor y se usa un parche OOXML quirúrgico que conserva el resto de las piezas byte-a-byte.
+- La UNC `\\Servidor\g\OPERACIONES\ORDENES DE PROCESO\OP - DIGITALIZADA\` no resuelve y no se usa en runtime; queda como referencia histórica.
+- `externalLinks/*` se conserva como metadata y las 12 fórmulas `[1]` se sustituyen por valores estáticos de BD, sin romper la planilla oficial.
 
 ## Fuentes
 
