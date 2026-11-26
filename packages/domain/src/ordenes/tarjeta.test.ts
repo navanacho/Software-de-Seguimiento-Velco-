@@ -4,6 +4,22 @@ import { CONTEXTO, crearEtapas, crearOrden } from '../testing/fixtures.ts';
 import { construirTarjetaOrden } from './tarjeta.ts';
 
 const contexto = { ...CONTEXTO, clienteNombre: 'Bodega Los Andes' };
+const etapasDeDiez = (completadas: number) =>
+  crearEtapas(
+    [
+      'Corte',
+      'Soldadura',
+      'Pintura',
+      'Armado',
+      'Control',
+      'Empaque',
+      'Carga',
+      'Descarga',
+      'Prueba',
+      'Cierre',
+    ],
+    completadas,
+  );
 
 describe('construirTarjetaOrden', () => {
   it('RN-OP-05: copia codigoPlano como dato persistido sin derivarlo', () => {
@@ -81,5 +97,36 @@ describe('construirTarjetaOrden', () => {
     const dto = construirTarjetaOrden(crearOrden(), crearEtapas(['Corte'], 0), contexto, []);
     expect(dto.horasVendidasTotales).toBe('4.00');
     expect(dto.horasRealesTotales).toBe('0.00');
+  });
+
+  it('C-12 1.1 RED: el DTO expone consumo 80.00 y alerta cuando supera avance + 15', () => {
+    const dto = construirTarjetaOrden(crearOrden(), etapasDeDiez(5), contexto, ['32.00']);
+    expect(dto.avance).toBe(50);
+    expect(dto.horasVendidasTotales).toBe('40.00');
+    expect(dto.horasRealesTotales).toBe('32.00');
+    expect(dto.porcentajeConsumo).toBe('80.00');
+    expect(dto.alertaDesvio).toBe(true);
+  });
+
+  it('C-12 1.1 RED TRIANGULA: sin vendidas, consumo nulo y alerta por reales positivas', () => {
+    const dto = construirTarjetaOrden(crearOrden(), crearEtapas([], 0), contexto, ['1.25']);
+    expect(dto.horasVendidasTotales).toBe('0.00');
+    expect(dto.horasRealesTotales).toBe('1.25');
+    expect(dto.porcentajeConsumo).toBeNull();
+    expect(dto.alertaDesvio).toBe(true);
+  });
+
+  it('C-12 1.3 TRIANGULA: consumo 95.00 con avance 80 no activa la alerta', () => {
+    const dto = construirTarjetaOrden(crearOrden(), etapasDeDiez(8), contexto, ['38.00']);
+    expect(dto.avance).toBe(80);
+    expect(dto.porcentajeConsumo).toBe('95.00');
+    expect(dto.alertaDesvio).toBe(false);
+  });
+
+  it('C-12 1.3 TRIANGULA: consumo 96.00 con avance 80 activa la alerta', () => {
+    const dto = construirTarjetaOrden(crearOrden(), etapasDeDiez(8), contexto, ['38.40']);
+    expect(dto.avance).toBe(80);
+    expect(dto.porcentajeConsumo).toBe('96.00');
+    expect(dto.alertaDesvio).toBe(true);
   });
 });

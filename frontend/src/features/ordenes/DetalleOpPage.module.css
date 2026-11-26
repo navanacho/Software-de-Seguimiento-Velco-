@@ -3,3 +3,14 @@
   display: grid;
   gap: 1rem;
 }
+
+.pestanias {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.contenido {
+  display: grid;
+  gap: 1rem;
+}

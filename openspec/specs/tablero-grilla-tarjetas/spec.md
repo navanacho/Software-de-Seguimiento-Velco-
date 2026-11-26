@@ -24,7 +24,7 @@ La SPA DEBE (SHALL) renderizar el arreglo `ops` de `GET /api/ops` como una grill
 
 ### Requirement: Derivados renderizados tal como vienen del dominio
 
-El frontend DEBE (SHALL) mostrar `semaforo`, `avance`, `diasRestantes`, `etiquetaPlazo`, `horasVendidasTotales` y `horasRealesTotales` exactamente como llegan en `TarjetaOrdenDTO`. NO DEBE (SHALL NOT) invocar `calcularSemaforo`, `diasRestantes`, `etapaAhora`, `construirTarjetaOrden`, `calcularHorasVendidasTotales`, `calcularHorasRealesTotales`, ni comparar fechas para obtener el estado (RN-GLOBAL-02, RN-GLOBAL-04, RN-SEMAFORO-01..06).
+El frontend DEBE (SHALL) mostrar `semaforo`, `avance`, `diasRestantes`, `etiquetaPlazo`, `horasVendidasTotales`, `horasRealesTotales`, `porcentajeConsumo` y `alertaDesvio` exactamente como llegan en `TarjetaOrdenDTO`. NO DEBE (SHALL NOT) invocar `calcularSemaforo`, `diasRestantes`, `etapaAhora`, `construirTarjetaOrden`, `calcularHorasVendidasTotales`, `calcularHorasRealesTotales`, `calcularConsumoHoras`, `evaluarAlertaDesvio`, ni comparar fechas, porcentajes u horas para obtener el estado (RN-GLOBAL-02, RN-GLOBAL-04, RN-SEMAFORO-01..06, RN-HORAS-03/04/06, C-11, C-12).
 
 #### Scenario: Semáforo en los cuatro estados
 
@@ -44,7 +44,22 @@ El frontend DEBE (SHALL) mostrar `semaforo`, `avance`, `diasRestantes`, `etiquet
 #### Scenario: Sin lógica de cálculo en el feature
 
 - **WHEN** se inspeccionan los archivos de `frontend/src/features/tablero/` y `frontend/src/shared/domain-client/`
-- **THEN** no aparecen imports de funciones de cálculo del dominio ni comparaciones entre fechas, y los derivados se leen sólo como propiedades del DTO
+- **THEN** no aparecen imports de funciones de cálculo del dominio ni comparaciones entre fechas u horas, y los derivados —incluidos `porcentajeConsumo` y `alertaDesvio`— se leen sólo como propiedades del DTO
+
+#### Scenario: Termómetro con porcentaje de consumo
+
+- **WHEN** una tarjeta trae `horasRealesTotales: "32.00"`, `horasVendidasTotales: "40.00"` y `porcentajeConsumo: "80.00"`
+- **THEN** la tarjeta muestra `32.00 / 40.00 — 80%` junto a la barra de solo lectura, usando el porcentaje del DTO y sin dividir los totales en React
+
+#### Scenario: Alerta de desvío en la tarjeta
+
+- **WHEN** una tarjeta trae `alertaDesvio: true`
+- **THEN** la tarjeta muestra un badge con texto *Alerta de desvío de horas* y `role="status"`, sin evaluar el umbral 15 en el componente
+
+#### Scenario: Consumo nulo sin artefactos numéricos
+
+- **WHEN** una tarjeta trae `porcentajeConsumo: null` porque `horasVendidasTotales` es `"0.00"`
+- **THEN** el termómetro muestra `—` en lugar del porcentaje y NO aparece `NaN`, `Infinity` ni `0.00%`; el badge depende únicamente de `alertaDesvio`
 
 ### Requirement: KPIs superiores y estética industrial
 

@@ -13,6 +13,7 @@ const tarjetaValida = {
   etapas: [{ id: 'e1', nombre: 'Corte', ordenSecuencia: 1, completada: false }],
   avance: 0, semaforo: 'En plazo', diasRestantes: 2, etapaAhora: 'Corte', etiquetaPlazo: 'Faltan 2 días',
   horasVendidasTotales: '40.00', horasRealesTotales: '32.00',
+  porcentajeConsumo: '80.00', alertaDesvio: true,
 };
 
 const envelopeValido = {
@@ -133,5 +134,57 @@ describe('esquemas zod del tablero (2.3-2.4)', () => {
     expect(validado.comparativaPorEtapa[0]?.porcentajeConsumo).toBeNull();
     expect(validado.margenReal).toBe('1000.00');
     expect(validado.tasaGlobalNoConfigurada).toBe(true);
+  });
+});
+
+describe('C-12 espejo de los derivados de la tarjeta', () => {
+  it('acepta y conserva porcentajeConsumo y alertaDesvio en la tarjeta', () => {
+    const tarjeta = { ...tarjetaValida, porcentajeConsumo: '80.00', alertaDesvio: true };
+    const validada = EsquemaTarjetaOrden.parse(tarjeta);
+    expect(validada.porcentajeConsumo).toBe('80.00');
+    expect(validada.alertaDesvio).toBe(true);
+  });
+
+  it('rechaza una tarjeta que omite ambos derivados', () => {
+    const incompleta: Record<string, unknown> = { ...tarjetaValida };
+    delete incompleta.porcentajeConsumo;
+    delete incompleta.alertaDesvio;
+    const resultado = EsquemaTarjetaOrden.safeParse(incompleta);
+    expect(resultado.success).toBe(false);
+    if (resultado.success) return;
+    const rutas = resultado.error.issues.map((issue) => issue.path.join('.'));
+    expect(rutas).toContain('porcentajeConsumo');
+    expect(rutas).toContain('alertaDesvio');
+  });
+
+  it('conserva consumo nulo y alerta falsa sin convertirlos', () => {
+    const tarjeta = { ...tarjetaValida, porcentajeConsumo: null, alertaDesvio: false };
+    const validada = EsquemaTarjetaOrden.parse(tarjeta);
+    expect(validada.porcentajeConsumo).toBeNull();
+    expect(validada.alertaDesvio).toBe(false);
+  });
+
+  it('rechaza cada derivado por separado en el envelope del tablero', () => {
+    for (const campo of ['porcentajeConsumo', 'alertaDesvio'] as const) {
+      const tarjeta: Record<string, unknown> = { ...tarjetaValida };
+      delete tarjeta[campo];
+      const resultado = EsquemaRespuestaListadoTablero.safeParse({ ...envelopeValido, ops: [tarjeta] });
+      expect(resultado.success, campo).toBe(false);
+      if (resultado.success) continue;
+      const rutas = resultado.error.issues.map((issue) => issue.path.join('.'));
+      expect(rutas.some((ruta) => ruta.endsWith(campo))).toBe(true);
+    }
+  });
+
+  it('el esquema del detalle hereda la validación de ambos derivados', () => {
+    const detalle: Record<string, unknown> = crearDetalle();
+    delete detalle.porcentajeConsumo;
+    delete detalle.alertaDesvio;
+    const resultado = EsquemaDetalleOp.safeParse(detalle);
+    expect(resultado.success).toBe(false);
+    if (resultado.success) return;
+    const rutas = resultado.error.issues.map((issue) => issue.path.join('.'));
+    expect(rutas).toContain('porcentajeConsumo');
+    expect(rutas).toContain('alertaDesvio');
   });
 });

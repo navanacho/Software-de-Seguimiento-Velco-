@@ -41,8 +41,6 @@ export type DetalleOpDTO = Omit<TarjetaOrdenDTO, 'etapas'> & {
   readonly horas: readonly ParteHoraDTO[];
   readonly horasRealesTotales: string;
   readonly desvioHoras: string;
-  readonly porcentajeConsumo: string | null;
-  readonly alertaDesvio: boolean;
   readonly materiales: readonly MaterialDetalleDTO[];
   readonly costoMaterialesCotizado: string;
   readonly costoMaterialesReal: string;

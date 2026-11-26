@@ -4,3 +4,6 @@
 .amarillo { border-left: 6px solid #fbc02d; }
 .verde { border-left: 6px solid #388e3c; }
 .barra { height: 0.35rem; border-radius: 999px; background: #d0d5dd; }
+.termometro { display: grid; gap: 0.25rem; }
+.termometro p { margin: 0; }
+.alerta { font-weight: 600; padding-left: 0.25rem; }

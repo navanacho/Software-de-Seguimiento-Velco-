@@ -6,6 +6,7 @@ const tarjetaValida = {
   etapas: [{ id: 'e1', nombre: 'Corte', ordenSecuencia: 1, completada: true }],
   avance: 100, semaforo: 'Terminado', diasRestantes: 2, etapaAhora: 'Todo listo', etiquetaPlazo: 'Terminado',
   horasVendidasTotales: '0.00', horasRealesTotales: '0.00',
+  porcentajeConsumo: '100.00', alertaDesvio: false,
 };
 
 describe('actualizarEtapaRemota (2.8-2.9)', () => {
@@ -18,6 +19,8 @@ describe('actualizarEtapaRemota (2.8-2.9)', () => {
     const resultado = await actualizarEtapaRemota({ ordenId: 'op1', etapaId: 'e1', completada: true }, consulta);
     expect(consulta).toHaveBeenCalledWith('/api/ops/op1/etapas/e1', expect.any(Object));
     expect(resultado.etapaAhora).toBe('Todo listo');
+    expect(resultado.porcentajeConsumo).toBe('100.00');
+    expect(resultado.alertaDesvio).toBe(false);
   });
 
   it('rechaza si la respuesta no es una tarjeta válida', async () => {

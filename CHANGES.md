@@ -20,6 +20,7 @@
 > `C-09` (`horas-reales-ui`) fue archivado el 2026-11-24 en `openspec/changes/archive/2026-11-24-horas-reales-ui/`; sus cinco delta specs quedaron sincronizados en `openspec/specs/` (`openspec validate --specs --strict`: 34 passed, 0 failed).
 > `C-10` (`configuracion-global`) fue archivado el 2026-11-24 en `openspec/changes/archive/2026-11-24-configuracion-global/`; sus cinco delta specs quedaron sincronizados en `openspec/specs/` (`openspec validate --specs --strict`: 37 passed, 0 failed).
 > `C-11` (`desvios-y-margen-domain`) fue archivado el 2026-11-25 en `openspec/changes/archive/2026-11-25-desvios-y-margen-domain/`; sus cinco delta specs quedaron sincronizados en `openspec/specs/` (`openspec validate --specs --strict`: 40 passed, 0 failed).
+> `C-12` (`analitica-de-rentabilidad-ui`) fue archivado el 2026-11-26 en `openspec/changes/archive/2026-11-26-analitica-de-rentabilidad-ui/`; sus cuatro delta specs quedaron sincronizados en `openspec/specs/` (`openspec validate --specs --strict`: 41 passed, 0 failed).
 
 ---
 
@@ -355,7 +356,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 ---
 
 ### [C-12] `analitica-de-rentabilidad-ui`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado y archivado (2026-11-26), con cuatro delta specs sincronizados en `openspec/specs/`
 - **Scope**: Visualización de desvíos y márgenes
   - Termómetro `Horas Reales / Horas Vendidas` con `% consumo` y alerta visual de desvío en cada tarjeta (HU-14)
   - Pestaña "Análisis de Rentabilidad" en el detalle: tabla por etapa con vendidas/reales/desvío en horas y %, incluidas horas sin etapa; costos cotizados vs. reales y margen neto (HU-15/16)
@@ -508,7 +509,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 | C-09 | `horas-reales-ui` | 2 — OP y horas | BAJO | C-08, C-05 | HU-10, HU-13 |
 | C-10 | `configuracion-global` | 3 — Analítica | MEDIO | C-09 | HU-18 |
 | C-11 | `desvios-y-margen-domain` (archivado 2026-11-25) | 3 — Analítica | MEDIO | C-08, C-03 | HU-14, HU-15, HU-16 |
-| C-12 | `analitica-de-rentabilidad-ui` | 3 — Analítica | BAJO | C-11, C-10, C-05 | HU-14, HU-15, HU-16 |
+| C-12 | `analitica-de-rentabilidad-ui` (archivado 2026-11-26) | 3 — Analítica | BAJO | C-11, C-10, C-05 | HU-14, HU-15, HU-16 |
 | C-13 | `excel-template-spike` | 4 — Exportación | MEDIO | C-01 | IN-08, DD-11 |
 | C-14 | `exportacion-costeo` | 4 — Exportación | MEDIO | C-11, C-13 | HU-20A |
 | C-15 | `exportacion-op-master` | 4 — Exportación | MEDIO | C-14, C-13 | HU-20B |
@@ -518,4 +519,4 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 
 **Total**: 18 changes en 6 fases. **Gates**: 14. **Camino crítico**: 11 changes con dos terminales obligatorias (`C-16` y `C-18`).
 
-**Siguientes changes disponibles**: `C-12` (`analitica-de-rentabilidad-ui`, GATE 9, junto con `C-10` y `C-05` ya completados), `C-13` (`excel-template-spike`, paralelo desde GATE 1, bloqueante para `C-14`) y `C-17` (`dashboard-datos`, GATE 10, depende de `C-08` y `C-11`, ya archivados). No hay changes activos (`openspec list --json` → `{"changes":[]}`). `C-17`/`C-18` permanecen registrados sin propuesta hasta su momento; `C-18` sigue esperando a que `C-17` se archive.
+**Siguientes changes disponibles**: `C-13` (`excel-template-spike`, paralelo desde GATE 1, bloqueante para `C-14`) y `C-17` (`dashboard-datos`, GATE 10, depende de `C-08` y `C-11`, ya archivados). No hay changes activos (`openspec list --json` → `{"changes":[]}`). `C-17`/`C-18` permanecen registrados sin propuesta hasta su momento; `C-18` sigue esperando a que `C-17` se archive.

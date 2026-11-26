@@ -7,6 +7,7 @@ const envelopeValido = {
     etapas: [{ id: 'e1', nombre: 'Corte', ordenSecuencia: 1, completada: false }],
     avance: 0, semaforo: 'En plazo', diasRestantes: 2, etapaAhora: 'Corte', etiquetaPlazo: 'Faltan 2 días',
     horasVendidasTotales: '0.00', horasRealesTotales: '0.00',
+    porcentajeConsumo: null, alertaDesvio: true,
   }],
   kpis: { total: 1, porEstado: { Terminado: 0, Atrasado: 0, 'En riesgo': 0, 'En plazo': 1 } },
   flujo: [{ etapa: 'Corte', cantidad: 1 }],
@@ -21,6 +22,8 @@ describe('consultarTablero (2.5-2.7)', () => {
     expect(String(consulta.mock.calls[0]?.[0])).toContain('estado=Atrasado');
     expect(String(consulta.mock.calls[0]?.[0])).toContain('buscar=OT-1');
     expect(resultado.ops[0]?.numeroOp).toBe('OT-1');
+    expect(resultado.ops[0]?.porcentajeConsumo).toBeNull();
+    expect(resultado.ops[0]?.alertaDesvio).toBe(true);
   });
 
   it('serializa filtros combinados y no envía parámetros vacíos', async () => {

@@ -1,0 +1,26 @@
+.resumen {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.lista {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.fila {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.fila dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.advertencia {
+  margin: 0;
+  font-weight: 600;
+}

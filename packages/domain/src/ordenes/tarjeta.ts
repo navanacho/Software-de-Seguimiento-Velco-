@@ -5,7 +5,7 @@ import { calcularSemaforo } from '../costos/semaforo.ts';
 import type { EtapaOrden } from '../etapas/contrato.ts';
 import { calcularHorasVendidasTotales } from '../etapas/horas-vendidas.ts';
 import { ordenarPorSecuencia } from '../etapas/orden.ts';
-import { calcularHorasRealesTotales } from '../horas/reglas.ts';
+import { calcularConsumoHoras, calcularHorasRealesTotales, evaluarAlertaDesvio } from '../horas/reglas.ts';
 import { calcularAvance } from './avance.ts';
 import type { OrdenTrabajo } from './contrato.ts';
 import { etapaAhora } from './etapa-ahora.ts';
@@ -37,6 +37,8 @@ export interface TarjetaOrdenDTO {
   readonly etiquetaPlazo: string;
   readonly horasVendidasTotales: string;
   readonly horasRealesTotales: string;
+  readonly porcentajeConsumo: string | null;
+  readonly alertaDesvio: boolean;
 }
 
 export function construirTarjetaOrden(
@@ -49,6 +51,15 @@ export function construirTarjetaOrden(
   const semaforo = calcularSemaforo(orden, etapas, contexto, avance);
   const dias = diasRestantes(orden, contexto);
   const actual = etapaAhora(etapas);
+  const horasVendidasTotales = calcularHorasVendidasTotales(etapas.map((etapa) => etapa.horasVendidas));
+  const horasRealesTotales = calcularHorasRealesTotales(horasReales);
+  const porcentajeConsumo = calcularConsumoHoras(horasRealesTotales, horasVendidasTotales);
+  const alertaDesvio = evaluarAlertaDesvio({
+    consumo: porcentajeConsumo,
+    avance,
+    horasReales: horasRealesTotales,
+    horasVendidas: horasVendidasTotales,
+  });
 
   return {
     id: orden.id,
@@ -68,7 +79,9 @@ export function construirTarjetaOrden(
     diasRestantes: dias,
     etapaAhora: actual === 'Todo listo' ? actual : actual.nombre,
     etiquetaPlazo: etiquetaPlazo(dias, semaforo),
-    horasVendidasTotales: calcularHorasVendidasTotales(etapas.map((etapa) => etapa.horasVendidas)),
-    horasRealesTotales: calcularHorasRealesTotales(horasReales),
+    horasVendidasTotales,
+    horasRealesTotales,
+    porcentajeConsumo,
+    alertaDesvio,
   };
 }

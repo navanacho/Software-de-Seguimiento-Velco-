@@ -30,6 +30,8 @@ const EsquemaTarjetaOrdenBase = z.object({
   etiquetaPlazo: z.string(),
   horasVendidasTotales: z.string(),
   horasRealesTotales: z.string(),
+  porcentajeConsumo: z.string().nullable(),
+  alertaDesvio: z.boolean(),
 });
 
 export const EsquemaTarjetaOrden: z.ZodType<TarjetaOrdenDTO> = EsquemaTarjetaOrdenBase;
@@ -184,8 +186,6 @@ export const EsquemaDetalleOp: z.ZodType<DetalleOpDTO> = EsquemaTarjetaOrdenBase
   horas: z.array(EsquemaParteHora),
   horasRealesTotales: z.string(),
   desvioHoras: z.string(),
-  porcentajeConsumo: z.string().nullable(),
-  alertaDesvio: z.boolean(),
   materiales: z.array(EsquemaMaterialDetalle),
   costoMaterialesCotizado: z.string(),
   costoMaterialesReal: z.string(),

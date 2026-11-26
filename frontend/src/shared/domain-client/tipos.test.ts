@@ -29,7 +29,9 @@ describe('tipos de transporte del tablero (2.1-2.4)', () => {
       etapaAhora: 'Corte',
       etiquetaPlazo: 'Faltan 2 días',
       horasVendidasTotales: '40.00',
-      horasRealesTotales: '0.00',
+      horasRealesTotales: '32.00',
+      porcentajeConsumo: '80.00',
+      alertaDesvio: true,
     };
     const kpis: KpisTablero = {
       total: 1,
@@ -37,6 +39,8 @@ describe('tipos de transporte del tablero (2.1-2.4)', () => {
     };
     const respuesta: RespuestaListadoTablero = { ops: [op], kpis, flujo: [flujo] };
     expect(respuesta.ops[0]?.etapaAhora).toBe('Corte');
+    expect(respuesta.ops[0]?.porcentajeConsumo).toBe('80.00');
+    expect(respuesta.ops[0]?.alertaDesvio).toBe(true);
     expect(respuesta.kpis.porEstado['En plazo']).toBe(1);
   });
 
@@ -56,6 +60,8 @@ describe('tipos de transporte del tablero (2.1-2.4)', () => {
       etiquetaPlazo: 'Terminado',
       horasVendidasTotales: '0.00',
       horasRealesTotales: '0.00',
+      porcentajeConsumo: null,
+      alertaDesvio: false,
     };
     const respuesta: RespuestaListadoTablero = {
       ops: [op],
@@ -63,6 +69,8 @@ describe('tipos de transporte del tablero (2.1-2.4)', () => {
       flujo: [],
     };
     expect(respuesta.ops[0]?.clienteNombre).toBeNull();
+    expect(respuesta.ops[0]?.porcentajeConsumo).toBeNull();
+    expect(respuesta.ops[0]?.alertaDesvio).toBe(false);
   });
 
   it('usa EstadoSemaforo canónico sin redeclarar type Estado local', () => {

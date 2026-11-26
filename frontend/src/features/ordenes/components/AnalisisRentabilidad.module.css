@@ -1,0 +1,8 @@
+.panel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.resumenSlot {
+  min-height: 1px;
+}

@@ -22,8 +22,6 @@ export interface DetalleOpDTO extends Omit<TarjetaOrdenDTO, 'etapas'> {
   readonly observaciones: string | null;
   readonly horas: readonly ParteHoraDTO[];
   readonly desvioHoras: string;
-  readonly porcentajeConsumo: string | null;
-  readonly alertaDesvio: boolean;
   readonly materiales: readonly MaterialDetalleDTO[];
   readonly costoMaterialesCotizado: string;
   readonly costoMaterialesReal: string;

@@ -56,7 +56,7 @@ const EtapaTarjetaSchema = z.object({
   completada: z.boolean(),
 });
 
-const TarjetaOrdenSchema = z.object({
+export const TarjetaOrdenSchema = z.object({
   id: z.string(),
   numeroOp: z.string(),
   codigoPlano: z.string().max(80).nullable(),
@@ -71,6 +71,8 @@ const TarjetaOrdenSchema = z.object({
   etiquetaPlazo: z.string(),
   horasVendidasTotales: z.string(),
   horasRealesTotales: z.string(),
+  porcentajeConsumo: z.string().nullable(),
+  alertaDesvio: z.boolean(),
 });
 
 const RespuestaListadoOpsSchema = z.object({
@@ -116,8 +118,6 @@ const DetalleOpSchema = TarjetaOrdenSchema.extend({
   observaciones: z.string().nullable(),
   horas: z.array(z.object({ id: z.string(), ordenId: z.string(), etapaId: z.string().nullable(), operario: z.string(), fecha: z.string(), horas: z.string(), createdAt: z.string(), observacion: z.string().nullable() })),
   desvioHoras: z.string(),
-  porcentajeConsumo: z.string().nullable(),
-  alertaDesvio: z.boolean(),
   materiales: z.array(MaterialDetalleSchema),
   costoMaterialesCotizado: z.string(),
   costoMaterialesReal: z.string(),
