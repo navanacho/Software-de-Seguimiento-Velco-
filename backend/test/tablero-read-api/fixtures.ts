@@ -1,4 +1,4 @@
-﻿import type { Cliente, Configuracion, EtapaOrden, NuevoRegistroHora, OrdenTrabajo, RegistroHora } from '@velco/domain';
+﻿import { calcularHorasRealesTotales, type Cliente, type Configuracion, type EtapaOrden, type NuevoRegistroHora, type OrdenTrabajo, type RegistroHora } from '@velco/domain';
 import type { DependenciasApi } from '../../src/shared/dependencias.ts';
 import type { ConfiguracionServidor } from '../../src/shared/configuracion.ts';
 
@@ -230,6 +230,10 @@ export function crearDependenciasFalsas(opciones: OpcionesFalsas = {}): {
           .filter((hora) => hora.ordenId === ordenId)
           .slice()
           .sort((a, b) => a.fecha.localeCompare(b.fecha) || a.createdAt.localeCompare(b.createdAt)),
+      totalHorasReales: async (ordenId) =>
+        calcularHorasRealesTotales(
+          estado.horas.filter((hora) => hora.ordenId === ordenId).map((hora) => hora.horas),
+        ),
       listarPorOrdenes: async (ordenIds) => {
         const ids = new Set(ordenIds);
         return estado.horas

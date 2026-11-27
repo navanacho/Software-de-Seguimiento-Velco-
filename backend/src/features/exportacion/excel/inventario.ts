@@ -1,4 +1,4 @@
-export type IdPlantilla = 'costeo' | 'op';
+export type IdPlantilla = 'costeo' | 'costeo-c14' | 'op';
 
 export type TipoCelda = 'numerico' | 'cadena' | 'inlineStr';
 
@@ -34,6 +34,67 @@ const hojasCosteo: ReadonlyArray<readonly [string, string]> = [
   ['5', 'xl/worksheets/sheet6.xml'],
 ];
 
+export const FILAS_MATERIALES_COSTEO = 19;
+
+const piezaHojaUnoCosteo = 'xl/worksheets/sheet2.xml';
+
+const hojasCosteoC14: ReadonlyArray<readonly [string, string]> = [['1', piezaHojaUnoCosteo]];
+
+const celdasCosteoC14: readonly CeldaDescriptor[] = [
+  { hoja: '1', pieza: piezaHojaUnoCosteo, referencia: 'C6', clave: 'cliente', tipo: 'inlineStr' },
+  { hoja: '1', pieza: piezaHojaUnoCosteo, referencia: 'C7', clave: 'numeroOp', tipo: 'inlineStr' },
+  { hoja: '1', pieza: piezaHojaUnoCosteo, referencia: 'P13', clave: 'horasReales', tipo: 'numerico' },
+  { hoja: '1', pieza: piezaHojaUnoCosteo, referencia: 'R10', clave: 'horasReales', tipo: 'numerico' },
+  ...Array.from({ length: 9 }, (_, indice): CeldaDescriptor => ({
+    hoja: '1',
+    pieza: piezaHojaUnoCosteo,
+    referencia: `Q${13 + indice}`,
+    clave: 'valorHora',
+    tipo: 'numerico',
+  })),
+  ...Array.from({ length: FILAS_MATERIALES_COSTEO }, (_, indice): readonly CeldaDescriptor[] => {
+    const fila = 40 + indice;
+    return [
+      {
+        hoja: '1',
+        pieza: piezaHojaUnoCosteo,
+        referencia: `C${fila}`,
+        clave: `materiales.${indice}.descripcion`,
+        tipo: 'inlineStr',
+      },
+      {
+        hoja: '1',
+        pieza: piezaHojaUnoCosteo,
+        referencia: `O${fila}`,
+        clave: `materiales.${indice}.cantidad`,
+        tipo: 'numerico',
+      },
+      {
+        hoja: '1',
+        pieza: piezaHojaUnoCosteo,
+        referencia: `P${fila}`,
+        clave: `materiales.${indice}.un`,
+        tipo: 'inlineStr',
+      },
+      {
+        hoja: '1',
+        pieza: piezaHojaUnoCosteo,
+        referencia: `Q${fila}`,
+        clave: `materiales.${indice}.costoUnitario`,
+        tipo: 'numerico',
+      },
+      {
+        hoja: '1',
+        pieza: piezaHojaUnoCosteo,
+        referencia: `R${fila}`,
+        clave: `materiales.${indice}.costoTotal`,
+        tipo: 'numerico',
+      },
+    ];
+  }).flat(),
+  { hoja: '1', pieza: piezaHojaUnoCosteo, referencia: 'R59', clave: 'costos.costoMaterialesReal', tipo: 'numerico' },
+];
+
 const hojasOP: ReadonlyArray<readonly [string, string]> = [['1640', 'xl/worksheets/sheet1.xml']];
 
 const rangoPlanoOP: DescriptorRangoPlano = {
@@ -53,6 +114,13 @@ const descriptors: Readonly<Record<IdPlantilla, DescriptorPlantilla>> = {
     ]),
     hojas: () => hojasCosteo,
     piezasAutorizadas: () => hojasCosteo.map(([, pieza]) => pieza),
+  },
+  'costeo-c14': {
+    id: 'costeo-c14',
+    archivo: 'MASTER COSTEO NUEVO.xlsx',
+    celdas: celdasCosteoC14,
+    hojas: () => hojasCosteoC14,
+    piezasAutorizadas: () => hojasCosteoC14.map(([, pieza]) => pieza),
   },
   op: {
     id: 'op',

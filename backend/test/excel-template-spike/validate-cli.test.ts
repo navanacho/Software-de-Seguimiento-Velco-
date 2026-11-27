@@ -6,23 +6,24 @@ import { ejecutarValidacionOpenSpec } from '../../src/features/exportacion/excel
 
 const raiz = resolve(process.cwd(), '..');
 const cambio = 'excel-template-spike';
+const rutaCambioArchivado = join(raiz, 'openspec', 'changes', 'archive', '2026-11-26-excel-template-spike');
 
 function espacioAislado(): string {
   const destino = mkdtempSync(join(tmpdir(), 'velco-openspec-validate-'));
   mkdirSync(join(destino, 'openspec', 'changes', cambio), { recursive: true });
   cpSync(join(raiz, 'openspec', 'config.yaml'), join(destino, 'openspec', 'config.yaml'));
   cpSync(
-    join(raiz, 'openspec', 'changes', cambio, '.openspec.yaml'),
+    join(rutaCambioArchivado, '.openspec.yaml'),
     join(destino, 'openspec', 'changes', cambio, '.openspec.yaml'),
   );
   for (const archivo of ['proposal.md', 'design.md', 'tasks.md']) {
     cpSync(
-      join(raiz, 'openspec', 'changes', cambio, archivo),
+      join(rutaCambioArchivado, archivo),
       join(destino, 'openspec', 'changes', cambio, archivo),
     );
   }
   cpSync(
-    join(raiz, 'openspec', 'changes', cambio, 'specs'),
+    join(rutaCambioArchivado, 'specs'),
     join(destino, 'openspec', 'changes', cambio, 'specs'),
     { recursive: true },
   );
@@ -72,7 +73,7 @@ describe('gate de validación OpenSpec aislado del repositorio', () => {
 
       expect(resultado.codigo).toBe(1);
       expect(resultado.salida).toContain('no requirement entries parsed');
-      expect(readFileSync(join(raiz, 'openspec', 'changes', cambio, 'specs', 'excel-spike-adricion', 'spec.md'), 'utf8')).toContain('### Requirement:');
+      expect(readFileSync(join(rutaCambioArchivado, 'specs', 'excel-spike-adricion', 'spec.md'), 'utf8')).toContain('### Requirement:');
     } finally {
       rmSync(directorio, { recursive: true, force: true });
     }

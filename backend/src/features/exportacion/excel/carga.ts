@@ -10,7 +10,7 @@ export function cargarPlantilla(directorio: string, nombre: string): Buffer {
     const error: ErrorPlantillaNoEncontrada = {
       code: 'plantilla_no_encontrada',
       nombrePlantilla: nombre,
-      message: `No se encontró la plantilla oficial ${nombre}. Verifique EXCEL_TEMPLATES_DIR.`,
+      message: `No se encontró la plantilla oficial ${nombre} en el directorio configurado.`,
     };
     throw error;
   }

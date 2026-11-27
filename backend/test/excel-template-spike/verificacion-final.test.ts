@@ -1,11 +1,28 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { listarArchivosSpike } from './soporte';
 
 const raiz = resolve(process.cwd(), '..');
-const rutaADR = join(raiz, 'openspec', 'changes', 'excel-template-spike', 'adr', 'estrategia-escritura-excel.md');
-const rutaReporte = join(raiz, 'openspec', 'changes', 'excel-template-spike', 'verify-report.md');
+const rutaCambioArchivado = join(
+  raiz,
+  'openspec',
+  'changes',
+  'archive',
+  '2026-11-26-excel-template-spike',
+);
+const rutaADR = join(rutaCambioArchivado, 'adr', 'estrategia-escritura-excel.md');
+const rutaReporte = join(rutaCambioArchivado, 'verify-report.md');
+const rutaTests = join(raiz, 'backend', 'test', 'excel-template-spike');
+
+function sinRutaPreArchive(nombreArchivo: string): boolean {
+  const fuente = readFileSync(join(rutaTests, nombreArchivo), 'utf8');
+  const nombreViejo = ['excel', 'template', 'spike'].join('-');
+  const rutaPlana = ['openspec', 'changes', nombreViejo].join('/');
+  const patronSegmentos = new RegExp(`['"]changes['"]\\s*,\\s*['"]${nombreViejo}['"]`);
+
+  return !fuente.includes(rutaPlana) && !patronSegmentos.test(fuente);
+}
 
 function archivosTs(directorio: string): string[] {
   return readdirSync(directorio, { withFileTypes: true }).flatMap((entrada) => {
@@ -85,5 +102,31 @@ describe('verificación final del apply sin build', () => {
         /errónea|no pertenece|CORREGIDA/i,
       );
     }
+  });
+
+  it('C-13 archive: el ADR se lee desde archive y su test no apunta a la ruta pre-archive', () => {
+    const rutaADRArchivado = join(rutaCambioArchivado, 'adr', 'estrategia-escritura-excel.md');
+    expect(existsSync(rutaADRArchivado)).toBe(true);
+    expect(readFileSync(rutaADRArchivado, 'utf8')).toContain('## Decisión');
+    expect(sinRutaPreArchive('adr.test.ts')).toBe(true);
+  });
+
+  it('C-13 archive: verify-report.md se lee desde archive y su test no apunta a la ruta pre-archive', () => {
+    const rutaReporteArchivado = join(rutaCambioArchivado, 'verify-report.md');
+    expect(existsSync(rutaReporteArchivado)).toBe(true);
+    expect(readFileSync(rutaReporteArchivado, 'utf8')).toContain(
+      '**READY FOR ARCHIVE / compuerta cumplida**',
+    );
+    expect(sinRutaPreArchive('verify-report.test.ts')).toBe(true);
+    expect(sinRutaPreArchive('adr.test.ts')).toBe(true);
+  });
+
+  it('C-13 archive: .openspec.yaml existe y validate-cli.test.ts usa la ruta archivada', () => {
+    const rutaYamlArchivado = join(rutaCambioArchivado, '.openspec.yaml');
+    const fuenteValidate = readFileSync(join(rutaTests, 'validate-cli.test.ts'), 'utf8');
+    expect(existsSync(rutaYamlArchivado)).toBe(true);
+    expect(readFileSync(rutaYamlArchivado, 'utf8')).toContain('schema: spec-driven');
+    expect(fuenteValidate).toContain('2026-11-26-excel-template-spike');
+    expect(sinRutaPreArchive('verificacion-final.test.ts')).toBe(true);
   });
 });

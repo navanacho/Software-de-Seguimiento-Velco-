@@ -398,7 +398,7 @@ Paso │ Agente A (Backend Core)         │ Agente B (Backend Aux / Spike) │ 
 ---
 
 ### [C-14] `exportacion-costeo`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado y archivado (2026-11-27), con cinco delta specs sincronizados en `openspec/specs/`
 - **Scope**: Variante económica de `exportOp`
   - Función pura `exportOp(opId, { incluirMargenes })` con MAP entidades → celdas; con `incluirMargenes: true` construye el modelo de `MASTER COSTEO NUEVO.xlsx`: cliente, OP, bloques `INSUMOS / MP / TERCEROS` con `UN / COST. UNIT. / COSTO TOTAL`, horas vendidas y reales, valor hora y comparativa de márgenes
   - Adaptador `backend/src/features/exportacion/excel`: copia la plantilla desde `EXCEL_TEMPLATES_DIR` y aplica parche OOXML quirúrgico; preserva estilos, combinaciones, `externalLinks/*` y fórmulas propias, y neutraliza las fórmulas `[1]` de las 12 celdas maestras con valores estáticos de BD; devuelve `Buffer`; `Content-Disposition: COSTEO_[NroOP]_[Cliente].xlsx`

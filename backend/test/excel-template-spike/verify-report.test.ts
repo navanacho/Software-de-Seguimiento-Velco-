@@ -3,7 +3,13 @@ import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const raiz = resolve(process.cwd(), '..');
-const cambio = join(raiz, 'openspec', 'changes', 'excel-template-spike');
+const cambio = join(
+  raiz,
+  'openspec',
+  'changes',
+  'archive',
+  '2026-11-26-excel-template-spike',
+);
 const rutaReporte = join(cambio, 'verify-report.md');
 const rutaADR = join(cambio, 'adr', 'estrategia-escritura-excel.md');
 const rutaTasks = join(cambio, 'tasks.md');

@@ -23,16 +23,28 @@ export function celdaUnica(xml: string, referencia: string): string {
 
 export function parchearCeldaConValor(xml: string, celda: CeldaDescriptor, valor: string): string {
   const original = celdaUnica(xml, celda.referencia);
-  if (!/<f>[\s\S]*<\/f><v>[\s\S]*<\/v><\/c>$/.test(original)) {
-    throw new Error(`la celda ${celda.referencia} no tiene el par <f>…</f><v>…</v> esperado`);
-  }
   const apertura = original.slice(0, original.indexOf('>') + 1);
-  return xml.replace(original, `${apertura}<v>${escaparXml(valor)}</v></c>`);
+  const contenido = `${apertura}<v>${escaparXml(valor)}</v></c>`;
+
+  if (/<f(?:\s[^>]*)?>[\s\S]*<\/f><v>[\s\S]*<\/v><\/c>$/.test(original)) {
+    return xml.replace(original, contenido);
+  }
+  if (/^<c\s[^>]*><v>[\s\S]*<\/v><\/c>$/.test(original)) {
+    return xml.replace(original, contenido);
+  }
+  if (/^<c\s[^>]*\/>$/.test(original)) {
+    return xml.replace(original, `${apertura.slice(0, -2)}><v>${escaparXml(valor)}</v></c>`);
+  }
+  if (/^<c\s[^>]*><f(?:\s[^>]*)?\/><v>[\s\S]*<\/v><\/c>$/.test(original)) {
+    return xml.replace(original, contenido);
+  }
+  throw new Error(`la celda ${celda.referencia} no tiene la estructura numérica esperada`);
 }
 
 export function parchearCeldaPlano(xml: string, celda: CeldaDescriptor, valor: string): string {
   const original = celdaUnica(xml, celda.referencia);
-  const atributos = original
+  const apertura = original.slice(0, original.indexOf('>') + 1);
+  const atributos = apertura
     .replace(/^<c\s+/, '')
     .replace(/\/>$/, '')
     .replace(/>$/, '')

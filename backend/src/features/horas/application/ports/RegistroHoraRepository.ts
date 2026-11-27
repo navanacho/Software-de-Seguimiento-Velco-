@@ -3,6 +3,7 @@
 export interface RegistroHoraRepository {
   crear(datos: NuevoRegistroHora): Promise<RegistroHora>;
   listarPorOrden(ordenId: string): Promise<readonly RegistroHora[]>;
+  totalHorasReales(ordenId: string): Promise<string>;
   listarPorOrdenes(ordenIds: readonly string[]): Promise<readonly RegistroHora[]>;
   buscarPorId(id: string): Promise<RegistroHora | null>;
   actualizar(id: string, datos: Partial<Omit<NuevoRegistroHora, 'ordenId'>>): Promise<RegistroHora | null>;

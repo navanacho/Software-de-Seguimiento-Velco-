@@ -18,7 +18,14 @@ const entrada: EntradaModeloPlanilla = {
   cliente: 'ACME',
   numeroOp: '1871',
   materiales: [
-    { descripcion: 'Acero', cantidad: '2.0000', costoUnitarioCotizado: '9.00', costoUnitarioReal: '10.50' },
+    {
+      tipo: 'MP',
+      descripcion: 'Acero',
+      cantidad: '2.0000',
+      unidad: 'kg',
+      costoUnitarioCotizado: '9.00',
+      costoUnitarioReal: '10.50',
+    },
   ],
   horasVendidas: '10.00',
   horasReales: '8.00',
@@ -55,7 +62,7 @@ describe('C-11 modelo de planilla compartido', () => {
     expect(Object.hasOwn(modelo, 'montoVendido')).toBe(false);
     const [primerMaterial] = modelo.materiales;
     expect(primerMaterial).toBeDefined();
-    expect(Object.keys(primerMaterial ?? {})).toEqual(['descripcion', 'cantidad']);
+    expect(Object.keys(primerMaterial ?? {})).toEqual(['tipo', 'descripcion', 'cantidad', 'unidad']);
     expect(JSON.stringify(modelo)).not.toContain('costoUnitario');
     expect(modelo).toMatchObject({
       cliente: 'ACME',
@@ -83,13 +90,20 @@ describe('C-11 modelo de planilla compartido', () => {
       ...entrada,
       materiales: [
         ...entrada.materiales,
-        { descripcion: 'Cobre', cantidad: '3.0000', costoUnitarioCotizado: '4.00', costoUnitarioReal: '5.00' },
+        {
+          tipo: 'INSUMOS',
+          descripcion: 'Cobre',
+          cantidad: '3.0000',
+          unidad: null,
+          costoUnitarioCotizado: '4.00',
+          costoUnitarioReal: '5.00',
+        },
       ],
     };
     const operativa = construirModeloPlanilla({ ...varios, incluirMargenes: false });
     expect(operativa.materiales.map((material) => Object.keys(material))).toEqual([
-      ['descripcion', 'cantidad'],
-      ['descripcion', 'cantidad'],
+      ['tipo', 'descripcion', 'cantidad', 'unidad'],
+      ['tipo', 'descripcion', 'cantidad', 'unidad'],
     ]);
     expect(operativa.materiales.map((material) => material.descripcion)).toEqual(['Acero', 'Cobre']);
     expect(JSON.stringify(operativa)).not.toContain('costoUnitario');
@@ -97,8 +111,10 @@ describe('C-11 modelo de planilla compartido', () => {
     expect(costeo.variante).toBe('costeo');
     if (costeo.variante !== 'costeo') return;
     expect(Object.keys(costeo.materiales[0] ?? {})).toEqual([
+      'tipo',
       'descripcion',
       'cantidad',
+      'unidad',
       'costoUnitarioCotizado',
       'costoUnitarioReal',
     ]);
@@ -120,10 +136,12 @@ describe('C-11 modelo de planilla compartido', () => {
       }
     };
     expect(clavesPorVariante(construirModeloPlanilla({ ...entrada, incluirMargenes: false }))).toEqual([
+      'tipo',
       'descripcion',
       'cantidad',
+      'unidad',
     ]);
-    expect(clavesPorVariante(construirModeloPlanilla({ ...entrada, incluirMargenes: true }))).toHaveLength(4);
+    expect(clavesPorVariante(construirModeloPlanilla({ ...entrada, incluirMargenes: true }))).toHaveLength(6);
   });
 
   it('RN-EXPORT-02 no depende de plantillas ni de EXCEL_TEMPLATES_DIR', () => {
@@ -161,13 +179,15 @@ describe('C-11 modelo de planilla compartido', () => {
     if (costeo.variante !== 'costeo') return;
     expect(costeo.margenReal).toBe('479.00');
     expect(Object.keys(costeo.materiales[0] ?? {})).toEqual([
+      'tipo',
       'descripcion',
       'cantidad',
+      'unidad',
       'costoUnitarioCotizado',
       'costoUnitarioReal',
     ]);
     const operativa = construirModeloPlanilla({ ...tasaCero, incluirMargenes: false });
-    expect(Object.keys(operativa.materiales[0] ?? {})).toEqual(['descripcion', 'cantidad']);
+    expect(Object.keys(operativa.materiales[0] ?? {})).toEqual(['tipo', 'descripcion', 'cantidad', 'unidad']);
     expect(JSON.stringify(operativa)).not.toContain('costoUnitario');
     expect(Object.hasOwn(operativa, 'margenReal')).toBe(false);
   });
@@ -208,5 +228,67 @@ describe('C-11 modelo de planilla compartido', () => {
     expect(texto).not.toContain('O7:R8');
     expect(texto).not.toContain('J7:N8');
     expect(texto).not.toContain('Buffer');
+  });
+
+  it('C-14/3.11 conserva tipo y unidad semánticos en ambas variantes', () => {
+    const conTipos: EntradaModeloPlanilla = {
+      ...entrada,
+      materiales: [{ ...entrada.materiales[0]!, tipo: 'MP', unidad: 'kg' }],
+    };
+    const operativa = construirModeloPlanilla({ ...conTipos, incluirMargenes: false });
+    expect(operativa.materiales[0]).toMatchObject({ tipo: 'MP', unidad: 'kg' });
+    const costeo = construirModeloPlanilla({ ...conTipos, incluirMargenes: true });
+    expect(costeo.materiales[0]).toMatchObject({ tipo: 'MP', unidad: 'kg' });
+  });
+
+  it('C-14/3.13 TRIANGULA los tres tipos con unidad nula y declarada sin alterar costos ni filas', () => {
+    const tres: EntradaModeloPlanilla = {
+      ...entrada,
+      materiales: [
+        {
+          tipo: 'MP',
+          descripcion: 'Acero',
+          cantidad: '2.0000',
+          unidad: 'kg',
+          costoUnitarioCotizado: '9.00',
+          costoUnitarioReal: '10.50',
+        },
+        {
+          tipo: 'INSUMOS',
+          descripcion: 'Cobre',
+          cantidad: '3.0000',
+          unidad: null,
+          costoUnitarioCotizado: '4.00',
+          costoUnitarioReal: '5.00',
+        },
+        {
+          tipo: 'TERCERIZADOS',
+          descripcion: 'Corte',
+          cantidad: '1.0000',
+          unidad: 'UN',
+          costoUnitarioCotizado: '7.00',
+          costoUnitarioReal: '8.00',
+        },
+      ],
+    };
+    const esperado = [
+      ['MP', 'kg'],
+      ['INSUMOS', null],
+      ['TERCERIZADOS', 'UN'],
+    ];
+
+    const operativa = construirModeloPlanilla({ ...tres, incluirMargenes: false });
+    expect(operativa.materiales.map((material) => [material.tipo, material.unidad])).toEqual(esperado);
+    expect(operativa.materiales.map((material) => material.descripcion)).toEqual([
+      'Acero',
+      'Cobre',
+      'Corte',
+    ]);
+
+    const costeo = construirModeloPlanilla({ ...tres, incluirMargenes: true });
+    expect(costeo.variante).toBe('costeo');
+    if (costeo.variante !== 'costeo') return;
+    expect(costeo.materiales.map((material) => [material.tipo, material.unidad])).toEqual(esperado);
+    expect(costeo.costos).toEqual({ costoMaterialesCotizado: '37.00', costoMaterialesReal: '44.00' });
   });
 });

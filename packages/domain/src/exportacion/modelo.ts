@@ -1,10 +1,13 @@
 import type { Decimal } from '../decimal/operaciones.ts';
 import type { FilaComparativaPorEtapa } from '../horas/comparativa.ts';
+import type { TipoMaterial } from '../materiales/contrato.ts';
 import { costoMaterialReal, costoMaterialesCotizado, margenReal } from '../margen/reglas.ts';
 
 export interface MaterialOperativoModeloPlanilla {
+  readonly tipo: TipoMaterial;
   readonly descripcion: string;
   readonly cantidad: Decimal;
+  readonly unidad: string | null;
 }
 
 export interface MaterialModeloPlanilla extends MaterialOperativoModeloPlanilla {
@@ -67,12 +70,29 @@ function camposComunes<TMateriales extends readonly (MaterialModeloPlanilla | Ma
 
 export function construirModeloPlanilla(entrada: EntradaModeloPlanilla): ModeloPlanilla {
   if (!entrada.incluirMargenes) {
-    const materiales = entrada.materiales.map(({ descripcion, cantidad }) => ({ descripcion, cantidad }));
+    const materiales = entrada.materiales.map(({ tipo, descripcion, cantidad, unidad }) => ({
+      tipo,
+      descripcion,
+      cantidad,
+      unidad,
+    }));
     return { ...camposComunes(entrada, materiales), variante: 'operativa' };
   }
   const costoMaterialesReal = costoMaterialReal(entrada.materiales);
   return {
-    ...camposComunes(entrada, entrada.materiales),
+    ...camposComunes(
+      entrada,
+      entrada.materiales.map(
+        ({ tipo, descripcion, cantidad, unidad, costoUnitarioCotizado, costoUnitarioReal }) => ({
+          tipo,
+          descripcion,
+          cantidad,
+          unidad,
+          costoUnitarioCotizado,
+          costoUnitarioReal,
+        }),
+      ),
+    ),
     variante: 'costeo',
     costos: {
       costoMaterialesCotizado: costoMaterialesCotizado(entrada.materiales),

@@ -12,6 +12,7 @@ import { registrarRutasClientes } from '../../clientes/http/registrarRutas.ts';
 import { registrarRutasMateriales } from '../../materiales/http/registrarRutas.ts';
 import { registrarRutasHoras } from '../../horas/http/registrarRutas.ts';
 import { registrarRutasConfiguracion } from '../../configuracion/http/registrarRutas.ts';
+import { registrarRutasExportacion } from '../../exportacion/http/registrarRutas.ts';
 import { obtenerSalud } from '../application/obtenerSalud.ts';
 import { ZodError, z } from 'zod';
 import {
@@ -71,6 +72,7 @@ export async function buildApp(configuracion: ConfiguracionServidor, dependencia
     registrarRutasMateriales(app, dependencias);
     registrarRutasHoras(app, dependencias);
     registrarRutasConfiguracion(app, dependencias);
+    registrarRutasExportacion(app, dependencias);
   }
 
   app.get('/documentation/json', async () => app.swagger());

@@ -55,6 +55,15 @@ export class PrismaRegistroHoraRepository implements RegistroHoraRepository {
     return filas.map(aRegistroHora);
   }
 
+  async totalHorasReales(ordenId: string): Promise<string> {
+    const filas = await this.prisma.$queryRaw<readonly { total: string }[]>`
+      SELECT COALESCE(SUM(h."horas"), 0.00)::text AS total
+      FROM "registros_horas" h
+      WHERE h."orden_id" = ${ordenId}::uuid
+    `;
+    return new Prisma.Decimal(filas[0]?.total ?? '0.00').toFixed(2);
+  }
+
   async listarPorOrdenes(ordenIds: readonly string[]): Promise<readonly RegistroHora[]> {
     if (ordenIds.length === 0) return [];
     const filas = await this.prisma.registroHora.findMany({

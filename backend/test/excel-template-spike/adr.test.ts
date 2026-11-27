@@ -7,11 +7,19 @@ const rutaADR = join(
   raiz,
   'openspec',
   'changes',
-  'excel-template-spike',
+  'archive',
+  '2026-11-26-excel-template-spike',
   'adr',
   'estrategia-escritura-excel.md',
 );
-const rutaReporte = join(raiz, 'openspec', 'changes', 'excel-template-spike', 'verify-report.md');
+const rutaReporte = join(
+  raiz,
+  'openspec',
+  'changes',
+  'archive',
+  '2026-11-26-excel-template-spike',
+  'verify-report.md',
+);
 
 function leer(ruta: string): string {
   return readFileSync(ruta, 'utf8');

@@ -21,7 +21,8 @@ export function parchearPlantilla(
     if (xml === undefined) {
       throw new Error(`falta la pieza ${celda.pieza} en la plantilla ${descriptor.archivo}`);
     }
-    const valor = celda.tipo === 'inlineStr' ? valorPlano(plano) : valores[celda.clave];
+    const esCeldaDelPlano = descriptor.rangoPlano?.celda === celda.referencia && celda.tipo === 'inlineStr';
+    const valor = esCeldaDelPlano ? valorPlano(plano) : valores[celda.clave];
     if (valor === undefined) {
       throw new Error(`falta el valor de BD para ${celda.clave}`);
     }
